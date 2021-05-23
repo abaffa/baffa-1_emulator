@@ -5,8 +5,8 @@
 #include <ctype.h>
 
 #include "debugmenu_main.h"
+#include "debugmenu_roms.h"
 #include "utils.h"
-
 
 
 void debugmenu_main_menu() {
@@ -27,6 +27,8 @@ void debugmenu_main_menu() {
 	printf("  G - Go(Run)\n");
 	printf("  S - Step\n");
 	printf("  Z - Reset CPU\n");
+	printf("\n");
+	printf("  X - Debug Roms\n");
 	printf("\n");
 	printf("  ? - Display Menu\n");
 	printf("  Q - Quit\n");
@@ -77,7 +79,7 @@ void debugmenu_main_fill_mem(struct sol1_memory* memory) {
 
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
-	unsigned short address, start, end;
+	unsigned long address, start, end;
 	unsigned char data;
 
 	printf("Fill Memory | Start Address? ");
@@ -103,6 +105,7 @@ void debugmenu_main_fill_mem(struct sol1_memory* memory) {
 
 	leftpad(input, value, 2);
 	data = convert_hexstr_to_value(value);
+
 
 	for (address = start; address <= end && address < SOL1_MEMORY_SIZE; address++)
 		memory->memory[address] = data;
@@ -142,8 +145,7 @@ void debugmenu_main_load_mem(struct sol1_cpu *sol1_cpu) {
 		sol1_cpu->memory.memory[i + start] = output;
 	}
 
-
-	sol1_cpu->registers.PC = start;
+	sol1_registers_set(sol1_cpu->registers.PCl, sol1_cpu->registers.PCh, start);
 
 	printf("\n");
 }
@@ -170,137 +172,148 @@ void debugmenu_main_edit_register(struct sol1_cpu *sol1_cpu) {
 	if (strlen(input) == 0) { printf("\n");  return; }
 
 	if (strcmp(input, "A") == 0) {
-		printf(" | A=%04x | Data? ", sol1_cpu->registers.A);
+		printf(" | A=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.Al, sol1_cpu->registers.Ah));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.A = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.Al, sol1_cpu->registers.Ah, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "B") == 0) {
-		printf(" | B=%04x | Data? ", sol1_cpu->registers.B);
+		printf(" | B=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.Bl, sol1_cpu->registers.Bh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.B = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.Bl, sol1_cpu->registers.Bh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "C") == 0) {
-		printf(" | C=%04x | Data? ", sol1_cpu->registers.C);
+		printf(" | C=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.Cl, sol1_cpu->registers.Ch));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.C = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.Cl, sol1_cpu->registers.Ch, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "D") == 0) {
-		printf(" | D=%04x | Data? ", sol1_cpu->registers.D);
+		printf(" | D=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.Dl, sol1_cpu->registers.Dh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.D = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.Dl, sol1_cpu->registers.Dh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "G") == 0) {
-		printf(" | B=%04x | Data? ", sol1_cpu->registers.G);
+		printf(" | G=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.Gl, sol1_cpu->registers.Gh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.G = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.Gl, sol1_cpu->registers.Gh, convert_hexstr_to_value(value));
 	}
+
 
 	else if (strcmp(input, "BP") == 0) {
-		printf(" | BP=%04x | Data? ", sol1_cpu->registers.BP);
+		printf(" | BP=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.BPl, sol1_cpu->registers.BPh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.BP = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.BPl, sol1_cpu->registers.BPh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "SP") == 0) {
-		printf(" | SP=%04x | Data? ", sol1_cpu->registers.SP);
+		printf(" | SP=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.SPl, sol1_cpu->registers.SPh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.SP = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.SPl, sol1_cpu->registers.SPh, convert_hexstr_to_value(value));
 	}
-
 
 	else if (strcmp(input, "SI") == 0) {
-		printf(" | SI=%04x | Data? ", sol1_cpu->registers.SI);
+		printf(" | SI=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.SIl, sol1_cpu->registers.SIh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.SI = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.SIl, sol1_cpu->registers.SIh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "DI") == 0) {
-		printf(" | DI=%04x | Data? ", sol1_cpu->registers.DI);
+		printf(" | DI=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.DIl, sol1_cpu->registers.DIh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.DI = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.DIl, sol1_cpu->registers.DIh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "PC") == 0) {
-		printf(" | PC=%04x | Data? ", sol1_cpu->registers.PC);
+		printf(" | PC=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.PCl, sol1_cpu->registers.PCh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.PC = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.PCl, sol1_cpu->registers.PCh, convert_hexstr_to_value(value));
 	}
 
 
 	else if (strcmp(input, "TDR") == 0) {
-		printf(" | TDR=%04x | Data? ", sol1_cpu->registers.TDR);
+		printf(" | TDR=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.TDRl, sol1_cpu->registers.TDRh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.TDR = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.TDRl, sol1_cpu->registers.TDRh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "SSP") == 0) {
-		printf(" | SSP=%04x | Data? ", sol1_cpu->registers.SSP);
+		printf(" | SSP=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.SSPl, sol1_cpu->registers.SSPh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->registers.SSP = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->registers.SSPl, sol1_cpu->registers.SSPh, convert_hexstr_to_value(value));
+
 	}
 	else if (strcmp(input, "PTB") == 0) {
-		printf(" | PTB=%02x | Data? ", sol1_cpu->registers.PC);
+		printf(" | PTB=%02x | Data? ", sol1_register_8bit_value(sol1_cpu->registers.PTB));
 		input = gets(2);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 2);
-		sol1_cpu->registers.PTB = convert_hexstr_to_value(value);
+		sol1_register_8bit_set(sol1_cpu->registers.PTB, convert_hexstr_to_value(value));
+	}
+	else if (strcmp(input, "MSW") == 0) {
+		printf(" | MSW=%04x | Data? ", sol1_registers_value(sol1_cpu->registers.MSWl, sol1_cpu->registers.MSWh));
+		input = gets(4);
+		 
+		if (strlen(input) == 0) { printf("\n");  return; }
+
+		leftpad(input, value, 4);
+		sol1_registers_set(sol1_cpu->registers.MSWl, sol1_cpu->registers.MSWh, convert_hexstr_to_value(value));
 	}
 
 	else if (strcmp(input, "MAR") == 0) {
-		printf(" | MAR=%04x | Data? ", sol1_cpu->memory.MAR);
+		printf(" | MAR=%04x | Data? ", sol1_registers_value(sol1_cpu->memory.MARl, sol1_cpu->memory.MARh));
 		input = gets(4);
 
 		if (strlen(input) == 0) { printf("\n");  return; }
 
 		leftpad(input, value, 4);
-		sol1_cpu->memory.MAR = convert_hexstr_to_value(value);
-		sol1_cpu->memory.MDR = sol1_cpu->memory.memory[sol1_cpu->memory.MAR];
+		SOL1_MWORD index = convert_hexstr_to_value(value);
+		sol1_registers_set(sol1_cpu->memory.MARl, sol1_cpu->memory.MARh, index);
+		sol1_registers_set(sol1_cpu->memory.MDRl, sol1_cpu->memory.MDRh, sol1_cpu->memory.memory[index]);
 	}
 
 	printf("\n");
@@ -327,14 +340,13 @@ void debugmenu_main_edit_programcounter(struct sol1_cpu *sol1_cpu) {
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 
-	printf("Edit Program Counter | PC=%04x | Address ? ", sol1_cpu->registers.PC);
+	printf("Edit Program Counter | PC=%04x | Address ? ", sol1_registers_value(sol1_cpu->registers.PCl, sol1_cpu->registers.PCh));
 	input = gets(4);
 
 	if (strlen(input) == 0) { printf("\n");  return; }
 
 	leftpad(input, value, 4);
-	sol1_cpu->registers.PC = convert_hexstr_to_value(value);
-
+	sol1_registers_set(sol1_cpu->registers.PCl, sol1_cpu->registers.PCh, convert_hexstr_to_value(value));
 	printf("\n");
 }
 
@@ -343,7 +355,127 @@ void debugmenu_main_reset_cpu(struct sol1_cpu *sol1_cpu) {
 
 	printf("Reset CPU\n");
 	printf("\n");
+	sol1_cpu_reset(sol1_cpu);
 	sol1_cpu_display_registers(sol1_cpu);
 }
 
+
+//debugmenu_main_menu();
+void debugmenu_main(struct sol1_cpu *sol1_cpu) {
+
+	while (1) {
+
+		printf("> ");
+		int key = getch();
+
+		////////
+
+		if (key == (int)'d' || key == (int)'D')
+			sol1_memory_display(&sol1_cpu->memory);
+
+		//else if (key == (int)'i' || key == (int)'I')
+
+		else if (key == (int)'e' || key == (int)'E')
+			debugmenu_main_edit_mem(&sol1_cpu->memory);
+
+		else if (key == (int)'f' || key == (int)'F')
+			debugmenu_main_fill_mem(&sol1_cpu->memory);
+
+		else if (key == (int)'l' || key == (int)'L')
+			debugmenu_main_load_mem(sol1_cpu);
+
+		////////
+
+		else if (key == (int)'r' || key == (int)'R')
+			debugmenu_main_display_registers(sol1_cpu);
+
+		else if (key == (int)'a' || key == (int)'A')
+			debugmenu_main_edit_register(sol1_cpu);
+
+		else if (key == (int)'b' || key == (int)'B')
+			debugmenu_main_edit_breakpoint(sol1_cpu);
+
+		else if (key == (int)'p' || key == (int)'P')
+			debugmenu_main_edit_programcounter(sol1_cpu);
+
+		////////
+
+		//else if (key == (int)'g' || key == (int)'G')
+
+		//else if (key == (int)'s' || key == (int)'S')
+
+		else if (key == (int)'z' || key == (int)'Z')
+			debugmenu_main_reset_cpu(sol1_cpu);
+
+		////////
+
+		else if (key == (int)'x' || key == (int)'X')
+			debugmenu_roms(sol1_cpu);
+
+		////////
+
+		else if (key == (int)'?')
+			debugmenu_main_menu();
+
+		else if (key == (int)'q' || key == (int)'Q')
+			return;
+
+		//----------------------
+		else if (key == (int)'m' || key == (int)'M') {
+			sol1_cpu->memory.debug_manual_offset = sol1_cpu->memory.debug_manual_offset == 0x00 ? 0x01 : 0x00;
+			sol1_memory_display(&sol1_cpu->memory);
+		}
+
+		else if (key == (int)'2') {
+			if (sol1_cpu->memory.debug_mem_offset + 0x10 < SOL1_MEMORY_SIZE)
+				sol1_cpu->memory.debug_mem_offset += 0x10;
+			sol1_cpu->memory.debug_manual_offset = 1;
+			sol1_memory_display(&sol1_cpu->memory);
+		}
+		if (key == (int)'1') {
+			if (sol1_cpu->memory.debug_mem_offset - 0x10 >= 0)
+				sol1_cpu->memory.debug_mem_offset -= 0x10;
+			else
+				sol1_cpu->memory.debug_mem_offset = 0;
+			sol1_cpu->memory.debug_manual_offset = 1;
+			sol1_memory_display(&sol1_cpu->memory);
+		}
+		if (key == (int)'4') {
+			if (sol1_cpu->memory.debug_mem_offset + 0x100 < SOL1_MEMORY_SIZE)
+				sol1_cpu->memory.debug_mem_offset += 0x100;
+			sol1_cpu->memory.debug_manual_offset = 1;
+			sol1_memory_display(&sol1_cpu->memory);
+		}
+		if (key == (int)'3') {
+			if (sol1_cpu->memory.debug_mem_offset - 0x100 >= 0)
+				sol1_cpu->memory.debug_mem_offset -= 0x100;
+			else
+				sol1_cpu->memory.debug_mem_offset = 0;
+			sol1_cpu->memory.debug_manual_offset = 1;
+			sol1_memory_display(&sol1_cpu->memory);
+		}
+		if (key == (int)'6') {
+			if (sol1_cpu->memory.debug_mem_offset + 0x1000 < SOL1_MEMORY_SIZE)
+				sol1_cpu->memory.debug_mem_offset += 0x1000;
+			sol1_cpu->memory.debug_manual_offset = 1;
+			sol1_memory_display(&sol1_cpu->memory);
+		}
+		if (key == (int)'5') {
+			if (sol1_cpu->memory.debug_mem_offset - 0x1000 >= 0)
+				sol1_cpu->memory.debug_mem_offset -= 0x1000;
+			else
+				sol1_cpu->memory.debug_mem_offset = 0;
+			sol1_cpu->memory.debug_manual_offset = 1;
+			sol1_memory_display(&sol1_cpu->memory);
+		}
+
+		//----------------------
+		////////
+
+		else
+			printf("\n");
+
+		////////
+	}
+}
 

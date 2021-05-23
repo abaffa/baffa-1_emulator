@@ -1,38 +1,17 @@
 #ifndef SOL1ALU_H
 #define SOL1ALU_H
 
+#include "sol1_alu_4bit.h"
+#include "sol1_alu_8bit.h"
 #include "config.h"
 
-#define SOL1_ALU_ZERO		0x01
-#define SOL1_ALU_EQUAL		0x02
-#define SOL1_ALU_LARGER		0x04
-#define SOL1_ALU_CARRY_OUT	0x08
 
-struct sol1_alu
-{
-	SOL1_DWORD A;
-	SOL1_DWORD B;
+SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
+	SOL1_BYTE alu_op,
+	SOL1_BYTE alu_mode,
+	SOL1_BYTE alu_cf_in_src,
+	SOL1_BYTE alu_cf_in_inv,
+	SOL1_BYTE alu_cf_out_inv,
+	SOL1_BYTE u_cf, SOL1_BYTE msw_cf, SOL1_BYTE shift_src, SOL1_BYTE zbus_out_src);
 
-	SOL1_DWORD C;
-
-	SOL1_BYTE CIN; //carry in
-	SOL1_BYTE F; //Larger, equal, zero, carry out
-
-
-	SOL1_BYTE OP; //
-	
-
-};
-
-void sol1_alu_xor(struct sol1_alu* alu);
-void sol1_alu_or(struct sol1_alu* alu);
-void sol1_alu_and(struct sol1_alu* alu);
-void sol1_alu_not(struct sol1_alu* alu);
-void sol1_alu_shl(struct sol1_alu* alu);
-void sol1_alu_shr(struct sol1_alu* alu);
-
-void sol1_alu_sum(struct sol1_alu* alu);
-void sol1_alu_sub(struct sol1_alu* alu);
-
-
-#endif
+#endif;

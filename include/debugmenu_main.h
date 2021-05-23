@@ -14,4 +14,7 @@ void debugmenu_main_edit_breakpoint(struct sol1_cpu *sol1_cpu);
 void debugmenu_main_edit_programcounter(struct sol1_cpu *sol1_cpu);
 void debugmenu_main_reset_cpu(struct sol1_cpu *sol1_cpu);
 
+
+void debugmenu_main(struct sol1_cpu *sol1_cpu);
+
 #endif

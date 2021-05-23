@@ -20,17 +20,38 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\debugmenu_main.cpp" />
+    <ClCompile Include="..\..\..\src\debugmenu_roms.cpp" />
     <ClCompile Include="..\..\..\src\main.cpp" />
     <ClCompile Include="..\..\..\src\sol1_alu.cpp" />
+    <ClCompile Include="..\..\..\src\sol1_alu_4bit.cpp" />
+    <ClCompile Include="..\..\..\src\sol1_alu_8bit.cpp" />
+    <ClCompile Include="..\..\..\src\sol1_alu_basic.cpp" />
+    <ClCompile Include="..\..\..\src\sol1_microcode.cpp" />
+    <ClCompile Include="..\..\..\src\sol1_registers.cpp" />
+    <ClCompile Include="..\..\..\src\sol1_register_8bit.cpp" />
+    <ClCompile Include="..\..\..\src\sol1_rom.cpp" />
+    <ClCompile Include="..\..\..\src\sol1_alu_16bit.cpp" />
     <ClCompile Include="..\..\..\src\sol1_cpu.cpp" />
     <ClCompile Include="..\..\..\src\sol1_memory.cpp" />
     <ClCompile Include="..\..\..\src\sol1_keyboard.cpp" />
+    <ClCompile Include="..\..\..\src\ttl74series.cpp" />
+    <ClCompile Include="..\..\..\src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\config.h" />
+    <ClInclude Include="..\..\..\include\console_local.h" />
     <ClInclude Include="..\..\..\include\debugmenu_main.h" />
+    <ClInclude Include="..\..\..\include\debugmenu_roms.h" />
     <ClInclude Include="..\..\..\include\sol1_alu.h" />
+    <ClInclude Include="..\..\..\include\sol1_alu_4bit.h" />
+    <ClInclude Include="..\..\..\include\sol1_alu_8bit.h" />
+    <ClInclude Include="..\..\..\include\sol1_alu_basic.h" />
+    <ClInclude Include="..\..\..\include\sol1_microcode.h" />
+    <ClInclude Include="..\..\..\include\sol1_register_8bit.h" />
+    <ClInclude Include="..\..\..\include\sol1_rom.h" />
+    <ClInclude Include="..\..\..\include\sol1_alu_16bit.h" />
     <ClInclude Include="..\..\..\include\sol1_cpu.h" />
+    <ClInclude Include="..\..\..\include\ttl74series.h" />
     <ClInclude Include="..\..\..\include\utils.h" />
     <ClInclude Include="..\..\..\include\z80_exec_main_codes.h" />
     <ClInclude Include="..\..\..\include\z80_extended_code_CB.h" />
@@ -41,6 +62,59 @@
     <ClInclude Include="..\..\..\include\z80_opcodes.h" />
     <ClInclude Include="..\..\..\include\sol1_registers.h" />
     <ClInclude Include="..\..\..\include\sol1_keyboard.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\roms\rom">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom0">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom1">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom10">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom11">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom12">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom13">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom14">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom2">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom3">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom4">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom5">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom6">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom7">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom8">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\roms\rom9">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\src\Socket_unix.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{94AED0A7-E513-4A23-84DC-7C1F98107E42}</ProjectGuid>
@@ -136,7 +210,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Backup\Develop\emudev\sol-1_emulator\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -24,13 +24,46 @@
     <ClCompile Include="..\..\..\src\sol1_keyboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\sol1_alu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\sol1_cpu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\debugmenu_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sol1_rom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\debugmenu_roms.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sol1_register_8bit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\ttl74series.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sol1_registers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sol1_alu_16bit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sol1_alu_8bit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sol1_microcode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sol1_alu_basic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sol1_alu_4bit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\sol1_alu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -65,9 +98,6 @@
     <ClInclude Include="..\..\..\include\sol1_registers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\sol1_alu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\sol1_cpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -77,5 +107,93 @@
     <ClInclude Include="..\..\..\include\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\console_local.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_rom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\debugmenu_roms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_register_8bit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\ttl74series.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_alu_16bit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_alu_8bit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_microcode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_alu_basic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_alu_4bit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_alu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\roms\rom">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom0">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom1">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom3">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom4">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom5">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom6">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom7">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom8">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom9">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom10">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom11">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom12">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom13">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\roms\rom14">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\src\Socket_unix.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
