@@ -141,7 +141,7 @@ SOL1_BYTE IC_74LS257(SOL1_BYTE A,
 	return ret;
 }
 
-
+/*
 //74LS273     8-Bit Register with Clear
 SOL1_BYTE IC_74LS273(SOL1_REGISTER_8BIT *reg, SOL1_BYTE D, SOL1_BYTE CLK, SOL1_BYTE MR) {
 	//reset low resets values, high changes values
@@ -165,7 +165,7 @@ SOL1_BYTE IC_74LS377(SOL1_REGISTER_8BIT *reg, SOL1_BYTE D, SOL1_BYTE CLK, SOL1_B
 
 	return sol1_register_8bit_value(reg);
 }
-
+*/
 
 ////////////////////
 ////////////////////////////////////////

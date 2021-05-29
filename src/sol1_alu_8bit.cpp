@@ -24,6 +24,8 @@ static void sol1_alu_reset(struct sol1_alu_8bit *alu) {
 }
 void sol1_alu_init(struct sol1_alu_8bit *alu) {
 
+	memset(alu, 0, sizeof(struct sol1_alu_8bit));
+
 	sol1_alu_reset(alu);
 
 	// flags do alu
@@ -607,7 +609,7 @@ static SOL1_BYTE sol1_alu_inout_high(struct sol1_alu_8bit* alu, SOL1_BYTE A, SOL
 			alu->B = alu->A;
 			alu->A = AorNB;
 
-			sol1_alu_8bit_sum(alu);
+			sol1_alu_8bit_sum(alu);	
 		}
 		break;
 	case 0xF:
@@ -668,29 +670,30 @@ SOL1_BYTE sol1_alu_8bit_op(struct sol1_alu_8bit* alu, SOL1_BYTE A, SOL1_BYTE B, 
 
 void sol1_alu_display_registers(struct sol1_alu_8bit *alu) {
 
-	printf("* A="); print_byte_bin(alu->_A); printf(" | ");
-	printf("B="); print_byte_bin(alu->_B); printf(" | ");
-	printf("C="); print_byte_bin(alu->_C); printf(" | ");
-	printf("Cin="); print_nibble_bin(alu->CIN); printf(" | ");
-	printf("Cout="); print_nibble_bin(alu->COUT);
+	printf("* A:"); print_byte_bin(alu->_A); printf("  | ");
+	printf("B:"); print_byte_bin(alu->_B); printf("    | ");
+	printf("C:"); print_byte_bin(alu->_C); printf("  | ");
+	printf("Cin:"); print_nibble_bin(alu->CIN); printf(" | ");
+	printf("Cout:"); print_nibble_bin(alu->COUT);
 	printf("\n");
 
-	printf("* alu_op: "); print_nibble_bin(alu->alu_op); printf(" | alu_mode: "); print_nibble_bin(alu->alu_mode); printf("\n");
-	printf("* alu_output="); print_byte_bin(alu->alu_output); printf("\n");
-	printf("* EQ="); print_nibble_bin(alu->EQ); printf(" | ");	printf("F="); print_byte_bin(alu->F); printf("\n");
-	printf("* Flags: ");
+	printf("* alu_op: "); print_nibble_bin(alu->alu_op); printf(" | alu_mode: "); print_nibble_bin(alu->alu_mode);
+	printf(" | alu_output="); print_byte_bin(alu->alu_output); printf("\n");
 
-	if (alu->alu_zf != 0x00) printf("alu_zf ");
-	if (alu->alu_cf != 0x00) printf("alu_cf ");
-	if (alu->alu_of != 0x00) printf("alu_of ");
-	if (alu->alu_final_cf != 0x00) printf("alu_final_cf ");
-	printf("\n");
-	printf("* Microcode: ");
-	if (alu->alu_cf_in_src != 0x00) printf("alu_cf_in_src ");
-	if (alu->alu_cf_in_inv != 0x00) printf("alu_cf_in_inv ");
-	if (alu->alu_cf_out_inv != 0x00) printf("alu_cf_out_inv ");
+	//printf("* EQ="); print_nibble_bin(alu->EQ); printf(" | ");	printf("F="); print_byte_bin(alu->F); printf("\n");
 
-	if (alu->alu_a_src != 0x00) printf("alu_a_src ");
-	if (alu->alu_b_src != 0x00) printf("alu_b_src ");
+	printf("* Flags: [");
+
+	if (alu->alu_zf != 0x00) printf("Z"); else  printf(" ");
+	if (alu->alu_cf != 0x00) printf("C"); else  printf(" ");
+	if (alu->alu_of != 0x00) printf("O"); else  printf(" ");
+	
+	printf("] ");
+	printf(" | alu_a_src=%02x", alu->alu_a_src);
+	printf(" | alu_b_src=%02x", alu->alu_b_src);
+	printf(" | alu_cf_in_src=%02x", alu->alu_cf_in_src);
+	printf(" | alu_cf_in_inv=%02x", alu->alu_cf_in_inv != 0x00);
+	printf(" | alu_cf_out_inv=%02x", alu->alu_cf_out_inv);
+	printf(" | alu_final_cf=%02x", alu->alu_final_cf);
 	printf("\n");
 }

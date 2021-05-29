@@ -33,18 +33,18 @@ void debugmenu_roms_menu() {
 	printf("\n");
 }
 
-void debugmenu_roms_edit_breakpoint(struct sol1_rom *sol1_rom) {
+void debugmenu_roms_edit_breakpoint(SOL1_ROM& sol1_rom) {
 
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 
-	printf("Edit Breakpoint (Opcode/Cycle:%02x%02x | 0000=disable) | Opcode ? ", sol1_rom->bkpt_opcode, sol1_rom->bkpt_cycle);
+	printf("Edit Breakpoint (Opcode/Cycle:%02x%02x | 0000=disable) | Opcode ? ", sol1_rom.bkpt_opcode, sol1_rom.bkpt_cycle);
 	input = gets(2);
 
 	if (strlen(input) == 0) { printf("\n");  return; }
 
 	leftpad(input, value, 2);
-	sol1_rom->bkpt_opcode = convert_hexstr_to_value(value);
+	sol1_rom.bkpt_opcode = convert_hexstr_to_value(value);
 
 	printf(" | Cycle ? ");
 	input = gets(2);
@@ -52,14 +52,14 @@ void debugmenu_roms_edit_breakpoint(struct sol1_rom *sol1_rom) {
 	if (strlen(input) == 0) { printf("\n");  return; }
 
 	leftpad(input, value, 2);
-	sol1_rom->bkpt_cycle = convert_hexstr_to_value(value);
+	sol1_rom.bkpt_cycle = convert_hexstr_to_value(value);
 
 
 	printf("\n");
 }
 
 
-void debugmenu_roms(struct sol1_cpu *sol1_cpu) {
+void debugmenu_roms(SOL1_CPU& sol1_cpu) {
 	debugmenu_roms_menu();
 
 	while (1) {
@@ -71,16 +71,16 @@ void debugmenu_roms(struct sol1_cpu *sol1_cpu) {
 		
 		if (key == (int)'c' || key == (int)'C')
 		{
-			sol1_rom_debug_cycles(&sol1_cpu->rom);
-		}//sol1_memory_display(&sol1_cpu->memory);
+			sol1_cpu.rom.debug_cycles();
+		}//sol1_memory_display(&sol1_cpu.memory);
 		/*
 		//else if (key == (int)'i' || key == (int)'I')
 
 		else if (key == (int)'e' || key == (int)'E')
-			debugmenu_main_edit_mem(&sol1_cpu->memory);
+			debugmenu_main_edit_mem(&sol1_cpu.memory);
 
 		else if (key == (int)'f' || key == (int)'F')
-			debugmenu_main_fill_mem(&sol1_cpu->memory);
+			debugmenu_main_fill_mem(&sol1_cpu.memory);
 
 		else if (key == (int)'l' || key == (int)'L')
 			debugmenu_main_load_mem(sol1_cpu);
@@ -94,7 +94,7 @@ void debugmenu_roms(struct sol1_cpu *sol1_cpu) {
 			debugmenu_main_edit_register(sol1_cpu);
 			*/
 		else if (key == (int)'b' || key == (int)'B')
-			debugmenu_roms_edit_breakpoint(&sol1_cpu->rom);
+			debugmenu_roms_edit_breakpoint(sol1_cpu.rom);
 		/*
 		else if (key == (int)'p' || key == (int)'P')
 			debugmenu_main_edit_programcounter(sol1_cpu);

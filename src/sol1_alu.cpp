@@ -2,42 +2,43 @@
 #include "utils.h"
 
 SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
-	SOL1_BYTE alu_op,
-	SOL1_BYTE alu_mode,
-	SOL1_BYTE alu_cf_in_src,
-	SOL1_BYTE alu_cf_in_inv,
-	SOL1_BYTE alu_cf_out_inv,
-	SOL1_BYTE u_cf, SOL1_BYTE msw_cf, SOL1_BYTE shift_src, SOL1_BYTE zbus_out_src) {
+	SOL1_BYTE u_cf, SOL1_BYTE msw_cf, SOL1_BYTE shift_src, SOL1_BYTE zbus_out_src, SOL1_BYTE DEBUG_ALU) {
 
+	/*
+		SOL1_BYTE alu_op,
+			SOL1_BYTE alu_mode,
+			SOL1_BYTE alu_cf_in_src,
+			SOL1_BYTE alu_cf_in_inv,
+			SOL1_BYTE alu_cf_out_inv,
 
-	alu->alu_op = alu_op;
-	alu->alu_mode = alu_mode;
-	alu->alu_cf_in_src = alu_cf_in_src;
-	alu->alu_cf_in_inv = alu_cf_in_inv;
-	alu->alu_cf_out_inv = alu_cf_out_inv;
+		alu->alu_op = alu_op;
+		alu->alu_mode = alu_mode;
+		alu->alu_cf_in_src = alu_cf_in_src;
+		alu->alu_cf_in_inv = alu_cf_in_inv;
+		alu->alu_cf_out_inv = alu_cf_out_inv;
+		*/
 
-
-	SOL1_BYTE z_bus = 0;
+		//SOL1_BYTE z_bus = 0;
 
 	SOL1_BYTE alu_cin = 0x00;
 
-	if ((alu_cf_in_src & 0b00000011) == 0x00)
+	if ((alu->alu_cf_in_src & 0b00000011) == 0x00)
 		alu_cin = 1; // AQUI ESTRANho
 		//alu_cin = 0;
 		//alu_cin = alu_mode;
 	else
-		if ((alu_cf_in_src & 0b00000011) == 0x01)
+		if ((alu->alu_cf_in_src & 0b00000011) == 0x01)
 			alu_cin = msw_cf;
 
-		else if ((alu_cf_in_src & 0b00000011) == 0x02)
+		else if ((alu->alu_cf_in_src & 0b00000011) == 0x02)
 			alu_cin = u_cf;
 
 
-		else if ((alu_cf_in_src & 0b00000011) == 0x03)
-			alu_cin = 1;
+		else if ((alu->alu_cf_in_src & 0b00000011) == 0x03)
+			alu_cin = 0;
 
 
-	alu_cin = (alu_cin ^ alu_cf_in_inv) & 0b00000001;
+	alu_cin = (alu_cin ^ alu->alu_cf_in_inv) & 0b00000001;
 	//sol1_alu_8bit_op(alu, x_bus, y_bus, (~alu_cin) & 0b00000001, alu_op, alu_mode); AQUI ESTRANho
 	//sol1_alu_8bit_op(alu, x_bus, y_bus, (alu_cin) & 0b00000001, alu_op, alu_mode);
 
@@ -45,13 +46,14 @@ SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
 	sol1_alu_4bit alu42;
 
 
-	sol1_alu_4bit_op(&alu41, x_bus & 0b00001111, y_bus & 0b00001111, (alu_cin) & 0b00000001, alu_op, alu_mode);
+	sol1_alu_4bit_op(&alu41, x_bus & 0b00001111, y_bus & 0b00001111, (alu_cin) & 0b00000001, alu->alu_op, alu->alu_mode);
 
-	sol1_alu_4bit_op(&alu42, (x_bus & 0b11110000) >> 4, (y_bus & 0b11110000) >> 4, (alu41.COUT) & 0b00000001, alu_op, alu_mode);
+	sol1_alu_4bit_op(&alu42, (x_bus & 0b11110000) >> 4, (y_bus & 0b11110000) >> 4, (alu41.COUT) & 0b00000001, alu->alu_op, alu->alu_mode);
 
 	alu->A = x_bus; alu->_A = alu->A;
 	alu->B = y_bus; alu->_B = alu->B;
 	alu->C = (alu41.alu_output & 0b00001111) | ((alu42.alu_output & 0b00001111) << 4); alu->_C = alu->C;
+	alu->CIN = (alu_cin) & 0b00000001;
 	alu->alu_output = alu->C;
 	alu->COUT = alu42.COUT;
 
@@ -64,7 +66,7 @@ SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
 	printf("Y: "); print_byte_bin(y_bus); printf("\n\n");
 
 	printf("alu41-A: "); print_nibble_bin(alu41._A); printf("\n");
-	printf("alu41-B: "); print_nibble_bin(alu41._B); printf("\n");
+	printf("alu41-B: "); print_nibble_bin(alu41._B); printf("r\n");
 	printf("alu41-C: "); print_nibble_bin(alu41.C); printf("\n");
 	printf("alu41-COUT: "); print_nibble_bin(alu41.COUT); printf("\n\n");
 
@@ -78,30 +80,14 @@ SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
 	*/
 	alu->alu_cf = alu->COUT;
 	//alu->alu_final_cf = alu->COUT; 
-	alu->alu_final_cf = (alu->alu_cf ^ (alu_cf_out_inv)) & 0b00000001;
+	alu->alu_final_cf = (alu->alu_cf ^ (alu->alu_cf_out_inv)) & 0b00000001;
 
 
-	/////////////////////////////////////////////////////////////////
-	// test OF (OVERFLOW)
-	///SOL1_BYTE inIC86_1A = IC_74LS86(get_byte_bit(z_bus, 7), get_byte_bit(x_bus, 7));
 
-	//SOL1_BYTE inIC02_0A = IC_74LS02(get_byte_bit(alu_op, 2), get_byte_bit(alu_op, 1));
-	//SOL1_BYTE inIC10_0A = IC_74LS10(get_byte_bit(alu_op, 0), get_byte_bit(alu_op, 3), inIC02_0A); //alu_op == add
-
-	//SOL1_BYTE inIC86_1B = IC_74LS86(get_byte_bit(x_bus, 7), get_byte_bit(y_bus, 7)); //ALU_OP == SUB
-	//SOL1_BYTE inIC86_1C = IC_74LS86(inIC10_0A, inIC86_1B);
-
-	//SOL1_BYTE inIC10_0B = IC_74LS10(inIC86_1A, 0x01, IC_74LS04(inIC86_1C));
-
-	//alu->alu_of = IC_74LS04(inIC10_0B);
-
-	SOL1_BYTE zNEQx = (get_byte_bit(z_bus, 7) != get_byte_bit(x_bus, 7));
-	SOL1_BYTE xNEQy = (get_byte_bit(x_bus, 7) != get_byte_bit(y_bus, 7));
-
-	alu->alu_of = zNEQx && ((alu_op != 0b1001) == xNEQy);
-	//
 	/////////////////////////////////////////////////////////////////
 	// SHIFT
+	SOL1_BYTE z_bus = 0x00;
+
 	SOL1_BYTE inIC16 = 0x00;
 
 	if (shift_src == 0x01)
@@ -149,6 +135,25 @@ SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
 	RRC : MSB becomes CF.LSB goes into CF*/
 	/////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
+	// test OF (OVERFLOW)
+	///SOL1_BYTE inIC86_1A = IC_74LS86(get_byte_bit(z_bus, 7), get_byte_bit(x_bus, 7));
+
+	//SOL1_BYTE inIC02_0A = IC_74LS02(get_byte_bit(alu_op, 2), get_byte_bit(alu_op, 1));
+	//SOL1_BYTE inIC10_0A = IC_74LS10(get_byte_bit(alu_op, 0), get_byte_bit(alu_op, 3), inIC02_0A); //alu_op == add
+
+	//SOL1_BYTE inIC86_1B = IC_74LS86(get_byte_bit(x_bus, 7), get_byte_bit(y_bus, 7)); //ALU_OP == SUB
+	//SOL1_BYTE inIC86_1C = IC_74LS86(inIC10_0A, inIC86_1B);
+
+	//SOL1_BYTE inIC10_0B = IC_74LS10(inIC86_1A, 0x01, IC_74LS04(inIC86_1C));
+
+	//alu->alu_of = IC_74LS04(inIC10_0B);
+
+	SOL1_BYTE zNEQx = (get_byte_bit(z_bus, 7) != get_byte_bit(x_bus, 7));
+	SOL1_BYTE xNEQy = (get_byte_bit(x_bus, 7) != get_byte_bit(y_bus, 7));
+
+	alu->alu_of = zNEQx && ((alu->alu_op != 0b1001) == xNEQy);
+	//
+	/////////////////////////////////////////////////////////////////
 	//
 	alu->alu_zf = (z_bus == 0x00);
 
@@ -156,21 +161,21 @@ SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
 		printf("***** ALU\n");
 		sol1_alu_display_registers(alu);
 
-		if ((alu_cf_in_src & 0b00000011) == 0x00)
+		if ((alu->alu_cf_in_src & 0b00000011) == 0x00)
 			//alu_cin = 1; // AQUI ESTRANho
 			printf("* alu_cin = 0\n");
 
-		else if ((alu_cf_in_src & 0b00000011) == 0x01) {
+		else if ((alu->alu_cf_in_src & 0b00000011) == 0x01) {
 			printf("* alu_cin = msw_cf:"); print_byte_bin(msw_cf); printf("\n");
 		}
-		else if ((alu_cf_in_src & 0b00000011) == 0x02) {
+		else if ((alu->alu_cf_in_src & 0b00000011) == 0x02) {
 			printf("* alu_cin = u_cf:"); print_byte_bin(u_cf); printf("\n");
 		}
-		else if ((alu_cf_in_src & 0b00000011) == 0x03)
+		else if ((alu->alu_cf_in_src & 0b00000011) == 0x03)
 			printf("* alu_cin = 1\n");
 
-		printf("* z_bus="); print_byte_bin(z_bus); printf("\n");
-
+		printf("* z_bus="); print_byte_bin(z_bus);
+		printf("\n");
 		printf("\n");
 	}
 

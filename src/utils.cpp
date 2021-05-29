@@ -62,7 +62,7 @@ unsigned int toInt(char c)
 
 void leftpad(char *str1, char *str2, int pad) {
 
-	int p = pad - strlen(str1);
+	size_t p = pad - strlen(str1);
 	int i = 0;
 	for (i = 0; i < pad; i++) {
 		if (i < p)
@@ -79,7 +79,7 @@ char* rightpad(const char *str1, int pad){
 
 	char *str2 = (char*)malloc(pad + 1);
 
-	int p = strlen(str1);
+	size_t p = strlen(str1);
 	int i = 0;
 	for (i = 0; i < pad; i++) {
 		if (i < p)
@@ -141,7 +141,7 @@ SOL1_DWORD get_word_bit(SOL1_DWORD v, int bit) {
 	if (bit == 0)
 		return v & 0b0000000000000001;
 
-	return (v & (SOL1_DWORD)pow(2, bit)) >> bit;
+	return (v & (0b0000000000000001 << bit)) >> bit;
 }
 
 
@@ -149,7 +149,14 @@ SOL1_BYTE get_byte_bit(SOL1_BYTE v, int bit) {
 	if (bit == 0)
 		return v & 0b00000001;
 
-	return (v & (SOL1_BYTE)pow(2, bit)) >> bit;
+	return (v & (0b00000001 << bit)) >> bit;
+}
+
+SOL1_BYTE check_byte_bit(SOL1_BYTE v, int bit) {
+	if (bit == 0)
+		return (v & 0b00000001) != 0x00;
+
+	return (v & (0b00000001 << bit)) != 0x00;
 }
 
 
@@ -158,4 +165,73 @@ SOL1_BYTE set_byte_bit(SOL1_BYTE v, int bit) {
 		return v & 0b00000001;
 
 	return (v & 0b00000001) << bit;
+}
+
+
+SOL1_DWORD set_word_bit(SOL1_DWORD v, int bit) {
+	if (bit == 0)
+		return v & 0b00000001;
+
+	return (v & 0b00000001) << bit;
+}
+
+
+
+
+char* loadfile(char *filename, long *size) {
+
+	printf("The filename to load is: %s", filename);
+
+	FILE* f = fopen(filename, "rb");
+	if (!f)
+	{
+		printf(" | Failed to open the file.\n");
+		return NULL;
+	}
+
+	fseek(f, 0, SEEK_END);
+	*size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+
+	char* buf = (char*)malloc((*size) * sizeof(char));
+
+	size_t res = fread(buf, *size, 1, f);
+	if (res != 1)
+	{
+		printf(" | Failed to read from file.\n");
+		return NULL;
+	}
+
+	printf(" | OK.\n");
+	return buf;
+}
+
+void save_to_log(FILE *fa, char *str)
+{
+
+	//FILE *fa = fopen("File1.txt", "a");
+	if (fa == NULL)
+	{
+		printf("can not open target file\n");
+		exit(1);
+	}
+
+	fprintf(fa, "%s", str);
+	fflush(fa);
+	//fputc(str, fa);
+
+//fclose(fa);
+
+}
+
+
+char* strlower(char* s)
+{
+	char* tmp = s;
+
+	for (; *tmp; ++tmp) {
+		*tmp = tolower((unsigned char)*tmp);
+	}
+
+	return s;
 }

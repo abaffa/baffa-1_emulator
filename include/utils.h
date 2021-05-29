@@ -58,7 +58,16 @@ unsigned int convert_hexstr_to_value(char *value);
 
 char* gets(int max_value);
 
+SOL1_DWORD set_word_bit(SOL1_DWORD v, int bit);
+
 SOL1_DWORD get_word_bit(SOL1_DWORD v, int bit);
 SOL1_BYTE get_byte_bit(SOL1_BYTE v, int bit);
+SOL1_BYTE check_byte_bit(SOL1_BYTE v, int bit);
 SOL1_BYTE set_byte_bit(SOL1_BYTE v, int bit);
+
+char* loadfile(char *filename, long *size);
+
+void save_to_log(FILE *fa, char *str);
+
+char* strlower(char* s);
 #endif

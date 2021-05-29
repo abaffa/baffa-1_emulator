@@ -23,7 +23,14 @@
 
 #define SOL1_WIDTH			256 //32 x 8
 #define SOL1_HEIGHT			200 // 25 x 8
-#define SOL1_MEMORY_SIZE	(0x3FFFFF + 1)
+
+#define SOL1_BIOS_MEMORY_SIZE (0xFFFF + 1)
+#define SOL1_PAGING_MEMORY_SIZE (0x7FFF + 1)
+#define SOL1_MAIN_MEMORY_SIZE	(0x3FFFFF + 1)
+
+
+#define SOL1_IDE_MEMORY_SIZE	(0x3FFFFF + 1)
+
 #define SOL1_ROM_SIZE		(0xFFFF + 1)
 #define SOL1_TOTAL_KEYS		41
 
@@ -42,20 +49,33 @@
 
 
 
-#define SERVER 0
+#define INI_SERVER 1
 
 
-#define DEBUG_MICROCODE 0
-#define DEBUG_UADDRESSER 0
-#define DEBUG_UADDER 0
-#define DEBUG_UFLAGS 0
-#define DEBUG_REGISTERS 0
-#define DEBUG_BUSES 0	
-#define DEBUG_ALU 0
-#define DEBUG_RDMEM 0
-#define DEBUG_WRMEM 0
-#define DEBUG_MEMORY 0
-#define DEBUG_LITE 0
+//#define INI_DEBUG_OPCODE 0
+
+#define INI_DEBUG_MICROCODE 0
+#define INI_DEBUG_UADDRESSER 0
+#define INI_DEBUG_UADDER 0
+#define INI_DEBUG_UFLAGS 0
+#define INI_DEBUG_REGISTERS 0
+
+#define INI_DEBUG_LITE 0
+
+#define INI_DEBUG_BUSES 0	
+#define INI_DEBUG_ALU 0
+
+#define INI_DEBUG_RDMEM 0
+#define INI_DEBUG_WRMEM 0
+#define INI_DEBUG_MEMORY 0
+
+#define INI_DEBUG_UART 0
+#define INI_DEBUG_IDE 0
+#define INI_DEBUG_RTC 0
+#define INI_DEBUG_TIMER 0
+
+#define INI_DEBUG_LOG_OPCODE 0
+
 /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 //boot sequence: bios, boot, kernel, shell
 /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

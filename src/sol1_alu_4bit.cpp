@@ -562,6 +562,7 @@ SOL1_BYTE sol1_alu_4bit_op(struct sol1_alu_4bit* alu, SOL1_BYTE A, SOL1_BYTE B, 
 
 	alu->_A = A;
 	alu->_B = B;
+	alu->CIN = CIN;
 
 	/*
 	if (CIN == 0x00)

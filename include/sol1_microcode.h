@@ -1,10 +1,10 @@
 #ifndef SOL1MICROCODE_H
 #define SOL1MICROCODE_H
 
+
 #include "config.h"
 #include "sol1_registers.h"
 #include "sol1_alu_8bit.h"
-
 
 
 
@@ -77,7 +77,6 @@ struct sol1_mccycle {
 	SOL1_BYTE sspl_wrt = 0x01; ////////?????????????????
 	SOL1_BYTE ssph_wrt = 0x01; ////////?????????????????
 
-	SOL1_BYTE page_table_addr_src = 0x0; ////////?????????????????
 
 
 
@@ -86,30 +85,25 @@ struct sol1_mccycle {
 	SOL1_BYTE page_present; ////////?????????????????
 	SOL1_BYTE page_writable; ////////?????????????????
 	//?????????????
-	//SOL1_BYTE buffer_rd;
-	//SOL1_BYTE buffer_wr;
-	//SOL1_BYTE buffer_mem_io;
-	//?????????????
-	//?????????????
+
 
 	SOL1_BYTE status_wrt; //mswl_wrt // status (flags de controle)
 
 	//
 	SOL1_BYTE clear_all_ints;
 	SOL1_BYTE int_vector; ////////?????????????????
-	SOL1_BYTE int_mask; ////////?????????????????
+	//SOL1_BYTE int_mask; ////////?????????????????
 	//SOL1_BYTE int_masks_wrt; ////////?????????????????
 	SOL1_BYTE mask_flags_wrt;
 	SOL1_BYTE int_status; ////////?????????????????
 	SOL1_BYTE int_vector_wrt;
 	SOL1_BYTE int_ack;
 	SOL1_BYTE int_request; ////////?????????????????
+	SOL1_BYTE int_req;
 	//
 
-
-	SOL1_BYTE int_pending; //?? int_request + MSW_INTERRUPT_ENABLE
 	SOL1_BYTE dma_req; ////////?????????????????
-	SOL1_BYTE any_interruption; //?? int_endind "+" dma_req
+
 
 
 	SOL1_BYTE wait; ////////?????????????????
@@ -122,13 +116,20 @@ struct sol1_mccycle {
 };
 
 
-struct sol1_microcode {
+class SOL1_MICROCODE {
+
+public:
+
+	//SOL1_COMPUTER& sol1_computer;
+
 	SOL1_BYTE u_zf;
 	SOL1_BYTE u_cf;
 	SOL1_BYTE u_sf;
 	SOL1_BYTE u_of;
-	SOL1_BYTE u_esc;
+	SOL1_BYTE u_escape;
+
 	SOL1_BYTE u_esc_in_src;
+	SOL1_BYTE u_esc;
 
 	SOL1_BYTE u_offset;
 	SOL1_BYTE uzf_in_src;
@@ -136,7 +137,7 @@ struct sol1_microcode {
 	SOL1_BYTE usf_in_src;
 	SOL1_BYTE uof_in_src;
 
-	SOL1_REGISTER_8BIT *U_FLAGS;
+	SOL1_REGISTER_8BIT U_FLAGS;
 	SOL1_DWORD u_adder_b;
 	SOL1_DWORD u_ad_bus; SOL1_DWORD old_u_ad_bus;
 	SOL1_DWORD u_adder;
@@ -144,35 +145,37 @@ struct sol1_microcode {
 
 	sol1_mccycle mccycle;
 
-	SOL1_REGISTER_8BIT *IR;	
+	SOL1_REGISTER_8BIT IR;
 
-	SOL1_REGISTER_8BIT *U_ADDRESSl;
-	SOL1_REGISTER_8BIT *U_ADDRESSh;
+	SOL1_REGISTER_8BIT U_ADDRESSl;
+	SOL1_REGISTER_8BIT U_ADDRESSh;
+
+
+
+
+	void init();
+
+
+	SOL1_DWORD u_adder_refresh(SOL1_BYTE typ, SOL1_BYTE final_condition);
+	void display_u_adder(SOL1_BYTE typ, SOL1_BYTE final_condition);
+
+	void u_flags(sol1_alu_8bit& alu, SOL1_BYTE z_bus, SOL1_BYTE uflags_debug);
+
+	void display_u_flags();
+	void display_u_flags_lite();
+
+
+	SOL1_BYTE int_pending(SOL1_REGISTERS& registers);
+	SOL1_BYTE any_interruption(SOL1_REGISTERS& registers);
+	SOL1_BYTE page_table_addr_src(SOL1_REGISTERS& registers);
+
+	SOL1_BYTE MUX(SOL1_REGISTERS& registers);
+
+	void update_final_condition(SOL1_REGISTERS& registers);
+	void addresser(SOL1_REGISTERS& registers, SOL1_BYTE addresser_debug);
+
+	
+
 };
-
-
-
-void sol1_microcode_init(struct sol1_microcode *mc);
-void sol1_microcode_destroy(struct sol1_microcode *mc);
-
-SOL1_DWORD sol1_u_adder(struct sol1_microcode *mc, SOL1_BYTE typ, SOL1_BYTE final_condition);
-void sol1_microcode_display_u_adder(struct sol1_microcode *mc, SOL1_BYTE typ, SOL1_BYTE final_condition);
-
-void sol1_u_flags(sol1_alu_8bit *alu, struct sol1_microcode *mc, SOL1_BYTE imm, SOL1_BYTE z_bus);
-void sol1_microcode_display_u_flags(struct sol1_microcode *mc);
-
-
-
-
-SOL1_BYTE MUX(struct sol1_microcode *sol1_microcode);
-
-void UADDRESSER(
-	struct sol1_cpu *sol1_cpu
-	);
-
-void mc_seq_update(sol1_cpu *sol1_cpu,
-	sol1_alu_8bit *alu);
-
-
 #endif
 

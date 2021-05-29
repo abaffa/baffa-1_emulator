@@ -19,9 +19,9 @@ const char* SOL1_ROM_CONTROL_LIST[] = {
 	"force_user_ptb", "-", "-", "-", "-", "gl_wrt", "gh_wrt", "imm_0", "imm_1", "imm_2", "imm_3", "imm_4", "imm_5", "imm_6", "imm_7", "-", "-", "-", "-", "-", "-", "-", "-"
 };
 
-int run = 0;
 
-static int load_rom(const char* filename, SOL1_BYTE* rom) {
+
+int SOL1_ROM::load_rom(const char* filename, SOL1_BYTE* rom) {
 
 	printf("The filename to load is: %s", filename);
 
@@ -38,7 +38,7 @@ static int load_rom(const char* filename, SOL1_BYTE* rom) {
 
 	char* buf = (char*)malloc(size * sizeof(char));
 
-	int res = fread(buf, size, 1, f);
+	size_t res = fread(buf, size, 1, f);
 	if (res != 1)
 	{
 		printf(" | Failed to read from file.\n");
@@ -55,48 +55,42 @@ static int load_rom(const char* filename, SOL1_BYTE* rom) {
 
 
 
-static void sol1_is_rom_in_bounds(SOL1_MWORD index)
+void SOL1_ROM::is_rom_in_bounds(SOL1_MWORD index)
 {
 	assert(index >= 0 && index < SOL1_ROM_SIZE);
 }
 
-void sol1_rom_init(struct sol1_rom* rom)
+void SOL1_ROM::init()
 {
 	int i = 0;
 
-	rom->rom_desc = (SOL1_BYTE*)malloc(sizeof(SOL1_BYTE) * SOL1_ROM_DESC);
+	this->rom_desc = (SOL1_BYTE*)malloc(sizeof(SOL1_BYTE) * SOL1_ROM_DESC);
 
+	this->roms = (SOL1_BYTE**)malloc(sizeof(SOL1_BYTE*) * SOL1_ROM_DESC);
 
-	load_rom("rom", rom->rom_desc);
+	load_rom("rom", this->rom_desc);
 
 	int _roms = 0;
 	for (_roms = 0; _roms < SOL1_ROM_NBR_ROMS; _roms++) {
 		char filename[20];
 		sprintf(filename, "rom%d", _roms);
-		load_rom(filename, rom->roms[_roms]);
+
+		this->roms[_roms] = (SOL1_BYTE*)malloc(sizeof(SOL1_BYTE*) * (SOL1_ROM_NBR_ROMS *  SOL1_ROM_NBR_INSTRUCTIONS));
+		load_rom(filename, this->roms[_roms]);
 	}
 
-	rom->MAR = 0x0;
-	rom->debug_mem_offset = 0;
+	this->MAR = 0x0;
+	this->debug_mem_offset = 0;
 
-	rom->bkpt_opcode = 0x00;
-	rom->bkpt_cycle = 0x00;
-}
-
-
-unsigned char sol1_rom_get(struct sol1_rom* rom, SOL1_MWORD index)
-{
-	sol1_is_rom_in_bounds(index);
-	rom->MAR = index;
-	//return rom->memory[rom->MAR];
-	return ' ';
+	this->bkpt_opcode = 0x00;
+	this->bkpt_cycle = 0x00;
 }
 
 
 
-void sol1_rom_display_current_cycles(struct sol1_rom* rom, SOL1_BYTE opcode, SOL1_BYTE cycle, SOL1_BYTE debug_desc_type) {
+void SOL1_ROM::display_current_cycles(SOL1_BYTE opcode, SOL1_BYTE cycle, SOL1_BYTE debug_desc_type) {
 
-	int k, l, j, i;
+	int k, j, i;
 	int p = opcode * SOL1_ROM_CYCLES_PER_INSTR + cycle;
 
 	for (j = 0; j < SOL1_ROM_NBR_ROMS; j++) {
@@ -109,7 +103,7 @@ void sol1_rom_display_current_cycles(struct sol1_rom* rom, SOL1_BYTE opcode, SOL
 			printf("\n");
 			printf(" ");
 		}
-		printf(" %c%c%c%c%c%c%c%c", INV_BYTE_TO_BINARY(rom->roms[j][p]));
+		printf(" %c%c%c%c%c%c%c%c", INV_BYTE_TO_BINARY(this->roms[j][p]));
 
 		if ((j + 1) % 8 == 0 && j < SOL1_ROM_NBR_ROMS - 1)
 			printf("\n\n");
@@ -119,8 +113,8 @@ void sol1_rom_display_current_cycles(struct sol1_rom* rom, SOL1_BYTE opcode, SOL
 
 	if (debug_desc_type == 1) {
 		printf("---------\n");
-		if (strlen((const char*)(&rom->rom_desc[(256 * 64 * opcode) + (256 * cycle)])) > 0) {
-			printf("%s\n", &rom->rom_desc[(256 * 64 * opcode) + (256 * cycle)]);
+		if (strlen((const char*)(&this->rom_desc[(256 * 64 * opcode) + (256 * cycle)])) > 0) {
+			printf("%s\n", &this->rom_desc[(256 * 64 * opcode) + (256 * cycle)]);
 			printf("---------\n");
 		}
 	}
@@ -133,7 +127,7 @@ void sol1_rom_display_current_cycles(struct sol1_rom* rom, SOL1_BYTE opcode, SOL
 				int c_rom = (j + 24 * k) / 8;
 				int c_p = opcode * SOL1_ROM_CYCLES_PER_INSTR + cycle;
 				char c_bit = pow(2, (j + 24 * k) % 8);
-				unsigned char c_byte = rom->roms[c_rom][c_p];
+				unsigned char c_byte = this->roms[c_rom][c_p];
 
 				char* tmp = (char*)malloc(strlen(SOL1_ROM_CONTROL_LIST[j + 24 * k] + 1));
 
@@ -151,28 +145,27 @@ void sol1_rom_display_current_cycles(struct sol1_rom* rom, SOL1_BYTE opcode, SOL
 	}
 	printf("\n");
 
-	printf("  Cycle: %02x | Inst.: %02x | %s\n", cycle, opcode, &rom->rom_desc[0x400000 + (opcode * 256)]);
+	printf("  Cycle: %02x | Inst.: %02x | %s\n", cycle, opcode, &this->rom_desc[0x400000 + (opcode * 256)]);
 
 	printf("\n");
 }
 
-void sol1_rom_display_current_cycles_desc(struct sol1_rom* rom, SOL1_BYTE opcode, SOL1_BYTE cycle) {
+void SOL1_ROM::display_current_cycles_desc(SOL1_BYTE opcode, SOL1_BYTE cycle) {
 
-	int k, l, j, i;
 	int p = opcode * SOL1_ROM_CYCLES_PER_INSTR + cycle;
 
-	printf(" Cycle: %02x | Inst.: %02x | %s\n", cycle, opcode, &rom->rom_desc[0x400000 + (opcode * 256)]);
+	printf(" *Inst.: %02x | Cycle: %02x | %s\n", opcode, cycle, &this->rom_desc[0x400000 + (opcode * 256)]);
 	printf("---------\n");
-	if (strlen((const char*)(&rom->rom_desc[(256 * 64 * opcode) + (256 * cycle)])) > 0) {
-		printf("%s\n", &rom->rom_desc[(256 * 64 * opcode) + (256 * cycle)]);
+	if (strlen((const char*)(&this->rom_desc[(256 * 64 * opcode) + (256 * cycle)])) > 0) {
+		printf("%s\n", &this->rom_desc[(256 * 64 * opcode) + (256 * cycle)]);
 		printf("---------\n");
 	}
-	
+
 }
 
 
 
-static void sol1_rom_menu(SOL1_BYTE debug_desc_type) {
+void SOL1_ROM::menu(SOL1_BYTE debug_desc_type) {
 	printf("\n");
 	printf("SOL-1 Debug Monitor > Roms > Microcode Cycles\n");
 	printf("\n");
@@ -197,7 +190,7 @@ static void sol1_rom_menu(SOL1_BYTE debug_desc_type) {
 }
 
 
-void sol1_rom_debug_cycles(struct sol1_rom* rom) {
+void SOL1_ROM::debug_cycles() {
 
 	printf("Display Rom Microcode Cycles\n");
 
@@ -217,13 +210,13 @@ void sol1_rom_debug_cycles(struct sol1_rom* rom) {
 			if (cycle < SOL1_ROM_CYCLES_PER_INSTR - 1)
 				cycle++;
 			printf("\n\n");
-			sol1_rom_display_current_cycles(rom, opcode, cycle, debug_desc_type);
+			display_current_cycles(opcode, cycle, debug_desc_type);
 		}
 		else if (key == 'P' || key == 'P') {
 			if (cycle > 0)
 				cycle--;
 			printf("\n\n");
-			sol1_rom_display_current_cycles(rom, opcode, cycle, debug_desc_type);
+			display_current_cycles(opcode, cycle, debug_desc_type);
 		}
 		else if (key == 't' || key == 'T') {
 			debug_desc_type = (debug_desc_type == 0);
@@ -239,7 +232,7 @@ void sol1_rom_debug_cycles(struct sol1_rom* rom) {
 			return;
 		}
 		else if (key == '?') {
-			sol1_rom_menu(debug_desc_type);
+			SOL1_ROM::menu(debug_desc_type);
 		}
 		else if (key == 's' || key == 'S') {
 
@@ -253,14 +246,14 @@ void sol1_rom_debug_cycles(struct sol1_rom* rom) {
 			opcode = convert_hexstr_to_value(value);
 			cycle = 0;
 			printf("\n\n");
-			sol1_rom_display_current_cycles(rom, opcode, cycle, debug_desc_type);
+			display_current_cycles(opcode, cycle, debug_desc_type);
 
 			free(input);
 			free(value);
 		}
 		else if (key == 'd' || key == 'D') {
 			printf("\n\n");
-			sol1_rom_display_current_cycles(rom, opcode, cycle, debug_desc_type);
+			display_current_cycles(opcode, cycle, debug_desc_type);
 		}
 		else
 			printf("\n");

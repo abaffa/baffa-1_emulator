@@ -6,6 +6,6 @@
 void debugmenu_roms_menu();
 
 
-void debugmenu_roms(struct sol1_cpu *sol1_cpu);
-void debugmenu_roms_edit_breakpoint(struct sol1_rom *sol1_rom);
+void debugmenu_roms(SOL1_CPU& sol1_cpu);
+void debugmenu_roms_edit_breakpoint(SOL1_ROM& sol1_rom);
 #endif
