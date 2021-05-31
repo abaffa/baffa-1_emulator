@@ -26,7 +26,7 @@ void debugmenu_main_menu() {
 	printf("  P - Edit Program Counter\n");
 	printf("\n");
 	printf("  G - Go(Run)\n");
-	printf("  S - Step\n");
+	printf("  T - Debug Trace\n");
 	printf("  Z - Reset CPU\n");
 	printf("\n");
 	printf("  X - Debug Roms\n");
@@ -366,8 +366,10 @@ void debugmenu_main_reset_cpu(SOL1_CPU& sol1_cpu) {
 
 	printf("Reset CPU\n");
 	printf("\n");
+	sol1_cpu.microcode.init();
 	sol1_cpu.reset();
 	sol1_cpu.display_registers();
+	
 }
 
 
@@ -415,7 +417,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 			return 1;
 		}
 
-		else if (key == (int)'s' || key == (int)'S') {
+		else if (key == (int)'t' || key == (int)'T') {
 			return 2;
 		}
 

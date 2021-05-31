@@ -9,6 +9,7 @@
 #include "hw_timer.h"
 #include "hw_ide.h"
 #include "hw_tty.h"
+#include "hw_web.h"
 #include "tasm_opcode.h"
 
 #include <unordered_map>
@@ -27,6 +28,7 @@ public:
 	struct hw_ide hw_ide;
 	struct hw_timer hw_timer;
 	HW_TTY hw_tty;
+	HW_WEB hw_web;
 
 
 	unordered_map<string, Tasm_Opcode> ht_opcodes;

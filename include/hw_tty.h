@@ -21,7 +21,7 @@
 		int index;
 		SOCKET *client;
 		struct hw_uart* hw_uart;
-		Queue* uart_out;
+		Queue* tty_out;
 
 	};
 
@@ -37,8 +37,8 @@ public:
 		SOL1_BYTE data;
 	};
 
-	void HW_TTY::init(SOL1_CPU& sol1_cpu, struct hw_uart *hw_uart);
-	void HW_TTY::start_server();
+	//void HW_TTY::init(SOL1_CPU& sol1_cpu, struct hw_uart *hw_uart);
+	void HW_TTY::start_server(SOL1_CPU& sol1_cpu, struct hw_uart* hw_uart);
 	
 };
 #endif

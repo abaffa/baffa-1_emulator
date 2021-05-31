@@ -67,7 +67,9 @@ SOL1_BYTE set_byte_bit(SOL1_BYTE v, int bit);
 
 char* loadfile(char *filename, long *size);
 
+
 void save_to_log(FILE *fa, char *str);
+void reg8bit_print(FILE *fa, char *dir, char *reg, SOL1_BYTE value);
 
 char* strlower(char* s);
 #endif

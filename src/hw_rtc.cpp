@@ -31,24 +31,6 @@ void hw_rtc_init(struct hw_rtc* hw_rtc) {
 	}
 }
 
-void hw_rtc_print(struct hw_rtc* hw_rtc, char *dir, int changed, char *print) {
-
-
-	int i = 0;
-	sprintf(print, ">>> RTC [%s]:", dir);
-	for (i = 0; i < 16; i++) {
-		if (changed == i)
-			sprintf(print + strlen(print), "[%02x", hw_rtc->data[i]);
-		else if (changed == i - 1)
-			sprintf(print + strlen(print), "]%02x", hw_rtc->data[i]);
-		else
-			sprintf(print + strlen(print), " %02x", hw_rtc->data[i]);
-	}
-	if (changed == 15)
-		sprintf(print + strlen(print), "]\n");
-	else
-		sprintf(print + strlen(print), "\n");
-}
 
 
 
@@ -125,4 +107,24 @@ DWORD WINAPI MTRtcThread(LPVOID pParam)
 void hw_rtc_start_clock(struct hw_rtc* hw_rtc) {
 	DWORD tid;
 	HANDLE myHandle = CreateThread(0, 0, MTRtcThread, hw_rtc, 0, &tid);
+}
+
+
+void hw_rtc_print(struct hw_rtc* hw_rtc, char *dir, int changed, char *print) {
+
+
+	int i = 0;
+	sprintf(print, ">>> RTC [%s]:", dir);
+	for (i = 0; i < 16; i++) {
+		if (changed == i)
+			sprintf(print + strlen(print), "[%02x", hw_rtc->data[i]);
+		else if (changed == i - 1)
+			sprintf(print + strlen(print), "]%02x", hw_rtc->data[i]);
+		else
+			sprintf(print + strlen(print), " %02x", hw_rtc->data[i]);
+	}
+	if (changed == 15)
+		sprintf(print + strlen(print), "]\n");
+	else
+		sprintf(print + strlen(print), "\n");
 }

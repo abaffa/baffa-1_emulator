@@ -225,6 +225,15 @@ void save_to_log(FILE *fa, char *str)
 }
 
 
+
+void reg8bit_print(FILE *fa, char *dir, char *reg, SOL1_BYTE value) {
+	char line[255];
+	sprintf(line, "         \t\t\t\t%s REG\t %s \t= %02x\n", dir, reg, value);
+	save_to_log(fa, line);
+}
+
+
+
 char* strlower(char* s)
 {
 	char* tmp = s;

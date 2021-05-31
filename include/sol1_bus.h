@@ -26,7 +26,7 @@ public:
 	SOL1_BYTE k_bus_refresh(SOL1_REGISTERS& sol1_registers, SOL1_BYTE alu_b_src);
 
 	SOL1_BYTE w_bus_refresh(SOL1_REGISTERS& sol1_registers, SOL1_BYTE panel_regsel, SOL1_BYTE alu_a_src, SOL1_BYTE display_reg_load,
-		SOL1_BYTE int_vector, SOL1_BYTE int_masks, SOL1_BYTE int_status );
+		SOL1_BYTE int_vector, SOL1_BYTE int_masks, SOL1_BYTE int_status, FILE *fa, SOL1_BYTE DEBUG_RDREG);
 
 	SOL1_BYTE x_bus_refresh(SOL1_REGISTERS& sol1_registers,
 		SOL1_BYTE alu_a_src, SOL1_BYTE w_bus);

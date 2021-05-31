@@ -50,20 +50,25 @@
 
 
 #define INI_SERVER 1
+#define INI_WEB_SERVER 1
 
-
+ 
 //#define INI_DEBUG_OPCODE 0
 
 #define INI_DEBUG_MICROCODE 0
 #define INI_DEBUG_UADDRESSER 0
 #define INI_DEBUG_UADDER 0
 #define INI_DEBUG_UFLAGS 0
-#define INI_DEBUG_REGISTERS 0
+
 
 #define INI_DEBUG_LITE 0
 
 #define INI_DEBUG_BUSES 0	
 #define INI_DEBUG_ALU 0
+
+#define INI_DEBUG_RDREG 0
+#define INI_DEBUG_WRREG 0
+#define INI_DEBUG_REGISTERS 0
 
 #define INI_DEBUG_RDMEM 0
 #define INI_DEBUG_WRMEM 0

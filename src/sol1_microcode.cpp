@@ -22,15 +22,15 @@ void SOL1_MICROCODE::init() {
 	this->usf_in_src = 0x00;
 	this->uof_in_src = 0x00;
 
-	this->U_FLAGS;
+	this->U_FLAGS.set(0x00);
 	this->u_adder_b = 0x00;
 	this->u_ad_bus = 0x00;
 	this->u_adder = 0x00;
 
-	this->IR;
+	this->IR.set(0x00);
 
-	this->U_ADDRESSl;
-	this->U_ADDRESSh;
+	this->U_ADDRESSl.set(0x00);
+	this->U_ADDRESSh.set(0x00);
 
 
 	this->mccycle.next = 0x00;
@@ -103,7 +103,7 @@ void SOL1_MICROCODE::init() {
 	this->mccycle.sspl_wrt = 0x01; ////////?????????????????
 	this->mccycle.ssph_wrt = 0x01; ////////?????????????????
 
-	
+
 	//?????????????
 	this->mccycle.memory_io = 0x00; // bus_mem_io //?????????????????
 	this->mccycle.page_present = 0x00; ////////?????????????????
@@ -151,7 +151,7 @@ void SOL1_MICROCODE::init() {
 	this->mccycle.int_vector_wrt = 0x00;
 	this->mccycle.int_ack = 0x00;
 	this->mccycle.int_request = 0x00; ////////?????????????????
-	this->mccycle.int_req = 0xFF; 
+	this->mccycle.int_req = 0xFF;
 	//
 
 
@@ -195,7 +195,7 @@ SOL1_DWORD SOL1_MICROCODE::u_adder_refresh(SOL1_BYTE typ, SOL1_BYTE final_condit
 		set_word_bit(u_offset6, 11) |
 		set_word_bit(u_offset6, 12) |
 		set_word_bit(u_offset6, 13);
-	
+
 	this->u_adder = (this->u_ad_bus & 0b0011111111111111) + this->u_adder_b;
 
 
@@ -223,7 +223,7 @@ void SOL1_MICROCODE::display_u_adder(SOL1_BYTE typ, SOL1_BYTE final_condition) {
 
 void SOL1_MICROCODE::u_flags(sol1_alu_8bit& alu, SOL1_BYTE z_bus, SOL1_BYTE uflags_debug)
 {
-	
+
 	SOL1_BYTE inZF = 0x00;
 	SOL1_BYTE inCF = 0x00;
 	SOL1_BYTE inSF = 0x00;
@@ -272,7 +272,7 @@ void SOL1_MICROCODE::u_flags(sol1_alu_8bit& alu, SOL1_BYTE z_bus, SOL1_BYTE ufla
 	this->u_sf = inSF;
 	this->u_of = inOF;
 
-	
+
 	if (this->u_esc_in_src != 0x00)
 		this->u_esc = this->mccycle.imm & 0b00000011;
 
@@ -333,7 +333,7 @@ SOL1_BYTE SOL1_MICROCODE::page_table_addr_src(SOL1_REGISTERS& registers) {
 }
 
 
-SOL1_BYTE SOL1_MICROCODE::MUX(SOL1_REGISTERS& registers){
+SOL1_BYTE SOL1_MICROCODE::MUX(SOL1_REGISTERS& registers) {
 
 	SOL1_BYTE mux_A = (this->mccycle.next == 0b00000011) || (this->mccycle.next == 0b00000010 && any_interruption(registers) == 0x01);
 	SOL1_BYTE mux_B = this->mccycle.next == 0b00000010;
@@ -390,11 +390,11 @@ void SOL1_MICROCODE::update_final_condition(SOL1_REGISTERS& registers) {
 			break;
 
 		case 0x05:
-			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(ZForCF, 0);
+			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(ZForSFneqOF, 0);
 			break;
 
 		case 0x06:
-			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(ZForSFneqOF, 0);
+			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(ZForCF, 0);
 			break;
 
 		case 0x07:

@@ -29,13 +29,19 @@ public:
 	int DEBUG_UADDRESSER;
 	int DEBUG_UADDER;
 	int DEBUG_UFLAGS;
-	int DEBUG_REGISTERS;
-
+	
 	int DEBUG_BUSES;
 	int DEBUG_ALU;
+
+	int DEBUG_RDREG;
+	int DEBUG_WRREG;
+	int DEBUG_REGISTERS;
+
+
 	int DEBUG_RDMEM;
 	int DEBUG_WRMEM;
 	int DEBUG_MEMORY;
+
 	int DEBUG_UART;
 	int DEBUG_IDE;
 	int DEBUG_RTC;
@@ -44,6 +50,7 @@ public:
 	int DEBUG_LOG_OPCODE;
 	int DEBUG_LITE;
 	int SERVER;
+	int WEB_SERVER;
 
 	int display_reg_load;
 

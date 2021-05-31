@@ -27,6 +27,7 @@
     <ClCompile Include="..\..\..\src\hw_timer.cpp" />
     <ClCompile Include="..\..\..\src\hw_tty.cpp" />
     <ClCompile Include="..\..\..\src\hw_uart.cpp" />
+    <ClCompile Include="..\..\..\src\hw_web.cpp" />
     <ClCompile Include="..\..\..\src\queue_ll.cpp" />
     <ClCompile Include="..\..\..\src\linkedlist.cpp" />
     <ClCompile Include="..\..\..\src\main.cpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="..\..\..\include\hw_timer.h" />
     <ClInclude Include="..\..\..\include\hw_tty.h" />
     <ClInclude Include="..\..\..\include\hw_uart.h" />
+    <ClInclude Include="..\..\..\include\hw_web.h" />
     <ClInclude Include="..\..\..\include\queue_ll.h" />
     <ClInclude Include="..\..\..\include\linkedlist.h" />
     <ClInclude Include="..\..\..\include\sol1_alu.h" />

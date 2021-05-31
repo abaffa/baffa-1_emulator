@@ -50,7 +50,8 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 	SOL1_BYTE display_reg_load,
 	SOL1_BYTE int_vector,
 	SOL1_BYTE int_masks,
-	SOL1_BYTE int_status) {
+	SOL1_BYTE int_status,
+	FILE *fa, SOL1_BYTE DEBUG_RDREG) {
 
 	//IC125 //IC118 //IC3   //IC2  //IC9  //IC42  //IC6   //IC20 //IC5  //IC80  //IC41  //IC44
 	//IC30  //IC130 //IC56  //IC62 //IC53 //IC133 //IC68  //IC69 //IC67 //IC141 //IC81
@@ -75,40 +76,35 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 		switch (inABC) {
 		case 0x00:
 			w_bus = sol1_registers.Al.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Al", w_bus);
 			break;
 		case 0x01:
 			w_bus = sol1_registers.Ah.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Ah", w_bus);
 			break;
 		case 0x02:
 			w_bus = sol1_registers.Bl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Bl", w_bus);
 			break;
 		case 0x03:
 			w_bus = sol1_registers.Bh.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Bh", w_bus);
 			break;
 		case 0x04:
 			w_bus = sol1_registers.Cl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Cl", w_bus);
 			break;
 		case 0x05:
 			w_bus = sol1_registers.Ch.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Ch", w_bus);
 			break;
 		case 0x06:
 			w_bus = sol1_registers.Dl.value();
-			/*
-			if (get_byte_bit(sol1_registers.MSWl.value(), MSW_PAGING_EN) == 0)
-				w_bus = sol1_registers.Dl.value();
-			else
-				w_bus = sol1_registers.DIl.value();
-
-			*/
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Dl", w_bus);
 			break;
 		case 0x07:
 			w_bus = sol1_registers.Dh.value();
-			/*
-			if (get_byte_bit(sol1_registers.MSWl.value(), MSW_PAGING_EN) == 0)
-				w_bus = sol1_registers.Dh.value();
-			else
-				w_bus = sol1_registers.DIh.value();
-				*/
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Dh", w_bus);
 			break;
 		}
 
@@ -117,27 +113,35 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 		switch (inABC) {
 		case 0x00:
 			w_bus = sol1_registers.SPl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SPl", w_bus);
 			break;
 		case 0x01:
 			w_bus = sol1_registers.SPh.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SPh", w_bus);
 			break;
 		case 0x02:
 			w_bus = sol1_registers.BPl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "BPl", w_bus);
 			break;
 		case 0x03:
 			w_bus = sol1_registers.BPh.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "BPh", w_bus);
 			break;
 		case 0x04:
 			w_bus = sol1_registers.SIl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SIl", w_bus);
 			break;
 		case 0x05:
 			w_bus = sol1_registers.SIh.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SIh", w_bus);
 			break;
 		case 0x06:
 			w_bus = sol1_registers.DIl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "DIl", w_bus);
 			break;
 		case 0x07:
 			w_bus = sol1_registers.DIh.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "DIh", w_bus);
 			break;
 		}
 	}
@@ -145,27 +149,35 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 		switch (inABC) {
 		case 0x00:
 			w_bus = sol1_registers.PCl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "PCl", w_bus);
 			break;
 		case 0x01:
 			w_bus = sol1_registers.PCh.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "PCh", w_bus);
 			break;
 		case 0x02:
 			w_bus = sol1_registers.MARl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "MARl", w_bus);
 			break;
 		case 0x03:
 			w_bus = sol1_registers.MARh.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "MARh", w_bus);
 			break;
 		case 0x04:
 			w_bus = sol1_registers.MDRl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "MDRl", w_bus);
 			break;
 		case 0x05:
 			w_bus = sol1_registers.MDRh.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "MDRh", w_bus);
 			break;
 		case 0x06:
 			w_bus = sol1_registers.TDRl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "TDRl", w_bus);
 			break;
 		case 0x07:
 			w_bus = sol1_registers.TDRh.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "TDRh", w_bus);
 			break;
 		}
 	}
@@ -173,9 +185,11 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 		switch (inABC) {
 		case 0x00:
 			w_bus = sol1_registers.SSPl.value();
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SSPl", w_bus);
 			break;
 		case 0x01:
-			w_bus = sol1_registers.SSPh.value();
+			w_bus = sol1_registers.SSPh.value();  
+			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SSPh", w_bus);
 			break;
 		case 0x02:
 			w_bus = int_vector;

@@ -32,6 +32,7 @@
 
 
 
+
 /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 //boot sequence: bios, boot, kernel, shell
 /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -91,9 +92,12 @@ void SOL1_COMPUTER::disassembly_current_opcode() {
 				int i = 0;
 				sprintf(line + strlen(line), " (");
 
-				for (i = tt.size - 2; i >= 0; i--)
-					sprintf(line + strlen(line), "%02x", this->cpu.get_current_memory()[memADDR + i]);
-
+				for (i = tt.size - 2; i >= 0; i--) {
+					if (i != tt.size - 2)
+						sprintf(line + strlen(line), " %02x", this->cpu.get_current_memory()[memADDR + i]);
+					else
+						sprintf(line + strlen(line), "%02x", this->cpu.get_current_memory()[memADDR + i]);
+				}
 				sprintf(line + strlen(line), ")");
 			}
 
@@ -381,15 +385,15 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 			if (this->cpu.DEBUG_RDMEM && get_current_opcode() > 0) {
 				char log[255];
 				if (this->bus.data_bus == 0x00)
-					sprintf(log, "]]] READ RAM [%04x] = %02x \'\\0\'\n", mem_addr, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tREAD  RAM [%04x]\t= %02x \'\\0\'\n", mem_addr, this->bus.data_bus);
 				else if (this->bus.data_bus == 0x09)
-					sprintf(log, "]]] READ RAM [%04x] = %02x \'\\t\'\n", mem_addr, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tREAD  RAM [%04x]\t= %02x \'\\t\'\n", mem_addr, this->bus.data_bus);
 				else if (this->bus.data_bus == 0x0a)
-					sprintf(log, "]]] READ RAM [%04x] = %02x \'\\r\'\n", mem_addr, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tREAD  RAM [%04x]\t= %02x \'\\r\'\n", mem_addr, this->bus.data_bus);
 				else if (this->bus.data_bus == 0x0d)
-					sprintf(log, "]]] READ RAM [%04x] = %02x \'\\n\'\n", mem_addr, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tREAD  RAM [%04x]\t= %02x \'\\n\'\n", mem_addr, this->bus.data_bus);
 				else
-					sprintf(log, "]]] READ RAM [%04x] = %02x \'%c\'\n", mem_addr, this->bus.data_bus, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tREAD  RAM [%04x]\t= %02x \'%c\'\n", mem_addr, this->bus.data_bus, this->bus.data_bus);
 				save_to_log(fa, log);
 			}
 		}
@@ -494,7 +498,7 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 	// W = X
 	this->bus.w_bus = this->bus.w_bus_refresh(this->cpu.registers, this->cpu.microcode.mccycle.panel_regsel,
 		this->cpu.alu.alu_a_src, this->cpu.microcode.mccycle.display_reg_load && this->cpu.display_reg_load,
-		this->cpu.microcode.mccycle.int_vector, this->cpu.registers.INT_MASKS.value(), this->cpu.microcode.mccycle.int_status);
+		this->cpu.microcode.mccycle.int_vector, this->cpu.registers.INT_MASKS.value(), this->cpu.microcode.mccycle.int_status, fa, this->cpu.DEBUG_RDREG);
 
 	////////////////////////////////////////////////////////////////////////////
 	// K = Y
@@ -554,15 +558,15 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 			{
 				char log[255];
 				if (this->bus.data_bus == 0x00)
-					sprintf(log, "]]] WRITE RAM [%04x] = %02x \'\\0'\n", mem_addr, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tWRITE RAM [%04x]\t= %02x \'\\0'\n", mem_addr, this->bus.data_bus);
 				else if (this->bus.data_bus == 0x09)
-					sprintf(log, "]]] WRITE RAM [%04x] = %02x \'\\t'\n", mem_addr, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tWRITE RAM [%04x]\t= %02x \'\\t'\n", mem_addr, this->bus.data_bus);
 				else if (this->bus.data_bus == 0x0a)
-					sprintf(log, "]]] WRITE RAM [%04x] = %02x \'\\r\'\n", mem_addr, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tWRITE RAM [%04x]\t= %02x \'\\r\'\n", mem_addr, this->bus.data_bus);
 				else if (this->bus.data_bus == 0x0d)
-					sprintf(log, "]]] WRITE RAM [%04x] = %02x \'\\n\'\n", mem_addr, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tWRITE RAM [%04x]\t= %02x \'\\n\'\n", mem_addr, this->bus.data_bus);
 				else
-					sprintf(log, "]]] WRITE RAM [%04x] = %02x \'%c\'\n", mem_addr, this->bus.data_bus, this->bus.data_bus);
+					sprintf(log, "         \t\t\t\tWRITE RAM [%04x]\t= %02x \'%c\'\n", mem_addr, this->bus.data_bus, this->bus.data_bus);
 				save_to_log(fa, log);
 			}
 
@@ -588,10 +592,10 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 
 				if (mem_addr - 0xFFE0 == 0x00)
 					hw_timer_set_c0(&this->hw_timer, this->bus.data_bus);
-				
+
 				else if (mem_addr - 0xFFE0 == 0x01)
 					hw_timer_set_c1(&this->hw_timer, this->bus.data_bus);
-				
+
 				else
 					this->hw_timer.data[mem_addr - 0xFFE0] = this->bus.data_bus;
 
@@ -613,13 +617,16 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 
 					int i;
 					for (i = 0; i < 10; i++) {
-						if (this->hw_tty.clients[i].running == 1) {
+						if (this->hw_tty.clients[i].running == 1) {  // SEND TELNET
 							HW_TTY::net_data *net_data = (HW_TTY::net_data*)malloc(sizeof(HW_TTY::net_data));
 							net_data->data = this->bus.data_bus;
-							queue_insert(this->hw_tty.clients[i].uart_out, net_data);
+							queue_insert(this->hw_tty.clients[i].tty_out, net_data);
 
 						}
 					}
+
+					if (this->cpu.WEB_SERVER)
+						this->hw_web.new_char(this->bus.data_bus);
 
 				}
 				else
@@ -743,71 +750,61 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 	///////////////////////////////////////////////////////////////////////////
 	// READ DATA
 	//DATA REGISTERS
-	if (this->cpu.microcode.mccycle.ah_wrt == 0x00) this->cpu.registers.Ah.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.al_wrt == 0x00) this->cpu.registers.Al.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.ah_wrt == 0x00) { this->cpu.registers.Ah.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Ah", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.al_wrt == 0x00) { this->cpu.registers.Al.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Al", this->bus.z_bus); }
 
-	if (this->cpu.microcode.mccycle.bh_wrt == 0x00) this->cpu.registers.Bh.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.bl_wrt == 0x00) this->cpu.registers.Bl.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.bh_wrt == 0x00) { this->cpu.registers.Bh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Bh", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.bl_wrt == 0x00) { this->cpu.registers.Bl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Bl", this->bus.z_bus); }
 
-	if (this->cpu.microcode.mccycle.ch_wrt == 0x00) this->cpu.registers.Ch.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.cl_wrt == 0x00) this->cpu.registers.Cl.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.ch_wrt == 0x00) { this->cpu.registers.Ch.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Ch", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.cl_wrt == 0x00) { this->cpu.registers.Cl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Cl", this->bus.z_bus); }
 
-	if (this->cpu.microcode.mccycle.dh_wrt == 0x00) this->cpu.registers.Dh.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.dl_wrt == 0x00) this->cpu.registers.Dl.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.dh_wrt == 0x00) { this->cpu.registers.Dh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Dh", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.dl_wrt == 0x00) { this->cpu.registers.Dl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Dl", this->bus.z_bus); }
 
-	/*
-	if (get_byte_bit(this->cpu.registers.MSWl.value(), MSW_PAGING_EN) == 0) {
-		if (this->cpu.microcode.mccycle.dh_wrt == 0x00) this->cpu.registers.Dh.set(this->bus.z_bus);
-		if (this->cpu.microcode.mccycle.dl_wrt == 0x00) this->cpu.registers.Dl.set(this->bus.z_bus);
-	}
-	else {
-		if (this->cpu.microcode.mccycle.dh_wrt == 0x00) this->cpu.registers.DIh.set(this->bus.z_bus);
-		if (this->cpu.microcode.mccycle.dl_wrt == 0x00) this->cpu.registers.DIl.set(this->bus.z_bus);
-	}
-	*/
-	if (this->cpu.microcode.mccycle.gh_wrt == 0x00) this->cpu.registers.Gh.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.gl_wrt == 0x00) this->cpu.registers.Gl.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.gh_wrt == 0x00) { this->cpu.registers.Gh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Gh", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.gl_wrt == 0x00) { this->cpu.registers.Gl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "Gl", this->bus.z_bus); }
 
 	//Pointer Registers
-	if (this->cpu.microcode.mccycle.bph_wrt == 0x00) this->cpu.registers.BPh.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.bpl_wrt == 0x00) this->cpu.registers.BPl.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.bph_wrt == 0x00) { this->cpu.registers.BPh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "BPh", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.bpl_wrt == 0x00) { this->cpu.registers.BPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "BPl", this->bus.z_bus); }
 
 
 
 	if (!check_byte_bit(this->cpu.registers.MSWl.value(), MSW_CPU_MODE)) {
 
 		if ((this->cpu.microcode.mccycle.sph_wrt == 0x00) || (this->cpu.microcode.mccycle.ssph_wrt == 0x00)) {
-			this->cpu.registers.SPh.set(this->bus.z_bus);
-			this->cpu.registers.SSPh.set(this->bus.z_bus);
+			this->cpu.registers.SPh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SPh", this->bus.z_bus);
+			this->cpu.registers.SSPh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SSPh", this->bus.z_bus);
 		}
 		if ((this->cpu.microcode.mccycle.spl_wrt == 0x00) || this->cpu.microcode.mccycle.sspl_wrt == 0x00) {
-			this->cpu.registers.SPl.set(this->bus.z_bus);
-			this->cpu.registers.SSPl.set(this->bus.z_bus);
+			this->cpu.registers.SPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SPl", this->bus.z_bus);
+			this->cpu.registers.SSPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SSPl", this->bus.z_bus);
 		}
 	}
 	else {
-		if (this->cpu.microcode.mccycle.sph_wrt == 0x00) this->cpu.registers.SPh.set(this->bus.z_bus);
-		if (this->cpu.microcode.mccycle.spl_wrt == 0x00) this->cpu.registers.SPl.set(this->bus.z_bus);
+		if (this->cpu.microcode.mccycle.sph_wrt == 0x00) { this->cpu.registers.SPh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SPh", this->bus.z_bus); }
+		if (this->cpu.microcode.mccycle.spl_wrt == 0x00) { this->cpu.registers.SPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SPl", this->bus.z_bus); }
 
 
-		if (this->cpu.microcode.mccycle.ssph_wrt == 0x00) this->cpu.registers.SSPh.set(this->bus.z_bus);
-		if (this->cpu.microcode.mccycle.sspl_wrt == 0x00) this->cpu.registers.SSPl.set(this->bus.z_bus);
+		if (this->cpu.microcode.mccycle.ssph_wrt == 0x00) { this->cpu.registers.SSPh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SSPh", this->bus.z_bus); }
+		if (this->cpu.microcode.mccycle.sspl_wrt == 0x00) { this->cpu.registers.SSPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SSPl", this->bus.z_bus); }
 	}
 
 	//Index Registers
-	if (this->cpu.microcode.mccycle.sih_wrt == 0x00) this->cpu.registers.SIh.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.sil_wrt == 0x00) this->cpu.registers.SIl.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.sih_wrt == 0x00) { this->cpu.registers.SIh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SIh", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.sil_wrt == 0x00) { this->cpu.registers.SIl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "SIl", this->bus.z_bus); }
 
-	if (this->cpu.microcode.mccycle.dih_wrt == 0x00) this->cpu.registers.DIh.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.dil_wrt == 0x00) this->cpu.registers.DIl.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.dih_wrt == 0x00) { this->cpu.registers.DIh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "DIh", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.dil_wrt == 0x00) { this->cpu.registers.DIl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "DIl", this->bus.z_bus); }
 
-	if (this->cpu.microcode.mccycle.pch_wrt == 0x00) this->cpu.registers.PCh.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.pcl_wrt == 0x00) this->cpu.registers.PCl.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.pch_wrt == 0x00) { this->cpu.registers.PCh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "PCh", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.pcl_wrt == 0x00) { this->cpu.registers.PCl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "PCl", this->bus.z_bus); }
 
-	if (this->cpu.microcode.mccycle.tdrh_wrt == 0x00) this->cpu.registers.TDRh.set(this->bus.z_bus);
-	if (this->cpu.microcode.mccycle.tdrl_wrt == 0x00) this->cpu.registers.TDRl.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.tdrh_wrt == 0x00) { this->cpu.registers.TDRh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "TDRh", this->bus.z_bus); }
+	if (this->cpu.microcode.mccycle.tdrl_wrt == 0x00) { this->cpu.registers.TDRl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "TDRl", this->bus.z_bus); }
 
-	if (this->cpu.microcode.mccycle.ptb_wrt == 0x00) this->cpu.registers.PTB.set(this->bus.z_bus);
+	if (this->cpu.microcode.mccycle.ptb_wrt == 0x00) { this->cpu.registers.PTB.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "PTB", this->bus.z_bus); }
 
 	/////////////////////////////////////////////////////////////////////////////
 	if (this->cpu.microcode.mccycle.mask_flags_wrt == 0x00) this->cpu.registers.INT_MASKS.set(this->bus.z_bus);
@@ -815,25 +812,34 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 	// SET MDR
 	 //IC7 //IC24 //IC19 //IC183
 
-	if (this->cpu.microcode.mccycle.mdrl_wrt == 0x00) this->cpu.registers.MDRl.set(this->cpu.microcode.mccycle.mdr_in_src == 0x00 ? this->bus.z_bus : this->bus.data_bus);
-	if (this->cpu.microcode.mccycle.mdrh_wrt == 0x00) this->cpu.registers.MDRh.set(this->cpu.microcode.mccycle.mdr_in_src == 0x00 ? this->bus.z_bus : this->bus.data_bus);
+	if (this->cpu.microcode.mccycle.mdrl_wrt == 0x00) { this->cpu.registers.MDRl.set(this->cpu.microcode.mccycle.mdr_in_src == 0x00 ? this->bus.z_bus : this->bus.data_bus);  if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "MDRl", (this->cpu.microcode.mccycle.mdr_in_src == 0x00 ? this->bus.z_bus : this->bus.data_bus)); }
+	if (this->cpu.microcode.mccycle.mdrh_wrt == 0x00) { this->cpu.registers.MDRh.set(this->cpu.microcode.mccycle.mdr_in_src == 0x00 ? this->bus.z_bus : this->bus.data_bus); if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "MDRh", (this->cpu.microcode.mccycle.mdr_in_src == 0x00 ? this->bus.z_bus : this->bus.data_bus)); }
 	////////////////////////////////////////////////////////////////////////////
 	//MEMORY SET MAR
 
 	if (this->cpu.microcode.mccycle.marl_wrt == 0x00) {
 		//IC131 //IC128			
 		if (this->cpu.microcode.mccycle.mar_in_src == 0x00)
+		{
 			this->cpu.registers.MARl.set(this->bus.z_bus);
-		else
+			if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "MARl", this->bus.z_bus);
+		}
+		else {
 			this->cpu.registers.MARl.set(this->cpu.registers.PCl.value());
+			if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "MARl", this->cpu.registers.PCl.value());
+		}
 	}
 
 	if (this->cpu.microcode.mccycle.marh_wrt == 0x00) {
 		//IC129 //IC132			
-		if (this->cpu.microcode.mccycle.mar_in_src == 0x00)
+		if (this->cpu.microcode.mccycle.mar_in_src == 0x00) {
 			this->cpu.registers.MARh.set(this->bus.z_bus);
-		else
+			if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "MARh", this->bus.z_bus);
+		}
+		else {
 			this->cpu.registers.MARh.set(this->cpu.registers.PCh.value());
+			if (this->cpu.DEBUG_WRREG) reg8bit_print(fa, "WRITE", "MARh", this->cpu.registers.PCh.value());
+		}
 	}
 
 	if (this->cpu.microcode.mccycle.pagtbl_ram_we == 0x01)
@@ -1151,14 +1157,18 @@ int SOL1_COMPUTER::init() {
 
 	this->cpu.init();
 
-	fa = fopen("File1.txt", "w");
+	fa = fopen("debug_trace.log", "w");
+	if (fa == NULL) {
+		printf("can not open debug file\n");
+		exit(1);
+	}
 
 	hw_uart_init(&this->hw_uart);
 	hw_rtc_init(&this->hw_rtc);
 	hw_rtc_start_clock(&this->hw_rtc);
 	hw_timer_init(&this->hw_timer);
 	hw_ide_init(&this->hw_ide);
-	this->hw_tty.init(this->cpu, &this->hw_uart);
+	//this->hw_tty.init(this->cpu, &this->hw_uart);
 
 
 	int i;
@@ -1206,7 +1216,11 @@ int SOL1_COMPUTER::init() {
 
 
 	if (this->cpu.SERVER) {
-		this->hw_tty.start_server();
+		this->hw_tty.start_server(this->cpu, &this->hw_uart);
+	}
+
+	if (this->cpu.WEB_SERVER) {
+		this->hw_web.start_server(this->cpu, &this->hw_uart);
 	}
 
 	return 1;
@@ -1214,6 +1228,30 @@ int SOL1_COMPUTER::init() {
 
 
 
+
+
+
+
+void trace_menu() {
+	printf("\n");
+	printf("SOL-1 Debug Monitor > Trace\n");
+	printf("\n");
+	printf("  S - Opcode Step\n");
+	printf("  M - Microcode Step\n");
+	printf("\n");
+	printf("  B - Back one microcode step\n");
+	printf("\n");
+	printf("  I - Display Registers\n");
+	printf("\n");
+	printf("  O - Display Memory\n");
+	printf("  P - Reset Memory\n");
+	printf("\n");
+	printf("  ? - Display Menu\n");
+	printf("  Q - Back to Debug Monitor\n");
+	printf("\n");
+	printf("  ... or a sequence of opcodes to load into memory");
+	printf("\n");
+}
 
 void SOL1_COMPUTER::run() {
 
@@ -1237,7 +1275,7 @@ void SOL1_COMPUTER::run() {
 
 		if (start == 1) {
 
-			input[0] = 'n';
+			input[0] = 'q';
 			input[1] = '\n';
 			start = 0;
 		}
@@ -1246,31 +1284,37 @@ void SOL1_COMPUTER::run() {
 			scanf("%s", input);
 		}
 
-		if (input[0] != 'n' && input[0] != 'N' &&
+		if (input[0] != 'q' && input[0] != 'Q' &&
 			input[0] != 'm' && input[0] != 'M' &&
 			input[0] != 'r' && input[0] != 'R' &&
 			input[0] != 'b' && input[0] != 'B' &&
 			input[0] != 'p' && input[0] != 'P' &&
-			input[0] != 's' && input[0] != 'S') {
+			input[0] != 's' && input[0] != 'S' &&
+			input[0] != 'o' && input[0] != 'O' &&
+			input[0] != 'i' && input[0] != 'I' &&
+			input[0] != '?') {
 			size_t numdigits = strlen(input) / 2;
 			size_t i;
+
+			int begin = SOL1_REGISTERS::value(this->cpu.registers.PCl, this->cpu.registers.PCh);
 			for (i = 0; i != numdigits; ++i)
 			{
 				unsigned char output = 16 * toInt(input[2 * i]) + toInt(input[2 * i + 1]);
-				this->cpu.memory.memory[i] = output;
+				this->cpu.memory.memory[begin + i] = output;
 				//printf("%x\n", output[i]);
 			}
 
-			step = 1;
-			SOL1_REGISTERS::set(this->cpu.registers.PCl, this->cpu.registers.PCh, 0x00);
-			SOL1_REGISTERS::set(this->cpu.registers.MARl, this->cpu.registers.MARh, 0x00);
+			//step = 0;
+			//SOL1_REGISTERS::set(this->cpu.registers.PCl, this->cpu.registers.PCh, 0x00);
+			//SOL1_REGISTERS::set(this->cpu.registers.MARl, this->cpu.registers.MARh, 0x00);
 
 
-			this->cpu.memory.display(this->cpu.registers);
-			this->cpu.display_registers_lite();
-			runtime_counter = 0;
+			//this->cpu.memory.display(this->cpu.registers);
+			//this->cpu.display_registers_lite();
+			//runtime_counter = 0;
+			debug = 1;
 		}
-		else if (input[0] == 'n' || input[0] == 'N') {
+		else if (input[0] == 'q' || input[0] == 'Q') {
 
 
 			debugmenu_main_menu();
@@ -1364,9 +1408,22 @@ void SOL1_COMPUTER::run() {
 			this->cpu.microcode.u_adder = this->cpu.microcode.old_u_ad_bus;
 		}
 		else if (input[0] == 'p' || input[0] == 'P') {
-			this->cpu.microcode.IR.set(0x00);
-			this->cpu.reset();
+			debugmenu_main_reset_cpu(this->cpu);
 			this->cpu.memory.reset();
+			debug = 1;
+		}
+
+		else if (input[0] == 'o' || input[0] == 'O') {
+			this->cpu.memory.display(this->cpu.registers);
+			debug = 1;
+		}
+		else if (input[0] == 'i' || input[0] == 'I') {
+			debugmenu_main_display_registers(this->cpu);
+			//this->cpu.registers.display(this->cpu.registers);
+			debug = 1;
+		}
+		else if (input[0] == '?') {
+			trace_menu();
 			debug = 1;
 		}
 

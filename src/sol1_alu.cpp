@@ -90,9 +90,9 @@ SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
 
 	SOL1_BYTE inIC16 = 0x00;
 
-	if (shift_src == 0x01)
+	if (shift_src == 0x00)
 		inIC16 = 0x00;
-
+		
 	else if (shift_src == 0x01)
 		inIC16 = u_cf;
 
@@ -151,7 +151,7 @@ SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
 	SOL1_BYTE zNEQx = (get_byte_bit(z_bus, 7) != get_byte_bit(x_bus, 7));
 	SOL1_BYTE xNEQy = (get_byte_bit(x_bus, 7) != get_byte_bit(y_bus, 7));
 
-	alu->alu_of = zNEQx && ((alu->alu_op != 0b1001) == xNEQy);
+		alu->alu_of = zNEQx && ((alu->alu_op != 0b1001) == xNEQy);
 	//
 	/////////////////////////////////////////////////////////////////
 	//
