@@ -1,8 +1,13 @@
 #include <stdio.h>
-#include <conio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#if defined(__linux__) || defined(__MINGW32__)
+
+#else
+#include <conio.h>
+#endif
 
 #include "debugmenu_roms.h"
 #include "sol1_rom.h"

@@ -1,6 +1,6 @@
 #ifndef SOL1COMPUTER_H
 #define SOL1COMPUTER_H
-
+#include "config.h"
 #include "sol1_bus.h"
 #include "sol1_cpu.h"
 
@@ -27,9 +27,9 @@ public:
 	struct hw_uart hw_uart;
 	struct hw_ide hw_ide;
 	struct hw_timer hw_timer;
+
 	HW_TTY hw_tty;
 	HW_WEB hw_web;
-
 
 	unordered_map<string, Tasm_Opcode> ht_opcodes;
 
@@ -48,20 +48,20 @@ public:
 
 
 
-	SOL1_BYTE SOL1_COMPUTER::get_current_opcode();
-	SOL1_BYTE SOL1_COMPUTER::get_current_opcode_cycle();
-	void SOL1_COMPUTER::disassembly_current_opcode();
-	void SOL1_COMPUTER::refresh_int();
+	SOL1_BYTE get_current_opcode();
+	SOL1_BYTE get_current_opcode_cycle();
+	void disassembly_current_opcode();
+	void refresh_int();
 
 
 
-	SOL1_BYTE SOL1_COMPUTER::buffer_rd();
-	SOL1_BYTE SOL1_COMPUTER::buffer_wr();
-	SOL1_BYTE SOL1_COMPUTER::buffer_mem_io();
-	unsigned long SOL1_COMPUTER::read_address_bus();
+	SOL1_BYTE buffer_rd();
+	SOL1_BYTE buffer_wr();
+	SOL1_BYTE buffer_mem_io();
+	unsigned long read_address_bus();
 
-	void SOL1_COMPUTER::mc_sequencer(long *runtime_counter);
-	void SOL1_COMPUTER::RunCPU(long *runtime_counter);
+	void mc_sequencer(long *runtime_counter);
+	void RunCPU(long *runtime_counter);
 };
 
 

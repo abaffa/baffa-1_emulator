@@ -39,15 +39,6 @@ struct sol1_alu_4bit
 	SOL1_BYTE alu_b_src;
 };
 
-void sol1_alu_4bit_xor(struct sol1_alu_4bit* alu);
-void sol1_alu_4bit_or(struct sol1_alu_4bit* alu);
-void sol1_alu_4bit_and(struct sol1_alu_4bit* alu);
-void sol1_alu_4bit_not(struct sol1_alu_4bit* alu);
-void sol1_alu_4bit_shl(struct sol1_alu_4bit* alu);
-void sol1_alu_4bit_shr(struct sol1_alu_4bit* alu);
-
-void sol1_alu_4bit_sum(struct sol1_alu_4bit* alu);
-void sol1_alu_4bit_sub(struct sol1_alu_4bit* alu);
 
 SOL1_BYTE sol1_alu_4bit_op(struct sol1_alu_4bit* alu, SOL1_BYTE A, SOL1_BYTE B, SOL1_BYTE CIN, SOL1_BYTE S, SOL1_BYTE M);
 

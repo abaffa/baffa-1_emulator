@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\include\sol1_bus.cpp" />
     <ClCompile Include="..\..\..\src\debugmenu_main.cpp" />
     <ClCompile Include="..\..\..\src\debugmenu_roms.cpp" />
     <ClCompile Include="..\..\..\src\hashtable.cpp" />
@@ -33,20 +32,17 @@
     <ClCompile Include="..\..\..\src\main.cpp" />
     <ClCompile Include="..\..\..\src\sol1_alu.cpp" />
     <ClCompile Include="..\..\..\src\sol1_alu_4bit.cpp" />
-    <ClCompile Include="..\..\..\src\sol1_alu_8bit.cpp" />
-    <ClCompile Include="..\..\..\src\sol1_alu_basic.cpp" />
     <ClCompile Include="..\..\..\src\hw_ide.cpp" />
+    <ClCompile Include="..\..\..\src\sol1_bus.cpp" />
     <ClCompile Include="..\..\..\src\sol1_computer.cpp" />
     <ClCompile Include="..\..\..\src\sol1_microcode.cpp" />
     <ClCompile Include="..\..\..\src\sol1_registers.cpp" />
     <ClCompile Include="..\..\..\src\sol1_register_8bit.cpp" />
     <ClCompile Include="..\..\..\src\sol1_rom.cpp" />
-    <ClCompile Include="..\..\..\src\sol1_alu_16bit.cpp" />
     <ClCompile Include="..\..\..\src\sol1_cpu.cpp" />
     <ClCompile Include="..\..\..\src\sol1_memory.cpp" />
     <ClCompile Include="..\..\..\src\sol1_keyboard.cpp" />
     <ClCompile Include="..\..\..\src\tasm_opcode.cpp" />
-    <ClCompile Include="..\..\..\src\ttl74series.cpp" />
     <ClCompile Include="..\..\..\src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -64,18 +60,14 @@
     <ClInclude Include="..\..\..\include\linkedlist.h" />
     <ClInclude Include="..\..\..\include\sol1_alu.h" />
     <ClInclude Include="..\..\..\include\sol1_alu_4bit.h" />
-    <ClInclude Include="..\..\..\include\sol1_alu_8bit.h" />
-    <ClInclude Include="..\..\..\include\sol1_alu_basic.h" />
     <ClInclude Include="..\..\..\include\hw_ide.h" />
     <ClInclude Include="..\..\..\include\sol1_bus.h" />
     <ClInclude Include="..\..\..\include\sol1_computer.h" />
     <ClInclude Include="..\..\..\include\sol1_microcode.h" />
     <ClInclude Include="..\..\..\include\sol1_register_8bit.h" />
     <ClInclude Include="..\..\..\include\sol1_rom.h" />
-    <ClInclude Include="..\..\..\include\sol1_alu_16bit.h" />
     <ClInclude Include="..\..\..\include\sol1_cpu.h" />
     <ClInclude Include="..\..\..\include\tasm_opcode.h" />
-    <ClInclude Include="..\..\..\include\ttl74series.h" />
     <ClInclude Include="..\..\..\include\utils.h" />
     <ClInclude Include="..\..\..\include\sol1_memory.h" />
     <ClInclude Include="..\..\..\include\sol1_registers.h" />

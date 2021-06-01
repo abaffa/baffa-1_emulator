@@ -3,6 +3,12 @@
 
 #include "config.h"
 
+#ifdef __linux__
+int getch(void);
+int kbhit();
+char* itoa(int value, char* result, int base);
+#endif
+
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
   (byte & 0x80 ? '1' : '0'), \

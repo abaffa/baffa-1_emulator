@@ -6,7 +6,7 @@
 #include "sol1_memory.h"
 #include "sol1_microcode.h"
 #include "sol1_registers.h"
-#include "sol1_alu_8bit.h"
+#include "sol1_alu.h"
 #include <stddef.h>
 
 class SOL1_CPU

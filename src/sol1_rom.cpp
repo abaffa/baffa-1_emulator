@@ -6,6 +6,11 @@
 #include "sol1_rom.h"
 #include "utils.h"
 
+#if defined(__linux__) || defined(__MINGW32__)
+
+#else
+#include <conio.h>
+#endif
 
 const char* SOL1_ROM_CONTROL_LIST[] = {
 	"next_0", "next_1", "offset_0", "offset_1", "offset_2", "offset_3", "offset_4", "offset_5", "offset_6", "cond_inv", "cond_flags_src", "cond_sel_0",

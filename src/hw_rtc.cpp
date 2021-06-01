@@ -1,9 +1,16 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "hw_rtc.h"
-#include <windows.h>
+
 #include <time.h>
 #include <ctime>
 
+#ifdef _MSC_VER    
+#include <windows.h>
+#else
+#include <pthread.h> 
+#include "utils.h"
+#endif
 
 
 SOL1_DWORD hw_rtc_current_datetime() {
@@ -46,7 +53,12 @@ SOL1_BYTE convertToInt(int v) {
 	return ret;
 }
 
+
+#ifdef _MSC_VER    
 DWORD WINAPI MTRtcThread(LPVOID pParam)
+#else
+void *MTRtcThread(void *pParam)
+#endif
 {
 	/*
 	; RTC SERVICES INTERRUPT
@@ -93,8 +105,17 @@ DWORD WINAPI MTRtcThread(LPVOID pParam)
 		hw_rtc->data[11] = convertToHex(timeinfo->tm_hour);
 		hw_rtc->data[10] = convertToHex(timeinfo->tm_min);
 		hw_rtc->data[9] = convertToHex(timeinfo->tm_sec);
-		
+
+#ifdef _MSC_VER     
 		Sleep(1000);
+#else
+		int milliseconds = 1000;
+		struct timespec ts;
+		ts.tv_sec = milliseconds / 1000;
+		ts.tv_nsec = (milliseconds % 1000) * 1000000;
+		nanosleep(&ts, NULL);
+
+#endif
 	}
 
 	return 0;
@@ -105,8 +126,13 @@ DWORD WINAPI MTRtcThread(LPVOID pParam)
 
 
 void hw_rtc_start_clock(struct hw_rtc* hw_rtc) {
+#ifdef _MSC_VER    
 	DWORD tid;
 	HANDLE myHandle = CreateThread(0, 0, MTRtcThread, hw_rtc, 0, &tid);
+#else
+	pthread_t tid;
+	pthread_create(&tid, NULL, MTRtcThread, (void *)hw_rtc);
+#endif
 }
 
 

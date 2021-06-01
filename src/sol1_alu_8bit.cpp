@@ -576,7 +576,7 @@ static SOL1_BYTE sol1_alu_inout_high(struct sol1_alu_8bit* alu, SOL1_BYTE A, SOL
 		break;
 	case 0xC:
 		if (M != 0x00) {
-			alu->C = 0xFFFF;
+			alu->C = 0xFF;
 		}
 		else {
 			sol1_alu_8bit_opsum(alu, alu->A);

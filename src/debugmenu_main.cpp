@@ -1,9 +1,14 @@
 #include <stdio.h>
+
+#if defined(__linux__) || defined(__MINGW32__)
+
+#else
 #include <conio.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
 
 #include "debugmenu_main.h"
 #include "debugmenu_roms.h"

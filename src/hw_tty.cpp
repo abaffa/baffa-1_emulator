@@ -2,26 +2,19 @@
 #include "sol1_computer.h"
 #include <stdio.h>
 
-
-/*
-void HW_TTY::init(SOL1_CPU& sol1_cpu, struct hw_uart* hw_uart) {
-	int i;
-
-	for (i = 0; i < 10; i++) {
-		this->clients[i].client = NULL;
-		this->clients[i].index = i;
-		this->clients[i].running = 0;
-		//this->clients[i].sol1_cpu = sol1_cpu;
-		this->clients[i].hw_uart = hw_uart;
-		this->clients[i].uart_out = queue_create();
-	}
-
-}
-*/
+#ifdef _MSC_VER    
+#include <windows.h>
+#else
+#include <pthread.h> 
+#endif
 
 
 
+#ifdef _MSC_VER    
 DWORD WINAPI TelnetClientThread(LPVOID pParam)
+#else
+void *TelnetClientThread(void *pParam)
+#endif
 {
 
 	struct computer_client new_computer_client = *(struct computer_client*)pParam;
@@ -31,12 +24,16 @@ DWORD WINAPI TelnetClientThread(LPVOID pParam)
 	SOL1_BYTE buff[512];
 	int n;
 	int x = 0;
-	BOOL auth = false;
 
 	SOL1_BYTE lastchar = 0;
 	SOL1_BYTE startCMD = 0x00;
 
-	SOCKET client = *(new_computer_client.client);// (SOCKET)pParam;
+#ifdef _MSC_VER    
+	SOCKET client = *(new_computer_client.client);
+#else
+	int client = *(new_computer_client.client);
+#endif
+	
 	//https://datatracker.ietf.org/doc/html/rfc1116
 	//https://tools.ietf.org/html/rfc854
 	//https://datatracker.ietf.org/doc/html/rfc854#page-14
@@ -152,7 +149,11 @@ DWORD WINAPI TelnetClientThread(LPVOID pParam)
 
 	}
 	
+#ifdef _MSC_VER     
 	closesocket(client);
+#else
+	shutdown(client, 2);
+#endif
 	((struct computer_client*)pParam)->running = 0;
 	((struct computer_client*)pParam)->client = NULL;
 	return 0;
@@ -161,29 +162,42 @@ DWORD WINAPI TelnetClientThread(LPVOID pParam)
 
 
 
-
+#ifdef _MSC_VER    
 DWORD WINAPI TelnetServerThread(LPVOID pParam)
+#else
+void *TelnetServerThread(void *pParam)
+#endif
 {
 
 	struct computer_client* clients = (struct computer_client*)pParam;
 
-	SOCKET server;
-
-	WSADATA wsaData;
 	sockaddr_in local;
+#ifdef _MSC_VER    
+	SOCKET server;
+	WSADATA wsaData;
 	int wsaret = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (wsaret != 0)
 	{
 		return 0;
 	}
+#else
+	int server;
+#endif
 	local.sin_family = AF_INET;
 	local.sin_addr.s_addr = INADDR_ANY;
 	local.sin_port = htons((u_short)20248);
+#ifdef _MSC_VER   
 	server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (server == INVALID_SOCKET)
 	{
 		return 0;
 	}
+#else
+	if ((server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+	{
+		return 0;
+	}
+#endif
 	if (bind(server, (sockaddr*)&local, sizeof(local)) != 0)
 	{
 		return 0;
@@ -193,18 +207,26 @@ DWORD WINAPI TelnetServerThread(LPVOID pParam)
 		return 0;
 	}
 
-	SOCKET client;
 	sockaddr_in from;
+#ifdef _MSC_VER    
+	SOCKET client;
 	int fromlen = sizeof(from);
+#else
+	int client;
+	socklen_t fromlen = sizeof(from);
+#endif
 
 	while (true)
 	{
 		client = accept(server,
 			(struct sockaddr*)&from, &fromlen);
 		
+#ifdef _MSC_VER    
 		u_long mode = 1;  // 1 to enable non-blocking socket
 		ioctlsocket(client, FIONBIO, &mode);
-
+#else
+		fcntl(client, F_SETFL, O_NONBLOCK);
+#endif
 
 		struct computer_client *new_computer_client = NULL;
 		int i = 0;
@@ -218,14 +240,28 @@ DWORD WINAPI TelnetServerThread(LPVOID pParam)
 			}
 		}
 		if (new_computer_client != NULL) {
+
+
+#ifdef _MSC_VER    
 			DWORD tid = 100 + new_computer_client->index;
 			HANDLE myHandle = CreateThread(0, 0, TelnetClientThread, new_computer_client, 0, &tid);
+#else
+			pthread_t tid = 100 + new_computer_client->index;
+			pthread_create(&tid, NULL, TelnetClientThread, (void *)new_computer_client);
+#endif
+
+
 		}
 		else {
 
-			char *buf_send = "No pool available.\n";
+			char *buf_send = (char *)"No pool available.\n";
 			send(client, buf_send, (int)strlen(buf_send), 0);
+#ifdef _MSC_VER     
 			closesocket(client);
+#else
+			shutdown(client, 2);
+#endif
+
 		}
 	}
 
@@ -235,7 +271,7 @@ DWORD WINAPI TelnetServerThread(LPVOID pParam)
 
 
 void HW_TTY::start_server(SOL1_CPU& sol1_cpu, struct hw_uart* hw_uart) {
-	DWORD tid;
+
 
 	int i;
 
@@ -248,6 +284,14 @@ void HW_TTY::start_server(SOL1_CPU& sol1_cpu, struct hw_uart* hw_uart) {
 		this->clients[i].tty_out = queue_create();
 
 	}
+
+#ifdef _MSC_VER        
+	DWORD tid;
 	HANDLE myHandle = CreateThread(0, 0, TelnetServerThread, &this->clients, 0, &tid);
+#else
+	pthread_t tid;
+	pthread_create(&tid, NULL, TelnetServerThread, (void*)&this->clients);
+#endif
 }
+
 

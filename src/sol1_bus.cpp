@@ -76,35 +76,35 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 		switch (inABC) {
 		case 0x00:
 			w_bus = sol1_registers.Al.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Al", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"Al", w_bus);
 			break;
 		case 0x01:
 			w_bus = sol1_registers.Ah.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Ah", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"Ah", w_bus);
 			break;
 		case 0x02:
 			w_bus = sol1_registers.Bl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Bl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"Bl", w_bus);
 			break;
 		case 0x03:
 			w_bus = sol1_registers.Bh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Bh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"Bh", w_bus);
 			break;
 		case 0x04:
 			w_bus = sol1_registers.Cl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Cl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"Cl", w_bus);
 			break;
 		case 0x05:
 			w_bus = sol1_registers.Ch.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Ch", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"Ch", w_bus);
 			break;
 		case 0x06:
 			w_bus = sol1_registers.Dl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Dl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"Dl", w_bus);
 			break;
 		case 0x07:
 			w_bus = sol1_registers.Dh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "Dh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"Dh", w_bus);
 			break;
 		}
 
@@ -113,35 +113,35 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 		switch (inABC) {
 		case 0x00:
 			w_bus = sol1_registers.SPl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SPl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"SPl", w_bus);
 			break;
 		case 0x01:
 			w_bus = sol1_registers.SPh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SPh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"SPh", w_bus);
 			break;
 		case 0x02:
 			w_bus = sol1_registers.BPl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "BPl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"BPl", w_bus);
 			break;
 		case 0x03:
 			w_bus = sol1_registers.BPh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "BPh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"BPh", w_bus);
 			break;
 		case 0x04:
 			w_bus = sol1_registers.SIl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SIl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"SIl", w_bus);
 			break;
 		case 0x05:
 			w_bus = sol1_registers.SIh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SIh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"SIh", w_bus);
 			break;
 		case 0x06:
 			w_bus = sol1_registers.DIl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "DIl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"DIl", w_bus);
 			break;
 		case 0x07:
 			w_bus = sol1_registers.DIh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "DIh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"DIh", w_bus);
 			break;
 		}
 	}
@@ -149,35 +149,35 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 		switch (inABC) {
 		case 0x00:
 			w_bus = sol1_registers.PCl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "PCl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"PCl", w_bus);
 			break;
 		case 0x01:
 			w_bus = sol1_registers.PCh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "PCh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"PCh", w_bus);
 			break;
 		case 0x02:
 			w_bus = sol1_registers.MARl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "MARl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"MARl", w_bus);
 			break;
 		case 0x03:
 			w_bus = sol1_registers.MARh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "MARh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"MARh", w_bus);
 			break;
 		case 0x04:
 			w_bus = sol1_registers.MDRl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "MDRl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"MDRl", w_bus);
 			break;
 		case 0x05:
 			w_bus = sol1_registers.MDRh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "MDRh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"MDRh", w_bus);
 			break;
 		case 0x06:
 			w_bus = sol1_registers.TDRl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "TDRl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"TDRl", w_bus);
 			break;
 		case 0x07:
 			w_bus = sol1_registers.TDRh.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "TDRh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"TDRh", w_bus);
 			break;
 		}
 	}
@@ -185,11 +185,11 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 		switch (inABC) {
 		case 0x00:
 			w_bus = sol1_registers.SSPl.value();
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SSPl", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"SSPl", w_bus);
 			break;
 		case 0x01:
 			w_bus = sol1_registers.SSPh.value();  
-			if (DEBUG_RDREG) reg8bit_print(fa, "READ ", "SSPh", w_bus);
+			if (DEBUG_RDREG) reg8bit_print(fa, (char *)"READ ", (char *)"SSPh", w_bus);
 			break;
 		case 0x02:
 			w_bus = int_vector;

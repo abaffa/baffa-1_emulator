@@ -4,7 +4,7 @@
 
 #include "config.h"
 #include "sol1_registers.h"
-#include "sol1_alu_8bit.h"
+#include "sol1_alu.h"
 
 
 
