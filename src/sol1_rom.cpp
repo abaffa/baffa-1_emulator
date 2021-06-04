@@ -9,7 +9,7 @@
 #if defined(__linux__) || defined(__MINGW32__)
 
 #else
-#include <conio.h>
+
 #endif
 
 const char* SOL1_ROM_CONTROL_LIST[] = {
@@ -26,14 +26,16 @@ const char* SOL1_ROM_CONTROL_LIST[] = {
 
 
 
-int SOL1_ROM::load_rom(const char* filename, SOL1_BYTE* rom) {
+int SOL1_ROM::load_rom(const char* filename, SOL1_BYTE* rom, HW_TTY& hw_tty) {
 
-	printf("The filename to load is: %s", filename);
+	char str_out[255];
+	sprintf(str_out, "The filename to load is: %s", filename);
+	hw_tty.print(str_out);
 
 	FILE* f = fopen(filename, "rb");
 	if (!f)
 	{
-		printf(" | Failed to open the file.\n");
+		hw_tty.print(" | Failed to open the file.\n");
 		return 0;
 	}
 
@@ -46,7 +48,7 @@ int SOL1_ROM::load_rom(const char* filename, SOL1_BYTE* rom) {
 	size_t res = fread(buf, size, 1, f);
 	if (res != 1)
 	{
-		printf(" | Failed to read from file.\n");
+		hw_tty.print(" | Failed to read from file.\n");
 		return 0;
 	}
 
@@ -54,7 +56,7 @@ int SOL1_ROM::load_rom(const char* filename, SOL1_BYTE* rom) {
 	for (i = 0; i < size; i++)
 		rom[i] = buf[i];
 
-	printf(" | OK.\n");
+	hw_tty.print(" | OK.\n");
 	return 1;
 }
 
@@ -65,7 +67,7 @@ void SOL1_ROM::is_rom_in_bounds(SOL1_MWORD index)
 	assert(index >= 0 && index < SOL1_ROM_SIZE);
 }
 
-void SOL1_ROM::init()
+void SOL1_ROM::init(HW_TTY& hw_tty)
 {
 	int i = 0;
 
@@ -73,7 +75,7 @@ void SOL1_ROM::init()
 
 	this->roms = (SOL1_BYTE**)malloc(sizeof(SOL1_BYTE*) * SOL1_ROM_DESC);
 
-	load_rom("rom", this->rom_desc);
+	load_rom("rom", this->rom_desc, hw_tty);
 
 	int _roms = 0;
 	for (_roms = 0; _roms < SOL1_ROM_NBR_ROMS; _roms++) {
@@ -81,7 +83,7 @@ void SOL1_ROM::init()
 		sprintf(filename, "rom%d", _roms);
 
 		this->roms[_roms] = (SOL1_BYTE*)malloc(sizeof(SOL1_BYTE*) * (SOL1_ROM_NBR_ROMS *  SOL1_ROM_NBR_INSTRUCTIONS));
-		load_rom(filename, this->roms[_roms]);
+		load_rom(filename, this->roms[_roms], hw_tty);
 	}
 
 	this->MAR = 0x0;
@@ -93,40 +95,47 @@ void SOL1_ROM::init()
 
 
 
-void SOL1_ROM::display_current_cycles(SOL1_BYTE opcode, SOL1_BYTE cycle, SOL1_BYTE debug_desc_type) {
+void SOL1_ROM::display_current_cycles(SOL1_BYTE opcode, SOL1_BYTE cycle, SOL1_BYTE debug_desc_type, HW_TTY& hw_tty) {
 
+	char str_out[255];
 	int k, j, i;
 	int p = opcode * SOL1_ROM_CYCLES_PER_INSTR + cycle;
 
 	for (j = 0; j < SOL1_ROM_NBR_ROMS; j++) {
 
 		if (j % 8 == 0) {
-			printf(" ");
+			hw_tty.print(" ");
 			for (i = j; i < SOL1_ROM_NBR_ROMS && i < (j + 8); i++) {
-				printf(" Rom %02d  ", i);
+				sprintf(str_out, " Rom %02d  ", i);
+				hw_tty.print(str_out);
 			}
-			printf("\n");
-			printf(" ");
+			hw_tty.print("\n");
+			hw_tty.print(" ");
 		}
-		printf(" %c%c%c%c%c%c%c%c", INV_BYTE_TO_BINARY(this->roms[j][p]));
+
+		hw_tty.print(" ");
+
+		sprintf(str_out, "%c%c%c%c%c%c%c%c", INV_BYTE_TO_BINARY(this->roms[j][p]));
+		hw_tty.print(str_out);
 
 		if ((j + 1) % 8 == 0 && j < SOL1_ROM_NBR_ROMS - 1)
-			printf("\n\n");
+			hw_tty.print("\n\n");
 	}
 
-	printf("\n\n");
+	hw_tty.print("\n\n");
 
 	if (debug_desc_type == 1) {
-		printf("---------\n");
+		hw_tty.print("---------\n");
 		if (strlen((const char*)(&this->rom_desc[(256 * 64 * opcode) + (256 * cycle)])) > 0) {
-			printf("%s\n", &this->rom_desc[(256 * 64 * opcode) + (256 * cycle)]);
-			printf("---------\n");
+			sprintf(str_out, "%s\n", &this->rom_desc[(256 * 64 * opcode) + (256 * cycle)]);
+			hw_tty.print(str_out);
+			hw_tty.print("---------\n");
 		}
 	}
 	else {
 		for (j = 0; j < 24; j++)
 		{
-			printf(" ");
+			hw_tty.print(" ");
 			for (k = 0; k < 4; k++) {
 
 				int c_rom = (j + 24 * k) / 8;
@@ -141,63 +150,70 @@ void SOL1_ROM::display_current_cycles(SOL1_BYTE opcode, SOL1_BYTE cycle, SOL1_BY
 				else
 					sprintf(tmp, " %s ", SOL1_ROM_CONTROL_LIST[j + 24 * k]);
 
-				printf("%s", rightpad(tmp, 18));
-
+				sprintf(str_out, "%s", rightpad(tmp, 18));
+				hw_tty.print(str_out);
 
 			}
-			printf("\n");
+			hw_tty.print("\n");
 		}
 	}
-	printf("\n");
+	hw_tty.print("\n");
 
-	printf("  Cycle: %02x | Inst.: %02x | %s\n", cycle, opcode, &this->rom_desc[0x400000 + (opcode * 256)]);
+	sprintf(str_out, " Inst.: %02x | ", opcode); hw_tty.print(str_out);
+	sprintf(str_out, "Cycle: %02x | ", cycle); hw_tty.print(str_out);
+	sprintf(str_out, "%s\n", &this->rom_desc[0x400000 + (opcode * 256)]); hw_tty.print(str_out);
 
-	printf("\n");
+	hw_tty.print("\n");
 }
 
-void SOL1_ROM::display_current_cycles_desc(SOL1_BYTE opcode, SOL1_BYTE cycle) {
+void SOL1_ROM::display_current_cycles_desc(SOL1_BYTE opcode, SOL1_BYTE cycle, HW_TTY& hw_tty) {
 
 	int p = opcode * SOL1_ROM_CYCLES_PER_INSTR + cycle;
+	char str_out[255];
 
-	printf(" *Inst.: %02x | Cycle: %02x | %s\n", opcode, cycle, &this->rom_desc[0x400000 + (opcode * 256)]);
-	printf("---------\n");
+	sprintf(str_out, " *Inst.: %02x | ", opcode); hw_tty.print(str_out);
+	sprintf(str_out, "Cycle: %02x | ", cycle); hw_tty.print(str_out);
+	sprintf(str_out, "%s\n", &this->rom_desc[0x400000 + (opcode * 256)]); hw_tty.print(str_out);
+
+	hw_tty.print("---------\n");
 	if (strlen((const char*)(&this->rom_desc[(256 * 64 * opcode) + (256 * cycle)])) > 0) {
-		printf("%s\n", &this->rom_desc[(256 * 64 * opcode) + (256 * cycle)]);
-		printf("---------\n");
+		sprintf(str_out, "%s\n", &this->rom_desc[(256 * 64 * opcode) + (256 * cycle)]);
+		hw_tty.print(str_out);
+		hw_tty.print("---------\n");
 	}
 
 }
 
 
 
-void SOL1_ROM::menu(SOL1_BYTE debug_desc_type) {
-	printf("\n");
-	printf("SOL-1 Debug Monitor > Roms > Microcode Cycles\n");
-	printf("\n");
+void SOL1_ROM::menu(SOL1_BYTE debug_desc_type, HW_TTY& hw_tty) {
+	hw_tty.print("\n");
+	hw_tty.print("SOL-1 Debug Monitor > Roms > Microcode Cycles\n");
+	hw_tty.print("\n");
 
-	printf("  S - Set Opcode\n");
-	printf("  D - Display current Cycle\n");
-	printf("  N - Next Cycle\n");
-	printf("  P - Previous Cycle\n");
+	hw_tty.print("  S - Set Opcode\n");
+	hw_tty.print("  D - Display current Cycle\n");
+	hw_tty.print("  N - Next Cycle\n");
+	hw_tty.print("  P - Previous Cycle\n");
 
-	printf("\n");
+	hw_tty.print("\n");
 
 	if (debug_desc_type == 0)
-		printf("  T - Show Microcode Description \n");
+		hw_tty.print("  T - Show Microcode Description \n");
 	else
-		printf("  T - Show Microcode Settings \n");
+		hw_tty.print("  T - Show Microcode Settings \n");
 
-	printf("\n");
+	hw_tty.print("\n");
 
-	printf("  ? - Display Menu\n");
-	printf("  Q - Back to Rom Microcode Cycles\n");
-	printf("\n");
+	hw_tty.print("  ? - Display Menu\n");
+	hw_tty.print("  Q - Back to Rom Microcode Cycles\n");
+	hw_tty.print("\n");
 }
 
 
-void SOL1_ROM::debug_cycles() {
+void SOL1_ROM::debug_cycles(HW_TTY& hw_tty) {
 
-	printf("Display Rom Microcode Cycles\n");
+	hw_tty.print("Display Rom Microcode Cycles\n");
 
 	SOL1_BYTE opcode = 0;
 	SOL1_BYTE cycle = 0;
@@ -207,61 +223,61 @@ void SOL1_ROM::debug_cycles() {
 	while (1) {
 
 
-		printf("roms/microcode cycles> ");
-		int key = getch();
+		hw_tty.print("roms/microcode cycles> ");
+		int key = hw_tty.get_char();
 
 
 		if (key == 'n' || key == 'N') {
 			if (cycle < SOL1_ROM_CYCLES_PER_INSTR - 1)
 				cycle++;
-			printf("\n\n");
-			display_current_cycles(opcode, cycle, debug_desc_type);
+			hw_tty.print("\n\n");
+			display_current_cycles(opcode, cycle, debug_desc_type, hw_tty);
 		}
 		else if (key == 'P' || key == 'P') {
 			if (cycle > 0)
 				cycle--;
-			printf("\n\n");
-			display_current_cycles(opcode, cycle, debug_desc_type);
+			hw_tty.print("\n\n");
+			display_current_cycles(opcode, cycle, debug_desc_type, hw_tty);
 		}
 		else if (key == 't' || key == 'T') {
 			debug_desc_type = (debug_desc_type == 0);
 
 			if (debug_desc_type == 0)
-				printf("Showing Microcode Settings\n");
+				hw_tty.print("Showing Microcode Settings\n");
 			else
-				printf("Showing Microcode Description \n");
+				hw_tty.print("Showing Microcode Description \n");
 
 		}
 		else if (key == 'q' || key == 'Q') {
-			printf("\n");
+			hw_tty.print("\n");
 			return;
 		}
 		else if (key == '?') {
-			SOL1_ROM::menu(debug_desc_type);
+			SOL1_ROM::menu(debug_desc_type, hw_tty);
 		}
 		else if (key == 's' || key == 'S') {
 
 			char *input;
 			char *value = (char*)malloc(sizeof(char) * 257);
 
-			printf("Opcode ? ");
-			input = gets(2);
+			hw_tty.print("Opcode ? ");
+			input = hw_tty.gets(2);
 			leftpad(input, value, 2);
 
 			opcode = convert_hexstr_to_value(value);
 			cycle = 0;
-			printf("\n\n");
-			display_current_cycles(opcode, cycle, debug_desc_type);
+			hw_tty.print("\n\n");
+			display_current_cycles(opcode, cycle, debug_desc_type, hw_tty);
 
 			free(input);
 			free(value);
 		}
 		else if (key == 'd' || key == 'D') {
-			printf("\n\n");
-			display_current_cycles(opcode, cycle, debug_desc_type);
+			hw_tty.print("\n\n");
+			display_current_cycles(opcode, cycle, debug_desc_type, hw_tty);
 		}
 		else
-			printf("\n");
+			hw_tty.print("\n");
 
 	}
 }

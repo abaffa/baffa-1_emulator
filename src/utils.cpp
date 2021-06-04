@@ -13,7 +13,7 @@ int getch(void)
 	struct termios oldt, newt;
 	int oldf;
 
-	while(ch == EOF){
+	while (ch == EOF) {
 
 		tcgetattr(STDIN_FILENO, &oldt);
 		newt = oldt;
@@ -83,21 +83,21 @@ char* itoa(int value, char* result, int base) {
 	return result;
 }
 #else
-#include <conio.h>
+
 #endif
 
-void print_word_bin(SOL1_DWORD n) {
+void print_word_bin(char *s, SOL1_DWORD n) {
 	SOL1_BYTE h = MSB(n);
 	SOL1_BYTE l = LSB(n);
 
-	printf("%02x ", h);
-	printf("%c%c%c%c%c%c%c%c", BYTE_TO_BINARY(h));
-	printf(" ");
-	printf("%02x ", l);
-	printf("%c%c%c%c%c%c%c%c", BYTE_TO_BINARY(l));
+	sprintf(s, "%02x ", h);
+	sprintf(s + strlen(s), "%c%c%c%c%c%c%c%c", BYTE_TO_BINARY(h));
+	sprintf(s + strlen(s), " ");
+	sprintf(s + strlen(s), "%02x ", l);
+	sprintf(s + strlen(s), "%c%c%c%c%c%c%c%c", BYTE_TO_BINARY(l));
 }
 
-void print_word_bin_nibbles(SOL1_DWORD n) {
+void print_word_bin_nibbles(char *s, SOL1_DWORD n) {
 	SOL1_BYTE bh = MSB(n);
 	SOL1_BYTE bl = LSB(n);
 
@@ -107,31 +107,31 @@ void print_word_bin_nibbles(SOL1_DWORD n) {
 	SOL1_BYTE blnh = MSN(bl);
 	SOL1_BYTE blnl = LSN(bl);
 
-	printf("%01x ", bhnh);
-	printf("%c%c%c%c", NIBBLE_TO_BINARY(bhnh));
-	printf(" ");
+	sprintf(s, "%01x ", bhnh);
+	sprintf(s + strlen(s), "%c%c%c%c", NIBBLE_TO_BINARY(bhnh));
+	sprintf(s + strlen(s), " ");
 
-	printf("%01x ", bhnl);
-	printf("%c%c%c%c", NIBBLE_TO_BINARY(bhnl));
-	printf(" ");
+	sprintf(s + strlen(s), "%01x ", bhnl);
+	sprintf(s + strlen(s), "%c%c%c%c", NIBBLE_TO_BINARY(bhnl));
+	sprintf(s + strlen(s), " ");
 
-	printf("%01x ", blnh);
-	printf("%c%c%c%c", NIBBLE_TO_BINARY(blnh));
-	printf(" ");
+	sprintf(s + strlen(s), "%01x ", blnh);
+	sprintf(s + strlen(s), "%c%c%c%c", NIBBLE_TO_BINARY(blnh));
+	sprintf(s + strlen(s), " ");
 
-	printf("%01x ", blnl);
-	printf("%c%c%c%c", NIBBLE_TO_BINARY(blnl));
+	sprintf(s + strlen(s), "%01x ", blnl);
+	sprintf(s + strlen(s), "%c%c%c%c", NIBBLE_TO_BINARY(blnl));
 }
 
 
-void print_byte_bin(SOL1_BYTE b) {
-	printf("%02x ", b);
-	printf("%c%c%c%c%c%c%c%c", BYTE_TO_BINARY(b));
+void print_byte_bin(char *s, SOL1_BYTE b) {
+	sprintf(s, "%02x ", b);
+	sprintf(s + strlen(s), "%c%c%c%c%c%c%c%c", BYTE_TO_BINARY(b));
 }
 
-void print_nibble_bin(SOL1_BYTE b) {
-	printf("%01x ", b);
-	printf("%c%c%c%c", NIBBLE_TO_BINARY(b));
+void print_nibble_bin(char *s, SOL1_BYTE b) {
+	sprintf(s, "%01x ", b);
+	sprintf(s + strlen(s), "%c%c%c%c", NIBBLE_TO_BINARY(b));
 }
 
 
@@ -160,7 +160,7 @@ void leftpad(char *str1, char *str2, int pad) {
 
 }
 
-char* rightpad(const char *str1, int pad){
+char* rightpad(const char *str1, int pad) {
 
 	char *str2 = (char*)malloc(pad + 1);
 
@@ -171,7 +171,7 @@ char* rightpad(const char *str1, int pad){
 			str2[i] = str1[i];
 		else
 			str2[i] = ' ';
-			
+
 	}
 
 	str2[i] = '\0';
@@ -191,34 +191,6 @@ unsigned int convert_hexstr_to_value(char *value) {
 		address += output;
 	}
 	return address;
-}
-
-char* gets(int max_value) {
-
-	char *input = (char*)malloc(sizeof(char) * 257);
-
-	int i = 0;
-	for (i = 0; i < 256 && i < max_value; ) {
-		char cur_input = getch();
-		if (cur_input == (char)8) {
-			if (i > 0) {
-				printf("%c", cur_input);
-				printf(" ");
-				printf("%c", cur_input);
-				i--;
-			}
-		}
-		else if (cur_input != '\n' && cur_input != '\r') {
-			cur_input = toupper(cur_input);
-			printf("%c", cur_input);
-			input[i] = cur_input;
-			i++;
-		}
-		else
-			break;
-	}
-	input[i] = '\0';
-	return input;
 }
 
 
@@ -263,14 +235,14 @@ SOL1_DWORD set_word_bit(SOL1_DWORD v, int bit) {
 
 
 
-char* loadfile(char *filename, long *size) {
+char* loadfile(char *s, char *filename, long *size) {
 
-	printf("The filename to load is: %s", filename);
+	sprintf(s, "The filename to load is: %s", filename);
 
 	FILE* f = fopen(filename, "rb");
 	if (!f)
 	{
-		printf(" | Failed to open the file.\n");
+		sprintf(s + strlen(s), " | Failed to open the file.\n");
 		return NULL;
 	}
 
@@ -283,21 +255,21 @@ char* loadfile(char *filename, long *size) {
 	size_t res = fread(buf, *size, 1, f);
 	if (res != 1)
 	{
-		printf(" | Failed to read from file.\n");
+		sprintf(s + strlen(s), " | Failed to read from file.\n");
 		return NULL;
 	}
 
-	printf(" | OK.\n");
+	sprintf(s + strlen(s), " | OK.\n");
 	return buf;
 }
 
-void save_to_log(FILE *fa, char *str)
+void save_to_log(char *s, FILE *fa, char *str)
 {
 
 	//FILE *fa = fopen("File1.txt", "a");
 	if (fa == NULL)
 	{
-		printf("can not open target file\n");
+		sprintf(s, "can not open target file\n");
 		exit(1);
 	}
 
@@ -311,10 +283,10 @@ void save_to_log(FILE *fa, char *str)
 
 
 
-void reg8bit_print(FILE *fa, char *dir, char *reg, SOL1_BYTE value) {
+void reg8bit_print(char *s, FILE *fa, char *dir, char *reg, SOL1_BYTE value) {
 	char line[255];
 	sprintf(line, "         \t\t\t\t%s REG\t %s \t= %02x\n", dir, reg, value);
-	save_to_log(fa, line);
+	save_to_log(s, fa, line);
 }
 
 

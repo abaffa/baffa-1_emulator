@@ -7,6 +7,7 @@
 #include "sol1_microcode.h"
 #include "sol1_registers.h"
 #include "sol1_alu.h"
+#include "hw_tty.h"
 #include <stddef.h>
 
 class SOL1_CPU
@@ -55,16 +56,16 @@ public:
 	int display_reg_load;
 
 
-	void init();
+	void init(HW_TTY& hw_tty);
 
 	void reset();
-	void display_registers();
-	void display_registers_lite();
-	void memory_display();
+	void display_registers(HW_TTY& hw_tty);
+	void display_registers_lite(HW_TTY& hw_tty);
+	void memory_display(HW_TTY& hw_tty);
 
 
-	void mswh_flags_desc();
-	void mswl_status_desc();
+	void mswh_flags_desc(HW_TTY& hw_tty);
+	void mswl_status_desc(HW_TTY& hw_tty);
 
 	void load_microcode_from_rom();
 
@@ -80,6 +81,6 @@ public:
 	SOL1_BYTE *get_current_memory();
 	int get_current_memory_size();
 
-	void mc_seq_update();
+	void mc_seq_update(HW_TTY& hw_tty);
 };
 #endif

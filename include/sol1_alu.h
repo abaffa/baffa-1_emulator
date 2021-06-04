@@ -3,7 +3,7 @@
 
 #include "sol1_alu_4bit.h"
 #include "config.h"
-
+#include "hw_tty.h"
 
 
 struct sol1_alu_8bit
@@ -48,11 +48,11 @@ struct sol1_alu_8bit
 
 
 void sol1_alu_init(struct sol1_alu_8bit *alu);
-void sol1_alu_display_registers(struct sol1_alu_8bit *alu);
+void sol1_alu_display_registers(struct sol1_alu_8bit *alu, HW_TTY& hw_tty);
 
 
 SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus, 
-	SOL1_BYTE u_cf, SOL1_BYTE msw_cf, SOL1_BYTE shift_src, SOL1_BYTE zbus_out_src, SOL1_BYTE DEBUG_ALU);
+	SOL1_BYTE u_cf, SOL1_BYTE msw_cf, SOL1_BYTE shift_src, SOL1_BYTE zbus_out_src, SOL1_BYTE DEBUG_ALU, HW_TTY& hw_tty);
 
 
 #endif

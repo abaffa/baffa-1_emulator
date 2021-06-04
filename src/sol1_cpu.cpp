@@ -21,18 +21,18 @@ const char* SOL1_ROM_CONTROL_LIST[] = {
 };
 */
 
-void SOL1_CPU::init()
+void SOL1_CPU::init(HW_TTY& hw_tty)
 {
-	
-	
-	
+
+
+
 	sol1_alu_init(&this->alu);
-	this->rom.init();
+	this->rom.init(hw_tty);
 
 	this->microcode.init();
 
 	reset();
-	
+
 	this->display_reg_load = 0;
 	this->DEBUG_MICROCODE = INI_DEBUG_MICROCODE;
 	this->DEBUG_UADDRESSER = INI_DEBUG_UADDRESSER;
@@ -64,7 +64,7 @@ void SOL1_CPU::init()
 
 void SOL1_CPU::reset()
 {
-	
+
 	//DATA REGISTERS
 	SOL1_REGISTERS::reset(this->registers.Al, this->registers.Ah); // AX (16bit) Accumulator	(Ah/Al)
 	SOL1_REGISTERS::reset(this->registers.Bl, this->registers.Bh); // BX (16bit) Base		(Bh/Bl)
@@ -95,145 +95,149 @@ void SOL1_CPU::reset()
 	this->BKPT = 0xFFFF; // Breakpoint
 }
 
-void SOL1_CPU::display_registers() {
-	
+void SOL1_CPU::display_registers(HW_TTY& hw_tty) {
+
 	SOL1_MWORD memADDR = SOL1_REGISTERS::value(this->registers.PCl, this->registers.PCh);
 	SOL1_BYTE opcode = get_current_memory()[memADDR];
 
-	printf(" DATA REGISTERS                                        | POINTER REGISTERS\n");
-	printf(" *A=%04x", SOL1_REGISTERS::value(this->registers.Al, this->registers.Ah));
-	printf(" | ");
-	printf("B=%04x", SOL1_REGISTERS::value(this->registers.Bl, this->registers.Bh));
-	printf(" | ");
-	printf("C=%04x", SOL1_REGISTERS::value(this->registers.Cl, this->registers.Ch));
-	printf(" | ");
-	printf("D=%04x", SOL1_REGISTERS::value(this->registers.Dl, this->registers.Dh));
-	printf(" | ");
+	char str_out[255];
 
-	printf("G=%04x", SOL1_REGISTERS::value(this->registers.Gl, this->registers.Gh));
-	printf(" | ");
-	printf("BP=%04x", SOL1_REGISTERS::value(this->registers.BPl, this->registers.BPh));
-	printf(" | ");
-	printf("SP=%04x", SOL1_REGISTERS::value(this->registers.SPl, this->registers.SPh));
-	printf(" | ");
-	printf("SSP=%04x", SOL1_REGISTERS::value(this->registers.SSPl, this->registers.SSPh));
-	printf("\n\n");
+	hw_tty.print(" DATA REGISTERS                                        | POINTER REGISTERS\n");
+	sprintf(str_out, " *A=%04x", SOL1_REGISTERS::value(this->registers.Al, this->registers.Ah)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "B=%04x", SOL1_REGISTERS::value(this->registers.Bl, this->registers.Bh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "C=%04x", SOL1_REGISTERS::value(this->registers.Cl, this->registers.Ch)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "D=%04x", SOL1_REGISTERS::value(this->registers.Dl, this->registers.Dh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
 
-	printf(" MEMORY REGISTERS       INDEX REGISTERS\n");
-	printf(" *MAR=%04x", SOL1_REGISTERS::value(this->registers.MARl, this->registers.MARh));
-	printf(" | ");
-	printf("MDR=%04x", SOL1_REGISTERS::value(this->registers.MDRl, this->registers.MDRh));
-	printf(" | ");
-	printf("SI=%04x", SOL1_REGISTERS::value(this->registers.SIl, this->registers.SIh));
-	printf(" | ");
-	printf("DI=%04x", SOL1_REGISTERS::value(this->registers.DIl, this->registers.DIh));
-	printf(" | ");
-	printf("PC=%04x", SOL1_REGISTERS::value(this->registers.PCl, this->registers.PCh));
-	printf(" | ");
+	sprintf(str_out, "G=%04x", SOL1_REGISTERS::value(this->registers.Gl, this->registers.Gh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "BP=%04x", SOL1_REGISTERS::value(this->registers.BPl, this->registers.BPh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "SP=%04x", SOL1_REGISTERS::value(this->registers.SPl, this->registers.SPh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "SSP=%04x", SOL1_REGISTERS::value(this->registers.SSPl, this->registers.SSPh)); hw_tty.print(str_out);
+	hw_tty.print("\n\n");
+
+	hw_tty.print(" MEMORY REGISTERS       INDEX REGISTERS\n");
+	sprintf(str_out, " *MAR=%04x", SOL1_REGISTERS::value(this->registers.MARl, this->registers.MARh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "MDR=%04x", SOL1_REGISTERS::value(this->registers.MDRl, this->registers.MDRh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "SI=%04x", SOL1_REGISTERS::value(this->registers.SIl, this->registers.SIh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "DI=%04x", SOL1_REGISTERS::value(this->registers.DIl, this->registers.DIh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "PC=%04x", SOL1_REGISTERS::value(this->registers.PCl, this->registers.PCh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
 
 
-		printf("@PC=%02x:%s", opcode, &this->rom.rom_desc[0x400000 + (opcode * 256)]);
+	sprintf(str_out, "@PC=%02x:%s", opcode, &this->rom.rom_desc[0x400000 + (opcode * 256)]); hw_tty.print(str_out);
 
-		if (memADDR < get_current_memory_size() - 3)
-			printf(" [%02x%02x%02x]", get_current_memory()[memADDR], get_current_memory()[memADDR + 1], get_current_memory()[memADDR + 2]);
+	if (memADDR < get_current_memory_size() - 3) {
+		sprintf(str_out, " [%02x%02x%02x]", get_current_memory()[memADDR], get_current_memory()[memADDR + 1], get_current_memory()[memADDR + 2]); hw_tty.print(str_out);
+	}
+	else if (memADDR < get_current_memory_size() - 2) {
+		sprintf(str_out, " [%02x%02x]", get_current_memory()[memADDR],
+			get_current_memory()[memADDR + 1]
+		); hw_tty.print(str_out);
+	}
+	else if (memADDR < get_current_memory_size() - 1) {
+		sprintf(str_out, " [%02x]", get_current_memory()[memADDR]);
+		hw_tty.print(str_out);
+	}
 
-		else if (memADDR < get_current_memory_size() - 2)
-			printf(" [%02x%02x]", get_current_memory()[memADDR],
-				get_current_memory()[memADDR + 1]
-			);
-		else if (memADDR < get_current_memory_size() - 1)
-			printf(" [%02x]", get_current_memory()[memADDR]);
-	
+	hw_tty.print("\n\n");
 
-	printf("\n\n");
-
-	printf("                              SPECIAL REGISTERS\n");
-	printf(" *FLAGS="); print_byte_bin(this->registers.MSWh.value());	printf(":"); mswh_flags_desc();
-	printf(" | IR=%02x", this->microcode.IR.value());
-	printf(" | TDR=%04x", SOL1_REGISTERS::value(this->registers.TDRl, this->registers.TDRh));
-	printf(" | PTB=%02x", this->registers.PTB.value());
-	printf("\n");
-	printf(" *STATS="); print_byte_bin(this->registers.MSWl.value());
-	printf(":       ");
-	mswl_status_desc();
-	printf("\n\n");
+	hw_tty.print("                              SPECIAL REGISTERS\n");
+	hw_tty.print(" *FLAGS="); print_byte_bin(str_out, this->registers.MSWh.value()); hw_tty.print(str_out); hw_tty.print(":"); mswh_flags_desc(hw_tty);
+	sprintf(str_out, " | IR=%02x", this->microcode.IR.value()); hw_tty.print(str_out);
+	sprintf(str_out, " | TDR=%04x", SOL1_REGISTERS::value(this->registers.TDRl, this->registers.TDRh)); hw_tty.print(str_out);
+	sprintf(str_out, " | PTB=%02x", this->registers.PTB.value()); hw_tty.print(str_out);
+	hw_tty.print("\n");
+	hw_tty.print(" *STATS="); print_byte_bin(str_out, this->registers.MSWl.value()); hw_tty.print(str_out);
+	hw_tty.print(":       ");
+	mswl_status_desc(hw_tty);
+	hw_tty.print("\n\n");
 }
 
-void SOL1_CPU::display_registers_lite() {
+void SOL1_CPU::display_registers_lite(HW_TTY& hw_tty) {
+
+	char str_out[255];
+	sprintf(str_out, "*   A=%04x", SOL1_REGISTERS::value(this->registers.Al, this->registers.Ah)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "  B=%04x", SOL1_REGISTERS::value(this->registers.Bl, this->registers.Bh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "  C=%04x", SOL1_REGISTERS::value(this->registers.Cl, this->registers.Ch)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "  D=%04x", SOL1_REGISTERS::value(this->registers.Dl, this->registers.Dh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "  G=%04x", SOL1_REGISTERS::value(this->registers.Gl, this->registers.Gh)); hw_tty.print(str_out);
+	hw_tty.print("\n");
+
+	sprintf(str_out, "*  SI=%04x", SOL1_REGISTERS::value(this->registers.SIl, this->registers.SIh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, " DI=%04x", SOL1_REGISTERS::value(this->registers.DIl, this->registers.DIh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, " PC=%04x", SOL1_REGISTERS::value(this->registers.PCl, this->registers.PCh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
 
 
-	printf("*   A=%04x", SOL1_REGISTERS::value(this->registers.Al, this->registers.Ah));
-	printf(" | ");
-	printf("  B=%04x", SOL1_REGISTERS::value(this->registers.Bl, this->registers.Bh));
-	printf(" | ");
-	printf("  C=%04x", SOL1_REGISTERS::value(this->registers.Cl, this->registers.Ch));
-	printf(" | ");
-	printf("  D=%04x", SOL1_REGISTERS::value(this->registers.Dl, this->registers.Dh));
-	printf(" | ");
-	printf("  G=%04x", SOL1_REGISTERS::value(this->registers.Gl, this->registers.Gh));
-	printf("\n");
+	SOL1_MWORD memADDR = SOL1_REGISTERS::value(this->registers.PCl, this->registers.PCh);
+	SOL1_BYTE opcode = get_current_memory()[memADDR];
 
-	printf("*  SI=%04x", SOL1_REGISTERS::value(this->registers.SIl, this->registers.SIh));
-	printf(" | ");
-	printf(" DI=%04x", SOL1_REGISTERS::value(this->registers.DIl, this->registers.DIh));
-	printf(" | ");
-	printf(" PC=%04x", SOL1_REGISTERS::value(this->registers.PCl, this->registers.PCh));
-	printf(" | ");
+	sprintf(str_out, "@PC=%02x:%s", opcode, &this->rom.rom_desc[0x400000 + (opcode * 256)]); hw_tty.print(str_out);
 
+	if (memADDR < get_current_memory_size() - 3) {
+		sprintf(str_out, " [%02x%02x%02x]", get_current_memory()[memADDR], get_current_memory()[memADDR + 1], get_current_memory()[memADDR + 2]); hw_tty.print(str_out);
+	}
+	else if (memADDR < get_current_memory_size() - 2) {
+		sprintf(str_out, " [%02x%02x]", get_current_memory()[memADDR],
+			get_current_memory()[memADDR + 1]
+		); hw_tty.print(str_out);
+	}
+	else if (memADDR < get_current_memory_size() - 1) {
+		sprintf(str_out, " [%02x]", get_current_memory()[memADDR]);
+		hw_tty.print(str_out);
+	}
 
-
-
-
-		SOL1_MWORD memADDR = SOL1_REGISTERS::value(this->registers.PCl, this->registers.PCh);
-		SOL1_BYTE opcode = get_current_memory()[memADDR];
-
-		printf("@PC=%02x:%s", opcode, &this->rom.rom_desc[0x400000 + (opcode * 256)]);
-
-		if (memADDR < get_current_memory_size() - 3)
-			printf(" [%02x%02x%02x]", get_current_memory()[memADDR], get_current_memory()[memADDR + 1], get_current_memory()[memADDR + 2]);
-
-		else if (memADDR < get_current_memory_size() - 2)
-			printf(" [%02x%02x]", get_current_memory()[memADDR],
-				get_current_memory()[memADDR + 1]
-			);
-		else if (memADDR < get_current_memory_size() - 1)
-			printf(" [%02x]", get_current_memory()[memADDR]);
-	
-	printf("\n");
+	hw_tty.print("\n");
 
 
 
-	printf("* MAR=%04x", SOL1_REGISTERS::value(this->registers.MARl, this->registers.MARh));
-	printf(" | ");
-	printf("MDR=%04x", SOL1_REGISTERS::value(this->registers.MDRl, this->registers.MDRh));
-	printf(" | ");
-	printf("TDR=%04x", SOL1_REGISTERS::value(this->registers.TDRl, this->registers.TDRh));
-	printf(" | ");
-	printf("PTB=%02x", this->registers.PTB.value());
-	printf("\n");
+	sprintf(str_out, "* MAR=%04x", SOL1_REGISTERS::value(this->registers.MARl, this->registers.MARh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "MDR=%04x", SOL1_REGISTERS::value(this->registers.MDRl, this->registers.MDRh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "TDR=%04x", SOL1_REGISTERS::value(this->registers.TDRl, this->registers.TDRh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "PTB=%02x", this->registers.PTB.value()); hw_tty.print(str_out);
+	hw_tty.print("\n");
 
-	printf("*  BP=%04x", SOL1_REGISTERS::value(this->registers.BPl, this->registers.BPh));
-	printf(" | ");
-	printf(" SP=%04x", SOL1_REGISTERS::value(this->registers.SPl, this->registers.SPh));
-	printf(" | ");
-	printf("SSP=%04x", SOL1_REGISTERS::value(this->registers.SSPl, this->registers.SSPh));
-	printf("\n");
+	sprintf(str_out, "*  BP=%04x", SOL1_REGISTERS::value(this->registers.BPl, this->registers.BPh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, " SP=%04x", SOL1_REGISTERS::value(this->registers.SPl, this->registers.SPh)); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	sprintf(str_out, "SSP=%04x", SOL1_REGISTERS::value(this->registers.SSPl, this->registers.SSPh)); hw_tty.print(str_out);
+	hw_tty.print("\n");
 
-	printf("* FLAGS="); print_byte_bin(this->registers.MSWh.value());
-	printf("   | ");
-	printf("STATUS="); print_byte_bin(this->registers.MSWl.value());
-	printf("\n");
-	printf("* IR: %02x\n", this->microcode.IR.value());
-	printf("Flags: "); mswh_flags_desc(); printf("\n");
-	printf("Status: "); mswl_status_desc(); printf("\n");
+	sprintf(str_out, "* FLAGS="); print_byte_bin(str_out + strlen(str_out), this->registers.MSWh.value()); hw_tty.print(str_out);
+	hw_tty.print("   | ");
+	sprintf(str_out, "STATUS="); print_byte_bin(str_out + strlen(str_out), this->registers.MSWl.value()); hw_tty.print(str_out);
+	hw_tty.print("\n");
+	sprintf(str_out, "* IR: %02x\n", this->microcode.IR.value());
+	hw_tty.print("Flags: "); mswh_flags_desc(hw_tty); hw_tty.print("\n");
+	hw_tty.print("Status: "); mswl_status_desc(hw_tty); hw_tty.print("\n");
 }
 
 
 
 
-void  SOL1_CPU::memory_display()
+void  SOL1_CPU::memory_display(HW_TTY& hw_tty)
 {
-
+	char str_out[255];
 	int i = 0, j = 0;
 	SOL1_DWORD PC = SOL1_REGISTERS::value(this->registers.PCl, this->registers.PCh);
 
@@ -242,79 +246,87 @@ void  SOL1_CPU::memory_display()
 			this->memory.debug_mem_offset = (PC / 0x10) * 0x10;
 	}
 
-	printf("\n        ");
+	hw_tty.print("\n        ");
 
-	for (i = 0; i < 16; i++)
-		printf("%02x ", i);
+	for (i = 0; i < 16; i++){
+		sprintf(str_out, "%02x ", i); hw_tty.print(str_out);
+	}
 
-	printf("\n\n %04x ", this->memory.debug_mem_offset);
+	sprintf(str_out, "\n\n %04x ", this->memory.debug_mem_offset); hw_tty.print(str_out);
 
 	for (i = 0 + this->memory.debug_mem_offset; i < 256 + this->memory.debug_mem_offset; i++) {
 		if (i % 16 == 0)
 			if (PC == i)
-				printf(" *");
+				hw_tty.print(" *");
 			else
-				printf("  ");
-		if (PC == i || PC - 1 == i)
-			printf("%02x*", this->memory.memory[i]);
-		else
-			printf("%02x ", this->memory.memory[i]);
+				hw_tty.print("  ");
+		if (PC == i || PC - 1 == i) {
+			sprintf(str_out, "%02x*", this->memory.memory[i]); hw_tty.print(str_out);
+		}
+		else {
+			sprintf(str_out, "%02x ", this->memory.memory[i]); hw_tty.print(str_out);
+		}
 
 		if ((i + 1) % 16 == 0 && i <= 255 + this->memory.debug_mem_offset) {
-			printf("  |");
+			hw_tty.print("  |");
 			for (j = (i + 1) - 16; j < (i + 1); j++) {
-				if (this->memory.memory[j] < 0x20)
-					printf(".");
-				else
-					printf("%c", this->memory.memory[j]);
+				if (this->memory.memory[j] < 0x20) {
+					hw_tty.print(".");
+				}
+				else {
+					sprintf(str_out, "%c", this->memory.memory[j]); hw_tty.print(str_out);
+				}
 			}
-			printf("|");
+			hw_tty.print("|");
 
-			if (i < 255 + this->memory.debug_mem_offset)
-				printf("\n %04x ", i + 1);
-			else
-				printf("\n");
+			if (i < 255 + this->memory.debug_mem_offset) {
+				sprintf(str_out, "\n %04x ", i + 1);
+				hw_tty.print(str_out);
+			}
+			else {
+				hw_tty.print("\n");
+			}
 
 		}
 	}
 }
 
 
-void  SOL1_CPU::mswh_flags_desc() {
+void  SOL1_CPU::mswh_flags_desc(HW_TTY& hw_tty) {
 
 	SOL1_BYTE b = this->registers.MSWh.value();
-	printf(" [");
+	hw_tty.print(" [");
 	if (get_byte_bit(b, MSW_ZF) != 0x00)
-		printf("Z"); else printf(" ");
+		hw_tty.print("Z"); else hw_tty.print(" ");
 	if (get_byte_bit(b, MSW_CF) != 0x00)
-		printf("C"); else printf(" ");
+		hw_tty.print("C"); else hw_tty.print(" ");
 	if (get_byte_bit(b, MSW_SF) != 0x00)
-		printf("S"); else printf(" ");
+		hw_tty.print("S"); else hw_tty.print(" ");
 	if (get_byte_bit(b, MSW_OF) != 0x00)
-		printf("O"); else printf(" ");
-	printf("]");
+		hw_tty.print("O"); else hw_tty.print(" ");
+	hw_tty.print("]");
 }
 
 
 
 
-void SOL1_CPU::mswl_status_desc() {
+void SOL1_CPU::mswl_status_desc(HW_TTY& hw_tty) {
 
 	SOL1_BYTE b = this->registers.MSWl.value();
 	if (get_byte_bit(b, MSW_DMA_ACK) != 0x00)
-		printf(" | dma_ack ");
+		hw_tty.print(" | dma_ack ");
 	if (get_byte_bit(b, MSW_INTERRUPT_ENABLE) != 0x00)
-		printf(" | interrupt_enable ");
+		hw_tty.print(" | interrupt_enable ");
 	if (get_byte_bit(b, MSW_CPU_MODE) != 0x00)
-		printf(" | cpu_mode ");
+		hw_tty.print(" | cpu_mode ");
 	if (get_byte_bit(b, MSW_PAGING_EN) != 0x00)
-		printf(" | paging_en ");
+		hw_tty.print(" | paging_en ");
 	if (get_byte_bit(b, MSW_HALT) != 0x00)
-		printf(" | halt ");
+		hw_tty.print(" | halt ");
 	if (get_byte_bit(b, MSW_DISPLAY_REG_LOAD) != 0x00)
-		printf(" | display_reg_load ");
+		hw_tty.print(" | display_reg_load ");
 	if (get_byte_bit(b, MSW_DIR) != 0x00)
-		printf(" | dir ");
+		hw_tty.print(" | dir ");
 }
 
 
@@ -441,7 +453,7 @@ SOL1_BYTE SOL1_CPU::refresh_MSWh_ZF(SOL1_BYTE z_bus, SOL1_BYTE zf_in_src) {
 }
 
 
-SOL1_BYTE  SOL1_CPU::refresh_MSWh_CF( SOL1_BYTE z_bus, SOL1_BYTE cf_in_src) {
+SOL1_BYTE  SOL1_CPU::refresh_MSWh_CF(SOL1_BYTE z_bus, SOL1_BYTE cf_in_src) {
 
 	SOL1_BYTE inMSWh_CF = 0x00;
 
@@ -539,7 +551,7 @@ SOL1_BYTE *SOL1_CPU::get_current_memory() {
 }
 
 int SOL1_CPU::get_current_memory_size() {
-	
+
 	if (!check_byte_bit(this->registers.MSWl.value(), MSW_PAGING_EN))
 		return SOL1_BIOS_MEMORY_SIZE;
 
@@ -549,42 +561,25 @@ int SOL1_CPU::get_current_memory_size() {
 
 
 
-void SOL1_CPU::mc_seq_update() {
+void SOL1_CPU::mc_seq_update(HW_TTY& hw_tty) {
 
 
 
 	//CLOCK LOW
-	this->microcode.addresser(this->registers, this->DEBUG_UADDRESSER);
-
-
-	/*
-	int i = 0;
-	int j = 0;
-	for (i = 0; i < 15; i++) {
-		//microcode = microcode | (sol1_cpu->rom.roms[i][u_ad_bus] << (8 * i));
-
-		if (sol1_cpu->DEBUG_MICROCODE && sol1_cpu->rom.roms[i][this->u_ad_bus] != 0x00)
-			for (j = 0; j < 8; j++)
-				if ((sol1_cpu->rom.roms[i][this->u_ad_bus] >> j) & 0x1 != 0)
-					printf("%s, ", SOL1_ROM_CONTROL_LIST[(i * 8) + j]);
-	}
-	if (sol1_cpu->DEBUG_MICROCODE) printf("\n");
-	SOL1_BYTE opcode = u_ad_bus;
-	int cycle = 0;
-	int p = opcode * SOL1_ROM_CYCLES_PER_INSTR + cycle; <<<< u_ad_bus
-	*/
+	this->microcode.addresser(this->registers, this->DEBUG_UADDRESSER, hw_tty);
 
 	////////////////////////////////////////////////////////////////////////////
 
 	load_microcode_from_rom();
 
 	if (this->DEBUG_MICROCODE) {
-		printf("***** MICROCODE\n");
-		//printf("U-ADDRESS: ");  print_word_bin(this->u_ad_bus); printf("\n");		
-		//printf("OPCODE: %02x (cycle %02x)\n", (this->u_ad_bus / 64), (this->u_ad_bus % 64));
-		//printf("microcode: \n");
-		this->rom.display_current_cycles_desc((this->microcode.u_ad_bus / 64), (this->microcode.u_ad_bus % 64));
-		printf("\n");
+		char str_out[255];
+		hw_tty.print("***** MICROCODE\n");
+		//hw_tty.print("U-ADDRESS: ");  print_word_bin(str_out, this->u_ad_bus); hw_tty.print(str_out); hw_tty.print("\n");		
+		//sprintf(str_out, "OPCODE: %02x (cycle %02x)\n", (this->u_ad_bus / 64), (this->u_ad_bus % 64)); hw_tty.print(str_out);
+		//hw_tty.print("microcode: \n");
+		this->rom.display_current_cycles_desc((this->microcode.u_ad_bus / 64), (this->microcode.u_ad_bus % 64), hw_tty);
+		hw_tty.print("\n");
 	}
 
 }

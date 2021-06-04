@@ -203,25 +203,26 @@ SOL1_DWORD SOL1_MICROCODE::u_adder_refresh(SOL1_BYTE typ, SOL1_BYTE final_condit
 	return this->u_adder;
 }
 
-void SOL1_MICROCODE::display_u_adder(SOL1_BYTE typ, SOL1_BYTE final_condition) {
+void SOL1_MICROCODE::display_u_adder(SOL1_BYTE typ, SOL1_BYTE final_condition, HW_TTY& hw_tty) {
 
-	printf("* next(typ): "); print_nibble_bin(typ);
-	printf(" | ");
-	printf(" u_offset: "); print_byte_bin(this->u_offset);
-	printf(" | ");
-	printf("Final Condition : "); print_nibble_bin(final_condition);
-	printf("\n");
+	char str_out[255];
+	hw_tty.print("* next(typ): "); print_nibble_bin(str_out, typ); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	hw_tty.print(" u_offset: "); print_byte_bin(str_out, this->u_offset); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	hw_tty.print("Final Condition : "); print_nibble_bin(str_out, final_condition); hw_tty.print(str_out);
+	hw_tty.print("\n");
 
-	printf("* A(u_ad): ");  print_word_bin_nibbles(this->u_ad_bus);
-	printf("\n");
-	printf("* B: ");  print_word_bin_nibbles(this->u_adder_b);
-	printf("\n");
-	printf("* u_adder: ");  print_word_bin(this->u_adder);
-	printf("\n");
+	hw_tty.print("* A(u_ad): ");  print_word_bin_nibbles(str_out, this->u_ad_bus); hw_tty.print(str_out);
+	hw_tty.print("\n");
+	hw_tty.print("* B: ");  print_word_bin_nibbles(str_out, this->u_adder_b); hw_tty.print(str_out);
+	hw_tty.print("\n");
+	hw_tty.print("* u_adder: ");  print_word_bin(str_out, this->u_adder); hw_tty.print(str_out);
+	hw_tty.print("\n");
 }
 
 
-void SOL1_MICROCODE::u_flags(sol1_alu_8bit& alu, SOL1_BYTE z_bus, SOL1_BYTE uflags_debug)
+void SOL1_MICROCODE::u_flags(sol1_alu_8bit& alu, SOL1_BYTE z_bus, SOL1_BYTE uflags_debug, HW_TTY& hw_tty)
 {
 
 	SOL1_BYTE inZF = 0x00;
@@ -277,45 +278,50 @@ void SOL1_MICROCODE::u_flags(sol1_alu_8bit& alu, SOL1_BYTE z_bus, SOL1_BYTE ufla
 		this->u_esc = this->mccycle.imm & 0b00000011;
 
 	if (uflags_debug) {
-		printf("***** U_FLAGS\n");
-		display_u_flags();
+		hw_tty.print("***** U_FLAGS\n");
+		display_u_flags(hw_tty);
 	}
 }
 
 
-void SOL1_MICROCODE::display_u_flags() {
-	printf("* FLAGS: "); print_byte_bin(this->U_FLAGS.value()); printf(" [");
+void SOL1_MICROCODE::display_u_flags(HW_TTY& hw_tty) {
+	
+	char str_out[255];
+	hw_tty.print("* FLAGS: "); print_byte_bin(str_out, this->U_FLAGS.value()); hw_tty.print(str_out);
+	hw_tty.print(" [");
 
-	if (this->u_zf != 0x00) printf("Z"); else printf(" ");
-	if (this->u_cf != 0x00) printf("C"); else printf(" ");
-	if (this->u_sf != 0x00) printf("S"); else printf(" ");
-	if (this->u_of != 0x00) printf("O"); else printf(" ");
-	printf("]");
-
-	printf(" | u_zf_in_src:%02x", this->uzf_in_src);
-	printf(" | u_cf_in_src:%02x", this->ucf_in_src);
-	printf(" | u_sf_in_src:%02x", this->usf_in_src);
-	printf(" | u_of_in_src:%02x", this->uof_in_src);
-	printf(" |  u_esc_in_src:%02x", this->u_esc_in_src);
-	printf("\n\n");
+	if (this->u_zf != 0x00) hw_tty.print("Z"); else hw_tty.print(" ");
+	if (this->u_cf != 0x00) hw_tty.print("C"); else hw_tty.print(" ");
+	if (this->u_sf != 0x00) hw_tty.print("S"); else hw_tty.print(" ");
+	if (this->u_of != 0x00) hw_tty.print("O"); else hw_tty.print(" ");
+	hw_tty.print("]");
+	
+	sprintf(str_out, " | u_zf_in_src:%02x", this->uzf_in_src); hw_tty.print(str_out);
+	sprintf(str_out, " | u_cf_in_src:%02x", this->ucf_in_src); hw_tty.print(str_out);
+	sprintf(str_out, " | u_sf_in_src:%02x", this->usf_in_src); hw_tty.print(str_out);
+	sprintf(str_out, " | u_of_in_src:%02x", this->uof_in_src); hw_tty.print(str_out);
+	sprintf(str_out, " |  u_esc_in_src:%02x", this->u_esc_in_src); hw_tty.print(str_out);
+	hw_tty.print("\n\n");
 }
 
-void SOL1_MICROCODE::display_u_flags_lite() {
-	printf("* U_FLAGS: "); print_byte_bin(this->U_FLAGS.value()); printf(" [");
+void SOL1_MICROCODE::display_u_flags_lite(HW_TTY& hw_tty) {
+	char str_out[255];
+	hw_tty.print("* U_FLAGS: ");
+	hw_tty.print(" [");
 
-	if (this->u_zf != 0x00) printf("Z"); else printf(" ");
-	if (this->u_cf != 0x00) printf("C"); else printf(" ");
-	if (this->u_sf != 0x00) printf("S"); else printf(" ");
-	if (this->u_of != 0x00) printf("O"); else printf(" ");
-	printf("]");
+	if (this->u_zf != 0x00) hw_tty.print("Z"); else hw_tty.print(" ");
+	if (this->u_cf != 0x00) hw_tty.print("C"); else hw_tty.print(" ");
+	if (this->u_sf != 0x00) hw_tty.print("S"); else hw_tty.print(" ");
+	if (this->u_of != 0x00) hw_tty.print("O"); else hw_tty.print(" ");
+	hw_tty.print("]");
 
-	printf(" | u_zf_in_src:%02x", this->uzf_in_src);
-	printf(" | u_cf_in_src:%02x", this->ucf_in_src);
-	printf(" | u_sf_in_src:%02x", this->usf_in_src);
-	printf(" | u_of_in_src:%02x", this->uof_in_src);
-	printf(" |  u_esc_in_src:%02x", this->u_esc_in_src);
+	sprintf(str_out, " | u_zf_in_src:%02x", this->uzf_in_src); hw_tty.print(str_out);
+	sprintf(str_out, " | u_cf_in_src:%02x", this->ucf_in_src); hw_tty.print(str_out);
+	sprintf(str_out, " | u_sf_in_src:%02x", this->usf_in_src); hw_tty.print(str_out);
+	sprintf(str_out, " | u_of_in_src:%02x", this->uof_in_src); hw_tty.print(str_out);
+	sprintf(str_out, " |  u_esc_in_src:%02x", this->u_esc_in_src); hw_tty.print(str_out);
 
-	printf("\n");
+	hw_tty.print("\n");
 }
 
 
@@ -440,7 +446,7 @@ void SOL1_MICROCODE::update_final_condition(SOL1_REGISTERS& registers) {
 
 	}
 }
-void SOL1_MICROCODE::addresser(SOL1_REGISTERS& registers, SOL1_BYTE addresser_debug) {
+void SOL1_MICROCODE::addresser(SOL1_REGISTERS& registers, SOL1_BYTE addresser_debug, HW_TTY& hw_tty) {
 
 	////////////////////////////////////////////////////////////////////////////
 	//IC15 //IC59 //IC153 //IC167 //IC61 //IC12 //IC341 //IC175
@@ -506,30 +512,31 @@ void SOL1_MICROCODE::addresser(SOL1_REGISTERS& registers, SOL1_BYTE addresser_de
 
 
 	if (addresser_debug) {
-		printf("***** U_ADDRESSER\n");
-		printf("* Next(typ): "); print_nibble_bin(this->mccycle.next);
-		printf(" | Any Interruption: "); print_nibble_bin(any_interruption(registers));
-		//printf(" | Mux_B: "); print_nibble_bin(mux_B);
-		//printf(" | Mux_A: "); print_nibble_bin(mux_A);
-		printf("\n");
+		char str_out[255];
+		hw_tty.print("***** U_ADDRESSER\n");
+		hw_tty.print("* Next(typ): "); print_nibble_bin(str_out, this->mccycle.next); hw_tty.print(str_out);
+		hw_tty.print(" | Any Interruption: "); print_nibble_bin(str_out, any_interruption(registers)); hw_tty.print(str_out);
+		//hw_tty.print(" | Mux_B: "); print_nibble_bin(str_out, mux_B); hw_tty.print(str_out);
+		//hw_tty.print(" | Mux_A: "); print_nibble_bin(str_out, mux_A); hw_tty.print(str_out);
+		hw_tty.print("\n");
 
 		/*
-		printf("* "); print_byte_bin(in01_A); printf(" | ");  print_byte_bin(in01_B); printf(" | ");  print_byte_bin(res01); printf("\n");
-		printf("* "); print_byte_bin(in02_A); printf(" | ");  print_byte_bin(in02_B); printf(" | ");  print_byte_bin(res02); printf("\n");
-		printf("* "); print_byte_bin(in03_A); printf(" | ");  print_byte_bin(in03_B); printf(" | ");  print_byte_bin(res03); printf("\n");
-		printf("* "); print_byte_bin(in04_A); printf(" | ");  print_byte_bin(in04_B); printf(" | ");  print_byte_bin(res04); printf("\n");
-		printf("* "); print_byte_bin(in05_A); printf(" | ");  print_byte_bin(in05_B); printf(" | ");  print_byte_bin(res05); printf("\n");
-		printf("* "); print_byte_bin(in06_A); printf(" | ");  print_byte_bin(in06_B); printf(" | ");  print_byte_bin(res06); printf("\n");
-		printf("* "); print_byte_bin(in07_A); printf(" | ");  print_byte_bin(in07_B); printf(" | ");  print_byte_bin(res07); printf("\n");
+		hw_tty.print("* "); print_byte_bin(str_out, in01_A); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, in01_B); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, res01); hw_tty.print(str_out); hw_tty.print("\n");
+		hw_tty.print("* "); print_byte_bin(str_out, in02_A); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, in02_B); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, res02); hw_tty.print(str_out); hw_tty.print("\n");
+		hw_tty.print("* "); print_byte_bin(str_out, in03_A); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, in03_B); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, res03); hw_tty.print(str_out); hw_tty.print("\n");
+		hw_tty.print("* "); print_byte_bin(str_out, in04_A); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, in04_B); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, res04); hw_tty.print(str_out); hw_tty.print("\n");
+		hw_tty.print("* "); print_byte_bin(str_out, in05_A); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, in05_B); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, res05); hw_tty.print(str_out); hw_tty.print("\n");
+		hw_tty.print("* "); print_byte_bin(str_out, in06_A); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, in06_B); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_binstr_out, res06); hw_tty.print(str_out); hw_tty.print("\n");
+		hw_tty.print("* "); print_byte_bin(str_out, in07_A); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, in07_B); hw_tty.print(str_out); hw_tty.print(" | "); print_byte_bin(str_out, res07); hw_tty.print(str_out); hw_tty.print("\n");
 		*/
-		printf("* U_ADDRESS=%04x", SOL1_REGISTERS::value(this->U_ADDRESSl, this->U_ADDRESSh));
-		printf(" | ");
-		printf("U_AD=%04x", this->u_ad_bus);
-		printf(" | ");
-		printf("Mux: "); print_nibble_bin(mux);
-		printf("\n");
+		sprintf(str_out, "* U_ADDRESS=%04x", SOL1_REGISTERS::value(this->U_ADDRESSl, this->U_ADDRESSh)); hw_tty.print(str_out);
+		hw_tty.print(" | ");
+		sprintf(str_out, "U_AD=%04x", this->u_ad_bus); hw_tty.print(str_out);
+		hw_tty.print(" | ");
+		hw_tty.print("Mux: "); print_nibble_bin(str_out, mux); hw_tty.print(str_out);
+		hw_tty.print("\n");
 
-		printf("\n");
+		hw_tty.print("\n");
 	}
 
 	//return this->u_ad_bus;

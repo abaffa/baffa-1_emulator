@@ -2,23 +2,32 @@
 
 <table valign="top" align="center" width="900" class="prompt">
 <tr><td>	
+<br />
 <center><b>SOL-1 HARDWARE</b></center><br>
 
-This website is connected to a homebrew 16Bit CPU/Minicomputer built from scratch using 74-Series
-logic gates.
-<br>It is constructed using wire-wrap boards and has around 270 chips in total. A few years ago I noticed the work
-that Bill Buzbee did with his <a href="http://www.homebrewcpu.com/">Magic-1 homebrew minicomputer</a>, and I was fascinated by the idea. If you are interested in CPU homebrewing, then you have to take a look at Magic-1.
-<br><br>
+<div style="padding:10px; margin:0px 25px 0px 25px;">
+This website is connected to a homebrew 16Bit CPU/Minicomputer emulating the original hardware.
+The SOL-1 was built from scratch using 74-Series logic gates and constructed using wire-wrap boards. It has around 270 chips in total!
+<br /><br />
+(Augusto Baffa) I've been studing hardware architectures from old computers (like altair 8800, apple I/II  and Sinclair's ZX80/81 and I became interested in homebrew original projects. Then, I found this nice original project called "SOL-1" from Paulo Constantino and started to follow his posts on facebook. He shares this same interest and said he did the same when read about "Bill Buzbee's Magic-1 HomebrewCPU".
+<br /><br />
+(Paulo Constantino) A few years ago I noticed the work that Bill Buzbee did with his <a href="http://www.homebrewcpu.com/" target="_blank">Magic-1 homebrew minicomputer</a>, and I was fascinated by the idea. If you are interested in CPU homebrewing, then you have to take a look at Magic-1.
+<br /><br />
 Some of the features of Sol-1 are:
-<br><B>**</B> Support for user and kernel priviledge modes, with up to 256 processes running in parallel.
-<br><B><B>**</B></B> Support for paged virtual memory, such that each process can have a total of 64KB RAM for itself.
-<br><B>**</B> Two serial ports (16550), a real time clock(M48T02), 2 parallel ports(8255), a programmable timer(8253), an IDE hard-drive interface(2.5 Inch HDD), and a floppy disk controller(WD37C65).
-<br><B>**</B> The CPU supports 8 prioritized external interrupts, and a DMA channel.
-<br><B>**</B> The sequencer is microcoded, with 15 ROMS operating horizontally.
-<br><B>**</B> Over 500 instructions are implemented right now, and up to 1024 are possible by using escape codes.
-<br><B>**</B> Support for 8/16-Bit MUL and DIV instructions.
-<br><B>**</B> Fast indexed string instructions in the spirit of x86's (REP) MOVSB, CMPSB, LODSB, STOSB, etc
-<br><br>The name Sol-1 comes from the name of the Sun, which is Sol.
+<ul>
+<li>Support for user and kernel priviledge modes, with up to 256 processes running in parallel.</li>
+<li>Support for paged virtual memory, such that each process can have a total of 64KB RAM for itself.</li>
+<li> Two serial ports (16550), a real time clock(M48T02), 2 parallel ports(8255), a programmable timer(8253), an IDE hard-drive interface(2.5 Inch HDD), and a floppy disk controller(WD37C65).</li>
+<li> The CPU supports 8 prioritized external interrupts, and a DMA channel.</li>
+<li> The sequencer is microcoded, with 15 ROMS operating horizontally.</li>
+<li> Over 500 instructions are implemented right now, and up to 1024 are possible by using escape codes.</li>
+<li> Support for 8/16-Bit MUL and DIV instructions.</li>
+<li> Fast indexed string instructions in the spirit of x86's (REP) MOVSB, CMPSB, LODSB, STOSB, etc</li>
+</ul>
+</div>
+
+<br/>
+<center>The name Sol-1 comes from the name of the Sun in portuguese/spanish, which is Sol.</center>
 <br><br><br>
 
 <center><b>REGISTER TABLE</b></center>
@@ -68,6 +77,11 @@ Some of the features of Sol-1 are:
 	<td width="400">Stack Pointer</td>
 </tr>
 <tr>
+	<td width="200" align="right">SSP</td>
+	<td width="100" align="center">-</td>
+	<td width="400">Supervisior Stack Pointer</td>
+</tr>
+<tr>
 	<td width="200" align="right">BP</td>
 	<td width="100" align="center">-</td>
 	<td width="400">Base Pointer (Used to manage stack frames)</td>
@@ -81,6 +95,21 @@ Some of the features of Sol-1 are:
 	<td width="200" align="right">DI</td>
 	<td width="100" align="center">-</td>
 	<td width="400">Destination Index (Destination address for string operations)</td>
+</tr>
+<tr>
+	<td width="200" align="right">TDR</td>
+	<td width="100" align="center">TDRH/TDRL</td>
+	<td width="400">Temporary Data Register</td>
+</tr>
+<tr>
+	<td width="200" align="right">PTB</td>
+	<td width="100" align="center">-</td>
+	<td width="400">Page Table Base</td>
+</tr>
+<tr>
+	<td width="200" align="right">MSW</td>
+	<td width="100" align="center">Flags/Status</td>
+	<td width="400">Machine Status Word</td>
 </tr>
 </table>
 
@@ -132,10 +161,10 @@ Some of the features of Sol-1 are:
 </tr>
 </table>
 
-<br />
+<br /><br />
 
-<center><a href="http://github.com/Pconst167/SOL1_MiniComputer">SOL1_MiniComputer Git Repository</a></center>
-
+<center>More information in <a href="software.php">software page</a></center>
+<br /><br />
 </td></tr>
 </table>
 

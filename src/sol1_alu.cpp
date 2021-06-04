@@ -1,7 +1,6 @@
 #include "sol1_alu.h"
 #include "utils.h"
 
-
 static void sol1_alu_reset(struct sol1_alu_8bit *alu) {
 
 	alu->_A = 0x00;
@@ -47,7 +46,7 @@ void sol1_alu_init(struct sol1_alu_8bit *alu) {
 }
 
 SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
-	SOL1_BYTE u_cf, SOL1_BYTE msw_cf, SOL1_BYTE shift_src, SOL1_BYTE zbus_out_src, SOL1_BYTE DEBUG_ALU) {
+	SOL1_BYTE u_cf, SOL1_BYTE msw_cf, SOL1_BYTE shift_src, SOL1_BYTE zbus_out_src, SOL1_BYTE DEBUG_ALU, HW_TTY& hw_tty) {
 
 	SOL1_BYTE alu_cin = 0x00;
 
@@ -150,57 +149,59 @@ SOL1_BYTE ALU_EXEC(sol1_alu_8bit *alu, SOL1_BYTE x_bus, SOL1_BYTE y_bus,
 	alu->alu_zf = (z_bus == 0x00);
 
 	if (DEBUG_ALU) {
-		printf("***** ALU\n");
-		sol1_alu_display_registers(alu);
+		char str_out[255];
+		hw_tty.print("***** ALU\n");
+		sol1_alu_display_registers(alu, hw_tty);
 
 		if ((alu->alu_cf_in_src & 0b00000011) == 0x00)
-			//alu_cin = 1; // AQUI ESTRANho
-			printf("* alu_cin = 0\n");
+			hw_tty.print("* alu_cin = 0\n");
 
 		else if ((alu->alu_cf_in_src & 0b00000011) == 0x01) {
-			printf("* alu_cin = msw_cf:"); print_byte_bin(msw_cf); printf("\n");
+			hw_tty.print("* alu_cin = msw_cf:"); print_byte_bin(str_out, msw_cf); hw_tty.print(str_out); hw_tty.print("\n");
 		}
 		else if ((alu->alu_cf_in_src & 0b00000011) == 0x02) {
-			printf("* alu_cin = u_cf:"); print_byte_bin(u_cf); printf("\n");
+			hw_tty.print("* alu_cin = u_cf:"); print_byte_bin(str_out, u_cf); hw_tty.print(str_out); hw_tty.print("\n");
 		}
 		else if ((alu->alu_cf_in_src & 0b00000011) == 0x03)
-			printf("* alu_cin = 1\n");
+			hw_tty.print("* alu_cin = 1\n");
 
-		printf("* z_bus="); print_byte_bin(z_bus);
-		printf("\n");
-		printf("\n");
+		hw_tty.print("* z_bus="); print_byte_bin(str_out, z_bus); hw_tty.print(str_out);
+		hw_tty.print("\n");
+		hw_tty.print("\n");
 	}
 
 	return z_bus;
 }
 
 
-void sol1_alu_display_registers(struct sol1_alu_8bit *alu) {
+void sol1_alu_display_registers(struct sol1_alu_8bit *alu, HW_TTY& hw_tty) {
 
-	printf("* A:"); print_byte_bin(alu->_A); printf("  | ");
-	printf("B:"); print_byte_bin(alu->_B); printf("    | ");
-	printf("C:"); print_byte_bin(alu->_C); printf("  | ");
-	printf("Cin:"); print_nibble_bin(alu->CIN); printf(" | ");
-	printf("Cout:"); print_nibble_bin(alu->COUT);
-	printf("\n");
+	char str_out[255];
+	hw_tty.print("* A:"); print_byte_bin(str_out, alu->_A); hw_tty.print(str_out); hw_tty.print("  | ");
+	hw_tty.print("B:"); print_byte_bin(str_out, alu->_B); hw_tty.print(str_out); hw_tty.print("    | ");
+	hw_tty.print("C:"); print_byte_bin(str_out, alu->_C); hw_tty.print(str_out); hw_tty.print("  | ");
+	hw_tty.print("Cin:"); print_nibble_bin(str_out, alu->CIN); hw_tty.print(str_out); hw_tty.print(" | ");
+	hw_tty.print("Cout:"); print_nibble_bin(str_out, alu->COUT); hw_tty.print(str_out);
+	hw_tty.print("\n");
 
-	printf("* alu_op: "); print_nibble_bin(alu->alu_op); printf(" | alu_mode: "); print_nibble_bin(alu->alu_mode);
-	printf(" | alu_output="); print_byte_bin(alu->alu_output); printf("\n");
+	hw_tty.print("* alu_op: "); print_nibble_bin(str_out, alu->alu_op); hw_tty.print(str_out); hw_tty.print(" | alu_mode: "); print_nibble_bin(str_out, alu->alu_mode); hw_tty.print(str_out);
+	hw_tty.print(" | alu_output="); print_byte_bin(str_out, alu->alu_output); hw_tty.print(str_out); hw_tty.print("\n");
 
-	//printf("* EQ="); print_nibble_bin(alu->EQ); printf(" | ");	printf("F="); print_byte_bin(alu->F); printf("\n");
+	//hw_tty.print("* EQ="); print_nibble_bin(str_out, alu->EQ); hw_tty.print(str_out);  hw_tty.print(" | ");	
+	//hw_tty.print("F="); print_byte_bin(str_out, alu->F); hw_tty.print(str_out); hw_tty.print("\n");
 
-	printf("* Flags: [");
+	hw_tty.print("* Flags: [");
 
-	if (alu->alu_zf != 0x00) printf("Z"); else  printf(" ");
-	if (alu->alu_cf != 0x00) printf("C"); else  printf(" ");
-	if (alu->alu_of != 0x00) printf("O"); else  printf(" ");
+	if (alu->alu_zf != 0x00) hw_tty.print("Z"); else hw_tty.print(" ");
+	if (alu->alu_cf != 0x00) hw_tty.print("C"); else hw_tty.print(" ");
+	if (alu->alu_of != 0x00) hw_tty.print("O"); else hw_tty.print(" ");
 
-	printf("] ");
-	printf(" | alu_a_src=%02x", alu->alu_a_src);
-	printf(" | alu_b_src=%02x", alu->alu_b_src);
-	printf(" | alu_cf_in_src=%02x", alu->alu_cf_in_src);
-	printf(" | alu_cf_in_inv=%02x", alu->alu_cf_in_inv != 0x00);
-	printf(" | alu_cf_out_inv=%02x", alu->alu_cf_out_inv);
-	printf(" | alu_final_cf=%02x", alu->alu_final_cf);
-	printf("\n");
+	hw_tty.print("] ");
+	sprintf(str_out, " | alu_a_src=%02x", alu->alu_a_src); hw_tty.print(str_out);
+	sprintf(str_out, " | alu_b_src=%02x", alu->alu_b_src); hw_tty.print(str_out);
+	sprintf(str_out, " | alu_cf_in_src=%02x", alu->alu_cf_in_src); hw_tty.print(str_out);
+	sprintf(str_out, " | alu_cf_in_inv=%02x", alu->alu_cf_in_inv != 0x00); hw_tty.print(str_out);
+	sprintf(str_out, " | alu_cf_out_inv=%02x", alu->alu_cf_out_inv); hw_tty.print(str_out);
+	sprintf(str_out, " | alu_final_cf=%02x", alu->alu_final_cf); hw_tty.print(str_out);
+	hw_tty.print("\n");
 }

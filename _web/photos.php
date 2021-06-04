@@ -2,13 +2,15 @@
 
 
 
-<table valign="top" align="center" width="900">
+<table valign="top" align="center" width="900" class="prompt">
 <tr><td align="center">	
+<br>
 <center><b>PICTURES</b></center>
-</td></tr>
-</table>
 
-<table align="center" width="900">
+<br />
+These are pictures of the original Sol-1 Homebrew MiniComputer hardware<br />developed and assembled by Paulo Constantino.
+<br /><br />
+<table align="center" cellspacing="8">
 	<tr>
 		<td>
 			<a href="images/1.jpg" target="_blank">
@@ -32,16 +34,16 @@
 		</td>
 	</tr>
 	<tr>
-		<td>
+		<td align="center">
 			Card-Cage front & IDE
 		</td>
-		<td>
+		<td align="center">
 			Card-Cage front
 		</td>
-		<td>
+		<td align="center">
 			Wire-Wrap board
 		</td>
-		<td>
+		<td align="center">
 			Wire-Wrap board			
 		</td>
 	</tr>
@@ -51,7 +53,24 @@
 			<img height="200" width="200" src="images/5.jpg">
 			</a>
 		</td>
+		<td></td><td></td><td></td>
+	</tr>
+		<tr>
+		<td align="center">
+			Wire-Wrap board			
+		</td>
+		<td align="center">
+			
+		</td>
+		<td align="center">
+			
+		</td>
+		<td align="center">
+			
+		</td>
 	</tr>
 </table>
-
+<br />
+</td></tr>
+</table>
 <?php include 'incs/inc_epage.php'; ?>

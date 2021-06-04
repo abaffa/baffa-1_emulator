@@ -27,9 +27,6 @@
     <ClCompile Include="..\..\..\src\sol1_memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\sol1_keyboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\sol1_cpu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,9 +63,6 @@
     <ClCompile Include="..\..\..\src\queue_ll.cpp">
       <Filter>Source Files\libs</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\hashtable.cpp">
-      <Filter>Source Files\libs</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\tasm_opcode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,9 +96,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\sol1_memory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\sol1_keyboard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\sol1_registers.h">
@@ -146,9 +137,6 @@
     <ClInclude Include="..\..\..\include\queue_ll.h">
       <Filter>Header Files\libs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\hashtable.h">
-      <Filter>Header Files\libs</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\tasm_opcode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -174,6 +162,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\hw_web.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\hw_tty_client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -31,9 +31,9 @@
 #define SOL1_DWORD				unsigned int //Data Word
 
 
+#define SERVER_PORT 20248
 
-
-#define INI_SERVER 0
+#define INI_SERVER 1
 #define INI_WEB_SERVER 0
 
 //#define INI_DEBUG_OPCODE 0

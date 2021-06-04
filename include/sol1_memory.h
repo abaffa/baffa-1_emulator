@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "sol1_registers.h"
 #include "config.h"
+#include "hw_tty.h"
 
 class SOL1_MEMORY
 {
@@ -30,7 +31,7 @@ public:
 	SOL1_MEMORY();
 	void reset();
 
-	void display(SOL1_REGISTERS& registers);
-	void display_test(SOL1_REGISTERS& registers);
+	void display(SOL1_REGISTERS& registers, HW_TTY& hw_tty);
+	void display_test(SOL1_REGISTERS& registers, HW_TTY& hw_tty);
 };
 #endif

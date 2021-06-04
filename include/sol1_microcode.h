@@ -5,7 +5,7 @@
 #include "config.h"
 #include "sol1_registers.h"
 #include "sol1_alu.h"
-
+#include "hw_tty.h"
 
 
 struct sol1_mccycle {
@@ -157,12 +157,12 @@ public:
 
 
 	SOL1_DWORD u_adder_refresh(SOL1_BYTE typ, SOL1_BYTE final_condition);
-	void display_u_adder(SOL1_BYTE typ, SOL1_BYTE final_condition);
+	void display_u_adder(SOL1_BYTE typ, SOL1_BYTE final_condition, HW_TTY& hw_tty);
 
-	void u_flags(sol1_alu_8bit& alu, SOL1_BYTE z_bus, SOL1_BYTE uflags_debug);
+	void u_flags(sol1_alu_8bit& alu, SOL1_BYTE z_bus, SOL1_BYTE uflags_debug, HW_TTY& hw_tty);
 
-	void display_u_flags();
-	void display_u_flags_lite();
+	void display_u_flags(HW_TTY& hw_tty);
+	void display_u_flags_lite(HW_TTY& hw_tty);
 
 
 	SOL1_BYTE int_pending(SOL1_REGISTERS& registers);
@@ -172,7 +172,7 @@ public:
 	SOL1_BYTE MUX(SOL1_REGISTERS& registers);
 
 	void update_final_condition(SOL1_REGISTERS& registers);
-	void addresser(SOL1_REGISTERS& registers, SOL1_BYTE addresser_debug);
+	void addresser(SOL1_REGISTERS& registers, SOL1_BYTE addresser_debug, HW_TTY& hw_tty);
 
 	
 

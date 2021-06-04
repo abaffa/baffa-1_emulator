@@ -7,6 +7,8 @@
 #include <windows.h>
 #else
 #include <pthread.h> 
+#include <signal.h>
+#include <unistd.h>
 #endif
 
 #include <iostream>
@@ -29,6 +31,14 @@ size_t count_lines(const char *filename)
 		++count;
 	}
 	return count;
+}
+
+void clearfile() {
+	ofstream fout;
+	fout.open("html.cache");// , ios::app);
+
+	fout.flush();
+	fout.close();
 }
 
 int line(string newline, int append)
@@ -136,7 +146,7 @@ void *WebClientThread(void *pParam)
 
 	while (true)
 	{
-		//printf("%02x -> %04x\n", new_computer_client->index, new_computer_client->client);
+		//sprintf("%02x -> %04x\n", new_computer_client->index, new_computer_client->client);
 
 		n = recv(client, (char *)buff, 512, 0);// MSG_WAITALL);
 
@@ -161,13 +171,31 @@ void *WebClientThread(void *pParam)
 				string str3 = cmd.substr(12 + cmd.find("cpu_command="), cmd.length() - cmd.find("cpu_command="));
 				int lll = (int)str3.length();
 				if (lll > 0) {
-					const char *ccc = str3.c_str();
+					if (str3 == "tel") {
+						int in = new_web_client.index;
 
-					for (i = 0; i < lll; i++) {
-						hw_uart_receive(new_web_client.hw_uart, ccc[i]);
+						string rs = "terminal: " + to_string(in) + "\r\n";
+						line(rs, 1);
+						cout << rs;
+
 					}
+					else if (str3 == "cls") {
+						int in = new_web_client.index;
 
-					hw_uart_receive(new_web_client.hw_uart, '\r');
+						clearfile();
+						string rs = "*** clearing screen\r\n";
+						line(rs, 0);
+
+					}
+					else {
+						const char *ccc = str3.c_str();
+
+						for (i = 0; i < lll; i++) {
+							hw_uart_receive(new_web_client.hw_uart, ccc[i]);
+						}
+
+						hw_uart_receive(new_web_client.hw_uart, '\r');
+					}
 				}
 
 
@@ -224,11 +252,12 @@ void *WebClientThread(void *pParam)
 			break;
 
 	}
-	
+
 #ifdef _MSC_VER     
 	closesocket(client);
 #else
-	shutdown(client,2);
+	shutdown(client, 2);
+	close(client);
 #endif
 	((struct hw_web_client*)pParam)->running = 0;
 	((struct hw_web_client*)pParam)->client = NULL;
@@ -256,6 +285,7 @@ void *WebServerThread(void *pParam)
 	}
 #else
 	int server;
+	memset(&local, 0, sizeof(local));
 #endif
 	local.sin_family = AF_INET;
 	local.sin_addr.s_addr = INADDR_ANY;
@@ -273,7 +303,7 @@ void *WebServerThread(void *pParam)
 		return 0;
 	}
 #endif
-	if (bind(server, (sockaddr*)&local, sizeof(local)) != 0)
+	if (::bind(server, (sockaddr*)&local, sizeof(local)) != 0)
 	{
 		return 0;
 	}
@@ -282,7 +312,7 @@ void *WebServerThread(void *pParam)
 		return 0;
 	}
 
-	
+
 	sockaddr_in from;
 #ifdef _MSC_VER    
 	SOCKET client;
@@ -291,7 +321,7 @@ void *WebServerThread(void *pParam)
 	int client;
 	socklen_t fromlen = sizeof(from);
 #endif
-	
+
 
 	while (true)
 	{
@@ -334,9 +364,8 @@ void *WebServerThread(void *pParam)
 
 		}
 	}
-
 	return 0;
-}
+	}
 
 
 
@@ -357,10 +386,13 @@ void HW_WEB::start_server(SOL1_CPU& sol1_cpu, struct hw_uart* hw_uart) {
 	DWORD tid;
 	HANDLE myHandle = CreateThread(0, 0, WebServerThread, &this->clients, 0, &tid);
 #else
+	// Ignore SIGCHLD to avoid zombie threads
+	signal(SIGCHLD, SIG_IGN);
+
 	pthread_t tid;
 	pthread_create(&tid, NULL, WebServerThread, (void*)&this->clients);
 #endif
-	
+
 	remove("html.cache");
 }
 

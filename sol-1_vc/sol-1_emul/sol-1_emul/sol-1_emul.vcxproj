@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\debugmenu_main.cpp" />
     <ClCompile Include="..\..\..\src\debugmenu_roms.cpp" />
-    <ClCompile Include="..\..\..\src\hashtable.cpp" />
     <ClCompile Include="..\..\..\src\hw_rtc.cpp" />
     <ClCompile Include="..\..\..\src\hw_timer.cpp" />
     <ClCompile Include="..\..\..\src\hw_tty.cpp" />
@@ -41,7 +40,6 @@
     <ClCompile Include="..\..\..\src\sol1_rom.cpp" />
     <ClCompile Include="..\..\..\src\sol1_cpu.cpp" />
     <ClCompile Include="..\..\..\src\sol1_memory.cpp" />
-    <ClCompile Include="..\..\..\src\sol1_keyboard.cpp" />
     <ClCompile Include="..\..\..\src\tasm_opcode.cpp" />
     <ClCompile Include="..\..\..\src\utils.cpp" />
   </ItemGroup>
@@ -50,10 +48,10 @@
     <ClInclude Include="..\..\..\include\console_local.h" />
     <ClInclude Include="..\..\..\include\debugmenu_main.h" />
     <ClInclude Include="..\..\..\include\debugmenu_roms.h" />
-    <ClInclude Include="..\..\..\include\hashtable.h" />
     <ClInclude Include="..\..\..\include\hw_rtc.h" />
     <ClInclude Include="..\..\..\include\hw_timer.h" />
     <ClInclude Include="..\..\..\include\hw_tty.h" />
+    <ClInclude Include="..\..\..\include\hw_tty_client.h" />
     <ClInclude Include="..\..\..\include\hw_uart.h" />
     <ClInclude Include="..\..\..\include\hw_web.h" />
     <ClInclude Include="..\..\..\include\queue_ll.h" />
@@ -71,7 +69,6 @@
     <ClInclude Include="..\..\..\include\utils.h" />
     <ClInclude Include="..\..\..\include\sol1_memory.h" />
     <ClInclude Include="..\..\..\include\sol1_registers.h" />
-    <ClInclude Include="..\..\..\include\sol1_keyboard.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\roms\rom">

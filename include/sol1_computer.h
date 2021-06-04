@@ -18,7 +18,9 @@ using namespace std;
 
 class SOL1_COMPUTER {
 
-
+private:
+	void trace_menu();
+	
 public:
 	SOL1_CPU cpu;
 	SOL1_BUS bus;

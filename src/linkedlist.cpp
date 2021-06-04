@@ -78,7 +78,7 @@ void ll_print(Linked_List* ll, void(*print)(void *))
     Linked_List* p;
     for (p = ll; p != NULL; p = p->next){
         print(p->info);
-        //printf("----------\n");
+        //sprintf("----------\n");
     }
 }
 

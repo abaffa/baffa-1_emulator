@@ -3,7 +3,7 @@
 #if defined(__linux__) || defined(__MINGW32__)
 
 #else
-#include <conio.h>
+
 #endif
 
 #include <stdlib.h>
@@ -13,54 +13,55 @@
 #include "debugmenu_main.h"
 #include "debugmenu_roms.h"
 #include "utils.h"
+#include "hw_tty.h"
 
-
-void debugmenu_main_menu() {
-	printf("\n");
-	printf("SOL-1 Debug Monitor | XX May 2021\n");
-	printf("\n");
-	printf("  D - Display Memory\n");
-	printf("  I - Disassemble Memory\n");
-	printf("  E - Edit Memory\n");
-	printf("  F - Fill Memory\n");
-	printf("  L - Load Memory\n");
-	printf("\n");
-	printf("  R - Display Registers\n");
-	printf("  A - Edit Register\n");
-	printf("  B - Edit Breakpoint\n");
-	printf("  P - Edit Program Counter\n");
-	printf("\n");
-	printf("  G - Go(Run)\n");
-	printf("  T - Debug Trace\n");
-	printf("  Z - Reset CPU\n");
-	printf("\n");
-	printf("  X - Debug Roms\n");
-	printf("\n");
-	printf("  ? - Display Menu\n");
-	printf("  Q - Quit\n");
-	printf("\n");
+void debugmenu_main_menu(HW_TTY& hw_tty) {
+	hw_tty.print("\n");
+	hw_tty.print("SOL-1 Debug Monitor | 30 May 2021\n");
+	hw_tty.print("\n");
+	hw_tty.print("  D - Display Memory\n");
+	hw_tty.print("  I - Disassemble Memory\n");
+	hw_tty.print("  E - Edit Memory\n");
+	hw_tty.print("  F - Fill Memory\n");
+	hw_tty.print("  L - Load Memory\n");
+	hw_tty.print("\n");
+	hw_tty.print("  R - Display Registers\n");
+	hw_tty.print("  A - Edit Register\n");
+	hw_tty.print("  B - Edit Breakpoint\n");
+	hw_tty.print("  P - Edit Program Counter\n");
+	hw_tty.print("\n");
+	hw_tty.print("  G - Go(Run)\n");
+	hw_tty.print("  T - Debug Trace\n");
+	hw_tty.print("  Z - Reset CPU\n");
+	hw_tty.print("\n");
+	hw_tty.print("  X - Debug Roms\n");
+	hw_tty.print("\n");
+	hw_tty.print("  ? - Display Menu\n");
+	hw_tty.print("  Q - Quit\n");
+	hw_tty.print("\n");
 }
 
 
-void debugmenu_main_disassemble_mem() {
+void debugmenu_main_disassemble_mem(HW_TTY& hw_tty) {
 }
 
 
-void debugmenu_main_edit_mem(SOL1_MEMORY& memory) {
+void debugmenu_main_edit_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
 
+	char str_out[255];
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 
-	printf("Edit Memory | Address? ");
-	input = gets(4);
+	hw_tty.print("Edit Memory | Address? ");
+	input = hw_tty.gets(4);
 
-	if (strlen(input) == 0) { printf("\n");  return; }
+	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 4);
 
 	unsigned short address = convert_hexstr_to_value(value);
-	printf("\n  %04x=%02x ? ", address, memory.memory[address]);
-	input = gets(2);
+	sprintf(str_out, "\n  %04x=%02x ? ", address, memory.memory[address]); hw_tty.print(str_out);
+	input = hw_tty.gets(2);
 
 	while (strlen(input) > 0) {
 
@@ -70,44 +71,44 @@ void debugmenu_main_edit_mem(SOL1_MEMORY& memory) {
 
 		memory.memory[address] = b;
 		address++;
-		if (address >= SOL1_BIOS_MEMORY_SIZE) { printf("\n");  return; }
+		if (address >= SOL1_BIOS_MEMORY_SIZE) { hw_tty.print("\n");  return; }
 
-		printf("\n  %04x=%02x ? ", address, memory.memory[address]);
-		input = gets(2);
+		sprintf(str_out, "\n  %04x=%02x ? ", address, memory.memory[address]); hw_tty.print(str_out);
+		input = hw_tty.gets(2);
 	}
 
-	printf("\n");
+	hw_tty.print("\n");
 }
 
 
 
-void debugmenu_main_fill_mem(SOL1_MEMORY& memory) {
+void debugmenu_main_fill_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
 
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 	unsigned long address, start, end;
 	unsigned char data;
 
-	printf("Fill Memory | Start Address? ");
-	input = gets(4);
+	hw_tty.print("Fill Memory | Start Address? ");
+	input = hw_tty.gets(4);
 
-	if (strlen(input) == 0) { printf("\n");  return; }
+	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 4);
 	start = convert_hexstr_to_value(value);
 
-	printf(" | End Address? ");
-	input = gets(4);
+	hw_tty.print(" | End Address? ");
+	input = hw_tty.gets(4);
 
-	if (strlen(input) == 0) { printf("\n");  return; }
+	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 4);
 	end = convert_hexstr_to_value(value);
 
-	printf(" | Data? ");
-	input = gets(2);
+	hw_tty.print(" | Data? ");
+	input = hw_tty.gets(2);
 
-	if (strlen(input) == 0) { printf("\n");  return; }
+	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 2);
 	data = convert_hexstr_to_value(value);
@@ -116,32 +117,32 @@ void debugmenu_main_fill_mem(SOL1_MEMORY& memory) {
 	for (address = start; address <= end && address < SOL1_BIOS_MEMORY_SIZE; address++)
 		memory.memory[address] = data;
 
-	printf("\n");
+	hw_tty.print("\n");
 }
 
 
 
 
-void debugmenu_main_load_mem(SOL1_CPU& sol1_cpu) {
+void debugmenu_main_load_mem(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 	unsigned short start; //address,  end
 //	unsigned char data;
 
-	printf("Load Memory | Start Address? ");
-	input = gets(4);
+	hw_tty.print("Load Memory | Start Address? ");
+	input = hw_tty.gets(4);
 
-	if (strlen(input) == 0) { printf("\n");  return; }
+	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 4);
 	start = convert_hexstr_to_value(value);
 
 
-	printf("\n  Code (max 128 bytes) ] ");
-	input = gets(256);
+	hw_tty.print("\n  Code (max 128 bytes) ] ");
+	input = hw_tty.gets(256);
 
-	if (strlen(input) == 0) { printf("\n");  return; }
+	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	size_t numdigits = strlen(input) / 2;
 	size_t i;
@@ -153,71 +154,72 @@ void debugmenu_main_load_mem(SOL1_CPU& sol1_cpu) {
 
 	SOL1_REGISTERS::set(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh, start);
 
-	printf("\n");
+	hw_tty.print("\n");
 }
 
 
 
-void debugmenu_main_display_registers(SOL1_CPU& sol1_cpu) {
+void debugmenu_main_display_registers(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
-	printf("Display Registers\n");
-	printf("\n");
-	sol1_cpu.display_registers();
+	hw_tty.print("Display Registers\n");
+	hw_tty.print("\n");
+	sol1_cpu.display_registers(hw_tty);
 }
 
-void debugmenu_main_edit_register(SOL1_CPU& sol1_cpu) {
+void debugmenu_main_edit_register(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
+	char str_out[255];
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 	//unsigned short address; // , end
 //	unsigned char data;
 
-	printf("Edit Register ? ");
-	input = gets(3);
+	hw_tty.print("Edit Register ? ");
+	input = hw_tty.gets(3);
 
-	if (strlen(input) == 0) { printf("\n");  return; }
+	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	if (strcmp(input, "A") == 0) {
-		printf(" | A=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Al, sol1_cpu.registers.Ah));
-		input = gets(4);
+		sprintf(str_out, " | A=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Al, sol1_cpu.registers.Ah)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.Al, sol1_cpu.registers.Ah, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "B") == 0) {
-		printf(" | B=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Bl, sol1_cpu.registers.Bh));
-		input = gets(4);
+		sprintf(str_out, " | B=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Bl, sol1_cpu.registers.Bh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.Bl, sol1_cpu.registers.Bh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "C") == 0) {
-		printf(" | C=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Cl, sol1_cpu.registers.Ch));
-		input = gets(4);
+		sprintf(str_out, " | C=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Cl, sol1_cpu.registers.Ch)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.Cl, sol1_cpu.registers.Ch, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "D") == 0) {
-		printf(" | D=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Dl, sol1_cpu.registers.Dh));
-		input = gets(4);
+		sprintf(str_out, " | D=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Dl, sol1_cpu.registers.Dh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.Dl, sol1_cpu.registers.Dh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "G") == 0) {
-		printf(" | G=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Gl, sol1_cpu.registers.Gh));
-		input = gets(4);
+		sprintf(str_out, " | G=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Gl, sol1_cpu.registers.Gh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.Gl, sol1_cpu.registers.Gh, convert_hexstr_to_value(value));
@@ -225,47 +227,47 @@ void debugmenu_main_edit_register(SOL1_CPU& sol1_cpu) {
 
 
 	else if (strcmp(input, "BP") == 0) {
-		printf(" | BP=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.BPl, sol1_cpu.registers.BPh));
-		input = gets(4);
+		sprintf(str_out, " | BP=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.BPl, sol1_cpu.registers.BPh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.BPl, sol1_cpu.registers.BPh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "SP") == 0) {
-		printf(" | SP=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.SPl, sol1_cpu.registers.SPh));
-		input = gets(4);
+		sprintf(str_out, " | SP=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.SPl, sol1_cpu.registers.SPh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.SPl, sol1_cpu.registers.SPh, convert_hexstr_to_value(value));
 	}
 
 	else if (strcmp(input, "SI") == 0) {
-		printf(" | SI=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.SIl, sol1_cpu.registers.SIh));
-		input = gets(4);
+		sprintf(str_out, " | SI=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.SIl, sol1_cpu.registers.SIh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.SIl, sol1_cpu.registers.SIh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "DI") == 0) {
-		printf(" | DI=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.DIl, sol1_cpu.registers.DIh));
-		input = gets(4);
+		sprintf(str_out, " | DI=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.DIl, sol1_cpu.registers.DIh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.DIl, sol1_cpu.registers.DIh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "PC") == 0) {
-		printf(" | PC=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh));
-		input = gets(4);
+		sprintf(str_out, " | PC=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh, convert_hexstr_to_value(value));
@@ -273,48 +275,48 @@ void debugmenu_main_edit_register(SOL1_CPU& sol1_cpu) {
 
 
 	else if (strcmp(input, "TDR") == 0) {
-		printf(" | TDR=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.TDRl, sol1_cpu.registers.TDRh));
-		input = gets(4);
+		sprintf(str_out, " | TDR=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.TDRl, sol1_cpu.registers.TDRh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.TDRl, sol1_cpu.registers.TDRh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "SSP") == 0) {
-		printf(" | SSP=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.SSPl, sol1_cpu.registers.SSPh));
-		input = gets(4);
+		sprintf(str_out, " | SSP=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.SSPl, sol1_cpu.registers.SSPh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.SSPl, sol1_cpu.registers.SSPh, convert_hexstr_to_value(value));
 
 	}
 	else if (strcmp(input, "PTB") == 0) {
-		printf(" | PTB=%02x | Data? ", sol1_cpu.registers.PTB.value());
-		input = gets(2);
+		sprintf(str_out, " | PTB=%02x | Data? ", sol1_cpu.registers.PTB.value());
+		input = hw_tty.gets(2);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 2);
 		sol1_cpu.registers.PTB.set(convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "MSW") == 0) {
-		printf(" | MSW=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.MSWl, sol1_cpu.registers.MSWh));
-		input = gets(4);
+		sprintf(str_out, " | MSW=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.MSWl, sol1_cpu.registers.MSWh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_REGISTERS::set(sol1_cpu.registers.MSWl, sol1_cpu.registers.MSWh, convert_hexstr_to_value(value));
 	}
 
 	else if (strcmp(input, "MAR") == 0) {
-		printf(" | MAR=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.MARl, sol1_cpu.registers.MARh));
-		input = gets(4);
+		sprintf(str_out, " | MAR=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.MARl, sol1_cpu.registers.MARh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_MWORD index = convert_hexstr_to_value(value);
@@ -323,98 +325,99 @@ void debugmenu_main_edit_register(SOL1_CPU& sol1_cpu) {
 	}
 
 	else if (strcmp(input, "MDR") == 0) {
-		printf(" | MDR=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.MDRl, sol1_cpu.registers.MDRh));
-		input = gets(4);
+		sprintf(str_out, " | MDR=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.MDRl, sol1_cpu.registers.MDRh)); hw_tty.print(str_out);
+		input = hw_tty.gets(4);
 
-		if (strlen(input) == 0) { printf("\n");  return; }
+		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
 		SOL1_MWORD index = convert_hexstr_to_value(value);
 		SOL1_REGISTERS::set(sol1_cpu.registers.MDRl, sol1_cpu.registers.MDRh, index);
 	}
-	printf("\n");
+	hw_tty.print("\n");
 }
 
-void debugmenu_main_edit_breakpoint(SOL1_CPU& sol1_cpu) {
-
+void debugmenu_main_edit_breakpoint(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+	char str_out[255];
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 
-	printf("Edit Breakpoint | BKPT=%04x | Address (FFFF=disable) ? ", sol1_cpu.BKPT);
-	input = gets(4);
+	sprintf(str_out, "Edit Breakpoint | BKPT=%04x | Address (FFFF=disable) ? ", sol1_cpu.BKPT); hw_tty.print(str_out);
+	input = hw_tty.gets(4);
 
-	if (strlen(input) == 0) { printf("\n");  return; }
+	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 4);
 	sol1_cpu.BKPT = convert_hexstr_to_value(value);
 
-	printf("\n");
+	hw_tty.print("\n");
 }
 
-void debugmenu_main_edit_programcounter(SOL1_CPU& sol1_cpu) {
+void debugmenu_main_edit_programcounter(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
+	char str_out[255];
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 
-	printf("Edit Program Counter | PC=%04x | Address ? ", SOL1_REGISTERS::value(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh));
-	input = gets(4);
+	sprintf(str_out, "Edit Program Counter | PC=%04x | Address ? ", SOL1_REGISTERS::value(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh)); hw_tty.print(str_out);
+	input = hw_tty.gets(4);
 
-	if (strlen(input) == 0) { printf("\n");  return; }
+	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 4);
 	SOL1_REGISTERS::set(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh, convert_hexstr_to_value(value));
-	printf("\n");
+	hw_tty.print("\n");
 }
 
-void debugmenu_main_reset_cpu(SOL1_CPU& sol1_cpu) {
+void debugmenu_main_reset_cpu(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
 
-	printf("Reset CPU\n");
-	printf("\n");
+	hw_tty.print("Reset CPU\n");
+	hw_tty.print("\n");
 	sol1_cpu.microcode.init();
 	sol1_cpu.reset();
-	sol1_cpu.display_registers();
+	sol1_cpu.display_registers(hw_tty);
 	
 }
 
 
 //debugmenu_main_menu();
-int debugmenu_main(SOL1_CPU& sol1_cpu) {
+int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
 	while (1) {
 
-		printf("> ");
-		int key = getch();
+		hw_tty.print("> ");
+		int key = hw_tty.get_char();
 
 		////////
 
 		if (key == (int)'d' || key == (int)'D')
-			sol1_cpu.memory.display(sol1_cpu.registers);
+			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 
 		//else if (key == (int)'i' || key == (int)'I')
 
 		else if (key == (int)'e' || key == (int)'E')
-			debugmenu_main_edit_mem(sol1_cpu.memory);
+			debugmenu_main_edit_mem(sol1_cpu.memory, hw_tty);
 
 		else if (key == (int)'f' || key == (int)'F')
-			debugmenu_main_fill_mem(sol1_cpu.memory);
+			debugmenu_main_fill_mem(sol1_cpu.memory, hw_tty);
 
 		else if (key == (int)'l' || key == (int)'L')
-			debugmenu_main_load_mem(sol1_cpu);
+			debugmenu_main_load_mem(sol1_cpu, hw_tty);
 
 		////////
 
 		else if (key == (int)'r' || key == (int)'R')
-			debugmenu_main_display_registers(sol1_cpu);
+			debugmenu_main_display_registers(sol1_cpu, hw_tty);
 
 		else if (key == (int)'a' || key == (int)'A')
-			debugmenu_main_edit_register(sol1_cpu);
+			debugmenu_main_edit_register(sol1_cpu, hw_tty);
 
 		else if (key == (int)'b' || key == (int)'B')
-			debugmenu_main_edit_breakpoint(sol1_cpu);
+			debugmenu_main_edit_breakpoint(sol1_cpu, hw_tty);
 
 		else if (key == (int)'p' || key == (int)'P')
-			debugmenu_main_edit_programcounter(sol1_cpu);
+			debugmenu_main_edit_programcounter(sol1_cpu, hw_tty);
 
 		////////
 
@@ -427,17 +430,17 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 		}
 
 		else if (key == (int)'z' || key == (int)'Z')
-			debugmenu_main_reset_cpu(sol1_cpu);
+			debugmenu_main_reset_cpu(sol1_cpu, hw_tty);
 
 		////////
 
 		else if (key == (int)'x' || key == (int)'X')
-			debugmenu_roms(sol1_cpu);
+			debugmenu_roms(sol1_cpu, hw_tty);
 
 		////////
 
 		else if (key == (int)'?')
-			debugmenu_main_menu();
+			debugmenu_main_menu(hw_tty);
 
 		else if (key == (int)'q' || key == (int)'Q')
 			return 0;
@@ -447,9 +450,9 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 			sol1_cpu.memory.debug_manual_offset = sol1_cpu.memory.debug_manual_offset == 0x00 ? 0x01 : 0x00;
 
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSW_PAGING_EN))
-				sol1_cpu.memory.display(sol1_cpu.registers);
+				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 			else
-				sol1_cpu.memory.display_test(sol1_cpu.registers);
+				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 		}
 
 		else if (key == (int)'2') {
@@ -458,7 +461,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 					sol1_cpu.memory.debug_mem_offset += 0x10;
 				sol1_cpu.memory.debug_manual_offset = 1;
 				
-				sol1_cpu.memory.display(sol1_cpu.registers);
+				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 
 			}
 			else {
@@ -466,7 +469,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 					sol1_cpu.memory.debug_mem_offset += 0x10;
 				sol1_cpu.memory.debug_manual_offset = 1;
 
-				sol1_cpu.memory.display_test(sol1_cpu.registers);
+				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 			}
 		}
 		if (key == (int)'1') {
@@ -477,9 +480,9 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 			sol1_cpu.memory.debug_manual_offset = 1;
 
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSW_PAGING_EN))
-				sol1_cpu.memory.display(sol1_cpu.registers);
+				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 			else
-				sol1_cpu.memory.display_test(sol1_cpu.registers);
+				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'4') {
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSW_PAGING_EN)) {
@@ -487,7 +490,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 					sol1_cpu.memory.debug_mem_offset += 0x100;
 				sol1_cpu.memory.debug_manual_offset = 1;
 
-				sol1_cpu.memory.display(sol1_cpu.registers);
+				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 			}
 			else {
 				if (sol1_cpu.memory.debug_mem_offset + 0x100 < SOL1_MAIN_MEMORY_SIZE)
@@ -495,7 +498,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 				sol1_cpu.memory.debug_manual_offset = 1;
 
 
-				sol1_cpu.memory.display_test(sol1_cpu.registers);
+				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 			}
 		}
 		if (key == (int)'3') {
@@ -506,9 +509,9 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 			sol1_cpu.memory.debug_manual_offset = 1;
 
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSW_PAGING_EN))
-				sol1_cpu.memory.display(sol1_cpu.registers);
+				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 			else
-				sol1_cpu.memory.display_test(sol1_cpu.registers);
+				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'6') {
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSW_PAGING_EN)) {
@@ -516,13 +519,13 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 					sol1_cpu.memory.debug_mem_offset += 0x1000;
 				sol1_cpu.memory.debug_manual_offset = 1;
 
-				sol1_cpu.memory.display(sol1_cpu.registers);
+				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 			}
 			else {
 				if (sol1_cpu.memory.debug_mem_offset + 0x1000 < SOL1_MAIN_MEMORY_SIZE)
 					sol1_cpu.memory.debug_mem_offset += 0x1000;
 				sol1_cpu.memory.debug_manual_offset = 1;
-				sol1_cpu.memory.display_test(sol1_cpu.registers);
+				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 			}
 		}
 		if (key == (int)'5') {
@@ -533,9 +536,9 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 			sol1_cpu.memory.debug_manual_offset = 1;
 
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSW_PAGING_EN))
-				sol1_cpu.memory.display(sol1_cpu.registers);
+				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 			else
-				sol1_cpu.memory.display_test(sol1_cpu.registers);
+				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 
 		}
 
@@ -546,7 +549,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 				sol1_cpu.memory.debug_mem_offset += 0x10;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers);
+			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'!') {
 			if (sol1_cpu.memory.debug_mem_offset - 0x10 >= 0)
@@ -555,14 +558,14 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 				sol1_cpu.memory.debug_mem_offset = 0;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers);
+			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'$') {
 			if (sol1_cpu.memory.debug_mem_offset + 0x100 < SOL1_BIOS_MEMORY_SIZE)
 				sol1_cpu.memory.debug_mem_offset += 0x100;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers);
+			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'#') {
 			if (sol1_cpu.memory.debug_mem_offset - 0x100 >= 0)
@@ -571,14 +574,14 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 				sol1_cpu.memory.debug_mem_offset = 0;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers);
+			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'^') {
 			if (sol1_cpu.memory.debug_mem_offset + 0x1000 < SOL1_BIOS_MEMORY_SIZE)
 				sol1_cpu.memory.debug_mem_offset += 0x1000;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers);
+			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'%') {
 			if (sol1_cpu.memory.debug_mem_offset - 0x1000 >= 0)
@@ -587,7 +590,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 				sol1_cpu.memory.debug_mem_offset = 0;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers);
+			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
 
 		}
 
@@ -595,7 +598,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu) {
 		////////
 
 		else
-			printf("\n");
+			hw_tty.print("\n");
 
 		////////
 	}
