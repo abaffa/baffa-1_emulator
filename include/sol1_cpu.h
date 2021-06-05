@@ -50,6 +50,7 @@ public:
 
 	int DEBUG_LOG_OPCODE;
 	int DEBUG_LITE;
+	int DEBUG_LITE_CYCLES;
 	int SERVER;
 	int WEB_SERVER;
 
@@ -82,5 +83,6 @@ public:
 	int get_current_memory_size();
 
 	void mc_seq_update(HW_TTY& hw_tty);
+
 };
 #endif

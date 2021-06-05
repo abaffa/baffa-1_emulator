@@ -75,6 +75,7 @@ void *TelnetClientThread(void *pParam)
 	//hw_uart_receive(current_client->hw_uart, 0x0d);
 	//memset(welm, 0, 512 * (sizeof buff[0]));
 
+	char lastSentChar = '\0';
 
 	while (true)
 	{
@@ -109,8 +110,16 @@ void *TelnetClientThread(void *pParam)
 				buf_send[1] = 0x20;
 				buf_send[2] = 0x08;
 			}
-			send(client, buf_send, (int)strlen(buf_send), 0);
 
+			if (lastSentChar == '\r' && data != '\n')
+				send(client, "\n", 1, 0);
+
+			send(client, buf_send, (int)strlen(buf_send), 0);
+			
+			if (lastSentChar == '\n' &&  data != '\n')
+				lastSentChar = '\0';
+			else
+				lastSentChar = data;
 
 		}
 		//std::unique_lock<std::mutex> unlock(current_client->mtx_out);
@@ -222,7 +231,7 @@ void *TelnetServerThread(void *pParam)
 	if (server == INVALID_SOCKET)
 	{
 		return 0;
-	}
+}
 #else
 	if ((server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 	{
@@ -282,7 +291,7 @@ void *TelnetServerThread(void *pParam)
 #endif
 
 
-		}
+	}
 		else {
 
 			char *buf_send = (char *)"No pool available.\n";
@@ -293,8 +302,8 @@ void *TelnetServerThread(void *pParam)
 			shutdown(client, 2);
 #endif
 
-		}
 	}
+}
 
 	return 0;
 }
@@ -329,7 +338,7 @@ void HW_TTY::start_server(struct hw_uart* hw_uart) {
 #endif
 
 	this->started = 1;
-}
+	}
 
 
 
@@ -353,8 +362,8 @@ void HW_TTY::send(SOL1_BYTE b) {
 				pthread_mutex_unlock(&this->clients[i].mtx_out);
 #endif
 			}
-		}
 	}
+}
 }
 
 void HW_TTY::print(const char* s) {
@@ -487,11 +496,11 @@ SOL1_BYTE HW_TTY::receive() {
 		nanosleep(&ts, NULL);
 
 #endif
-	}
+		}
 	set_input(0);
 
 	return ch;
-}
+	}
 
 
 char HW_TTY::get_char() {

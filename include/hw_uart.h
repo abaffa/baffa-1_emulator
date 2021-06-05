@@ -10,9 +10,11 @@ struct hw_uart {
 	Queue* uart_in;
 	Queue* uart_out;
 	SOL1_BYTE data[6];
+
+	void *sol1_cpu;
 };
 
-void hw_uart_init(struct hw_uart* hw_uart);
+void hw_uart_init(struct hw_uart* hw_uart, void *sol1_cpu);
 
 int hw_uart_read(struct hw_uart* hw_uart);
 int hw_uart_write(struct hw_uart* hw_uart);

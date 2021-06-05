@@ -269,7 +269,10 @@ void save_to_log(char *s, FILE *fa, char *str)
 	//FILE *fa = fopen("File1.txt", "a");
 	if (fa == NULL)
 	{
-		sprintf(s, "can not open target file\n");
+		if (s == NULL)
+			printf("can not open target file\n");
+		else
+			sprintf(s, "can not open target file\n");
 		exit(1);
 	}
 
@@ -283,10 +286,10 @@ void save_to_log(char *s, FILE *fa, char *str)
 
 
 
-void reg8bit_print(char *s, FILE *fa, char *dir, char *reg, SOL1_BYTE value) {
+void reg8bit_print(FILE *fa, char *dir, char *reg, SOL1_BYTE value) {
 	char line[255];
 	sprintf(line, "         \t\t\t\t%s REG\t %s \t= %02x\n", dir, reg, value);
-	save_to_log(s, fa, line);
+	save_to_log(NULL, fa, line);
 }
 
 

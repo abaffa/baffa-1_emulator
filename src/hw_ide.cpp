@@ -32,7 +32,7 @@ void hw_ide_save_disk(SOL1_BYTE *data) {
 }
 
 void hw_ide_load_disk(SOL1_BYTE *data) {
-	FILE *file = fopen("data.dsk", "rb");
+	FILE *file = fopen("data_new.dsk", "rb");
 	if (file != NULL) {
 		fread(data, sizeof(SOL1_BYTE), SOL1_IDE_MEMORY_SIZE, file);
 		fclose(file);

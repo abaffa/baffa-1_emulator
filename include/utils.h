@@ -75,7 +75,7 @@ char* loadfile(char *s, char *filename, long *size);
 
 
 void save_to_log(char *s, FILE *fa, char *str);
-void reg8bit_print(char *s, FILE *fa, char *dir, char *reg, SOL1_BYTE value);
+void reg8bit_print(FILE *fa, char *dir, char *reg, SOL1_BYTE value);
 
 char* strlower(char* s);
 #endif

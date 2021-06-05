@@ -45,6 +45,7 @@
 
 
 #define INI_DEBUG_LITE 0
+#define INI_DEBUG_LITE_CYCLES 0
 
 #define INI_DEBUG_BUSES 0	
 #define INI_DEBUG_ALU 0

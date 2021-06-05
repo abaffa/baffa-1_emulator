@@ -327,7 +327,7 @@ void SOL1_MICROCODE::display_u_flags_lite(HW_TTY& hw_tty) {
 
 
 SOL1_BYTE SOL1_MICROCODE::int_pending(SOL1_REGISTERS& registers) {
-	return get_byte_bit(this->mccycle.int_request, 0) & get_byte_bit(registers.MSWl.value(), MSW_INTERRUPT_ENABLE);
+	return get_byte_bit(this->mccycle.int_request, 0) & get_byte_bit(registers.MSWl.value(), MSWl_INTERRUPT_ENABLE);
 }
 
 SOL1_BYTE SOL1_MICROCODE::any_interruption(SOL1_REGISTERS& registers) {
@@ -335,7 +335,7 @@ SOL1_BYTE SOL1_MICROCODE::any_interruption(SOL1_REGISTERS& registers) {
 }
 
 SOL1_BYTE SOL1_MICROCODE::page_table_addr_src(SOL1_REGISTERS& registers) {
-	return get_byte_bit(this->mccycle.force_user_ptb, 0) ^ get_byte_bit(registers.MSWl.value(), MSW_CPU_MODE);
+	return get_byte_bit(this->mccycle.force_user_ptb, 0) ^ get_byte_bit(registers.MSWl.value(), MSWl_CPU_MODE);
 }
 
 
@@ -358,10 +358,10 @@ void SOL1_MICROCODE::update_final_condition(SOL1_REGISTERS& registers) {
 		SOL1_BYTE inOF = 0x00;
 
 		if (this->mccycle.cond_flags_src == 0x00) {
-			inZF = get_byte_bit(registers.MSWh.value(), MSW_ZF);
-			inCF = get_byte_bit(registers.MSWh.value(), MSW_CF);
-			inSF = get_byte_bit(registers.MSWh.value(), MSW_SF);
-			inOF = get_byte_bit(registers.MSWh.value(), MSW_OF);
+			inZF = get_byte_bit(registers.MSWh.value(), MSWh_ZF);
+			inCF = get_byte_bit(registers.MSWh.value(), MSWh_CF);
+			inSF = get_byte_bit(registers.MSWh.value(), MSWh_SF);
+			inOF = get_byte_bit(registers.MSWh.value(), MSWh_OF);
 		}
 		else {
 			inZF = get_byte_bit(this->u_zf, 0);
@@ -411,7 +411,7 @@ void SOL1_MICROCODE::update_final_condition(SOL1_REGISTERS& registers) {
 	else {
 		switch (this->mccycle.cond_sel & 0b00000111) {
 		case 0x00:
-			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(registers.MSWl.value(), MSW_CPU_MODE);
+			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(registers.MSWl.value(), MSWl_CPU_MODE);
 			break;
 
 		case 0x01:
@@ -427,11 +427,11 @@ void SOL1_MICROCODE::update_final_condition(SOL1_REGISTERS& registers) {
 			break;
 
 		case 0x04:
-			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(registers.MSWl.value(), MSW_DIR);
+			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(registers.MSWl.value(), MSWl_DIR);
 			break;
 
 		case 0x05:
-			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(registers.MSWl.value(), MSW_DISPLAY_REG_LOAD);
+			this->mccycle.final_condition = get_byte_bit(this->mccycle.cond_inv, 0) ^ get_byte_bit(registers.MSWl.value(), MSWl_DISPLAY_REG_LOAD);
 			break;
 
 		case 0x06:

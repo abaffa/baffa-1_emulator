@@ -5,24 +5,24 @@
 #include "sol1_register_8bit.h"
 
 // FLAG - msw-h - bits
-#define MSW_ZF 0x00 // ZeroFlag
-#define MSW_CF 0x01 // Carry Flag
-#define MSW_SF 0x02 // Overflow Flag
-#define MSW_OF 0x03 // Sign Flag
-#define MSW_12 0x04
-#define MSW_13 0x05
-#define MSW_14 0x06
-#define MSW_15 0x07
+#define MSWh_ZF 0x00 // ZeroFlag
+#define MSWh_CF 0x01 // Carry Flag
+#define MSWh_SF 0x02 // Overflow Flag
+#define MSWh_OF 0x03 // Sign Flag
+#define MSWh_12 0x04
+#define MSWh_13 0x05
+#define MSWh_14 0x06
+#define MSWh_15 0x07
 
 // STATUS FLAGS - msw-l bits
-#define MSW_DMA_ACK 0x00
-#define MSW_INTERRUPT_ENABLE 0x01
-#define MSW_CPU_MODE 0x02
-#define MSW_PAGING_EN 0x03
-#define MSW_HALT 0x04
-#define MSW_DISPLAY_REG_LOAD 0x05
-//#define MSW_14 0x06
-#define MSW_DIR 0x07
+#define MSWl_DMA_ACK 0x00
+#define MSWl_INTERRUPT_ENABLE 0x01
+#define MSWl_CPU_MODE 0x02
+#define MSWl_PAGING_EN 0x03
+#define MSWl_HALT 0x04
+#define MSWl_DISPLAY_REG_LOAD 0x05
+#define MSWl_14 0x06
+#define MSWl_DIR 0x07
 
 class SOL1_REGISTERS
 {

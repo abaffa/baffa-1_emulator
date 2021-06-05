@@ -3,6 +3,7 @@
 <table valign="top" align="center" width="900" class="prompt">
 <tr><td align="center">	
 
+The telnet instance runs in another location and may be not available.
 
 <div id="fTelnetContainer" class="fTelnetContainer" style="background-image:images/crt.png;"></div>
 <script>document.write('<script src="//embed-v2.ftelnet.ca/js/ftelnet-loader.norip.xfer.js?v=' + (new Date()).getTime() + '"><\/script>');</script>

@@ -28,7 +28,6 @@ void SOL1_CPU::init(HW_TTY& hw_tty)
 
 	sol1_alu_init(&this->alu);
 	this->rom.init(hw_tty);
-
 	this->microcode.init();
 
 	reset();
@@ -52,6 +51,8 @@ void SOL1_CPU::init(HW_TTY& hw_tty)
 	this->DEBUG_MEMORY = INI_DEBUG_MEMORY;
 
 	this->DEBUG_LITE = INI_DEBUG_LITE;
+	this->DEBUG_LITE_CYCLES = INI_DEBUG_LITE_CYCLES;
+
 	this->DEBUG_UART = INI_DEBUG_UART;
 	this->DEBUG_IDE = INI_DEBUG_IDE;
 	this->DEBUG_RTC = INI_DEBUG_RTC;
@@ -296,13 +297,13 @@ void  SOL1_CPU::mswh_flags_desc(HW_TTY& hw_tty) {
 
 	SOL1_BYTE b = this->registers.MSWh.value();
 	hw_tty.print(" [");
-	if (get_byte_bit(b, MSW_ZF) != 0x00)
+	if (get_byte_bit(b, MSWh_ZF) != 0x00)
 		hw_tty.print("Z"); else hw_tty.print(" ");
-	if (get_byte_bit(b, MSW_CF) != 0x00)
+	if (get_byte_bit(b, MSWh_CF) != 0x00)
 		hw_tty.print("C"); else hw_tty.print(" ");
-	if (get_byte_bit(b, MSW_SF) != 0x00)
+	if (get_byte_bit(b, MSWh_SF) != 0x00)
 		hw_tty.print("S"); else hw_tty.print(" ");
-	if (get_byte_bit(b, MSW_OF) != 0x00)
+	if (get_byte_bit(b, MSWh_OF) != 0x00)
 		hw_tty.print("O"); else hw_tty.print(" ");
 	hw_tty.print("]");
 }
@@ -313,19 +314,19 @@ void  SOL1_CPU::mswh_flags_desc(HW_TTY& hw_tty) {
 void SOL1_CPU::mswl_status_desc(HW_TTY& hw_tty) {
 
 	SOL1_BYTE b = this->registers.MSWl.value();
-	if (get_byte_bit(b, MSW_DMA_ACK) != 0x00)
+	if (get_byte_bit(b, MSWl_DMA_ACK) != 0x00)
 		hw_tty.print(" | dma_ack ");
-	if (get_byte_bit(b, MSW_INTERRUPT_ENABLE) != 0x00)
+	if (get_byte_bit(b, MSWl_INTERRUPT_ENABLE) != 0x00)
 		hw_tty.print(" | interrupt_enable ");
-	if (get_byte_bit(b, MSW_CPU_MODE) != 0x00)
+	if (get_byte_bit(b, MSWl_CPU_MODE) != 0x00)
 		hw_tty.print(" | cpu_mode ");
-	if (get_byte_bit(b, MSW_PAGING_EN) != 0x00)
+	if (get_byte_bit(b, MSWl_PAGING_EN) != 0x00)
 		hw_tty.print(" | paging_en ");
-	if (get_byte_bit(b, MSW_HALT) != 0x00)
+	if (get_byte_bit(b, MSWl_HALT) != 0x00)
 		hw_tty.print(" | halt ");
-	if (get_byte_bit(b, MSW_DISPLAY_REG_LOAD) != 0x00)
+	if (get_byte_bit(b, MSWl_DISPLAY_REG_LOAD) != 0x00)
 		hw_tty.print(" | display_reg_load ");
-	if (get_byte_bit(b, MSW_DIR) != 0x00)
+	if (get_byte_bit(b, MSWl_DIR) != 0x00)
 		hw_tty.print(" | dir ");
 }
 
@@ -434,14 +435,14 @@ SOL1_BYTE SOL1_CPU::refresh_MSWh_ZF(SOL1_BYTE z_bus, SOL1_BYTE zf_in_src) {
 
 	switch (zf_in_src & 0b00000011) {
 	case 0x00:
-		inMSWh_ZF = get_byte_bit(this->registers.MSWh.value(), MSW_ZF);
+		inMSWh_ZF = get_byte_bit(this->registers.MSWh.value(), MSWh_ZF);
 		break;
 
 	case 0x01:
 		inMSWh_ZF = get_byte_bit(this->alu.alu_zf, 0);
 		break;
 	case 0x02:
-		inMSWh_ZF = get_byte_bit(this->alu.alu_zf & get_byte_bit(this->registers.MSWh.value(), MSW_ZF), 0);
+		inMSWh_ZF = get_byte_bit(this->alu.alu_zf & get_byte_bit(this->registers.MSWh.value(), MSWh_ZF), 0);
 		break;
 
 	case 0x03:
@@ -459,7 +460,7 @@ SOL1_BYTE  SOL1_CPU::refresh_MSWh_CF(SOL1_BYTE z_bus, SOL1_BYTE cf_in_src) {
 
 	switch (cf_in_src & 0b00000111) {
 	case 0x00:
-		inMSWh_CF = get_byte_bit(this->registers.MSWh.value(), MSW_CF);
+		inMSWh_CF = get_byte_bit(this->registers.MSWh.value(), MSWh_CF);
 		break;
 
 	case 0x01:
@@ -489,7 +490,7 @@ SOL1_BYTE SOL1_CPU::refresh_MSWh_SF(SOL1_BYTE z_bus, SOL1_BYTE sf_in_src) {
 	switch (sf_in_src & 0b00000011) {
 	case 0x00:
 
-		inMSWh_SF = get_byte_bit(this->registers.MSWh.value(), MSW_SF);
+		inMSWh_SF = get_byte_bit(this->registers.MSWh.value(), MSWh_SF);
 		break;
 
 	case 0x01:
@@ -514,7 +515,7 @@ SOL1_BYTE SOL1_CPU::refresh_MSWh_OF(SOL1_BYTE z_bus, SOL1_BYTE u_sf, SOL1_BYTE o
 
 	switch (of_in_src & 0b00000111) {
 	case 0x00:
-		inMSWh_OF = get_byte_bit(this->registers.MSWh.value(), MSW_OF);
+		inMSWh_OF = get_byte_bit(this->registers.MSWh.value(), MSWh_OF);
 		break;
 
 	case 0x01:
@@ -541,7 +542,7 @@ SOL1_BYTE SOL1_CPU::refresh_MSWh_OF(SOL1_BYTE z_bus, SOL1_BYTE u_sf, SOL1_BYTE o
 
 SOL1_BYTE *SOL1_CPU::get_current_memory() {
 	SOL1_BYTE *memory;
-	if (!check_byte_bit(this->registers.MSWl.value(), MSW_PAGING_EN))
+	if (!check_byte_bit(this->registers.MSWl.value(), MSWl_PAGING_EN))
 		memory = this->memory.memory;
 
 	else
@@ -552,7 +553,7 @@ SOL1_BYTE *SOL1_CPU::get_current_memory() {
 
 int SOL1_CPU::get_current_memory_size() {
 
-	if (!check_byte_bit(this->registers.MSWl.value(), MSW_PAGING_EN))
+	if (!check_byte_bit(this->registers.MSWl.value(), MSWl_PAGING_EN))
 		return SOL1_BIOS_MEMORY_SIZE;
 
 	else
