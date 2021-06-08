@@ -11,6 +11,8 @@ The microcode editor is available at https://github.com/abaffa/sol-1_simu.
 
 The computer original software (bios, kernel, assembly programs, ...) are available at https://github.com/abaffa/SOL1_MiniComputer.
 
+![so1_terminal](_images/so1_terminal.png)
+
 -----BEGIN LICENSE NOTICE----- 
 
 Sol-1 HomebrewCPU Minicomputer System Emulator
