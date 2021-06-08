@@ -76,7 +76,7 @@ void *MTRtcThread(void *pParam)
 	timeinfo = localtime(&rawtime);
 
 	hw_rtc->data[15] = convertToHex(timeinfo->tm_year - 100);
-	hw_rtc->data[14] = convertToHex(timeinfo->tm_mon);
+	hw_rtc->data[14] = convertToHex(timeinfo->tm_mon + 1);
 	hw_rtc->data[13] = convertToHex(timeinfo->tm_mday);
 	hw_rtc->data[12] = convertToHex(timeinfo->tm_wday);
 
@@ -88,7 +88,7 @@ void *MTRtcThread(void *pParam)
 	{
 		
 		timeinfo->tm_year = convertToInt(hw_rtc->data[15]) + 100;
-		timeinfo->tm_mon = convertToInt(hw_rtc->data[14]);
+		timeinfo->tm_mon = convertToInt(hw_rtc->data[14] - 1);
 		timeinfo->tm_mday = convertToInt(hw_rtc->data[13]);
 
 		timeinfo->tm_hour = convertToInt(hw_rtc->data[11]);
@@ -98,7 +98,7 @@ void *MTRtcThread(void *pParam)
 		mktime(timeinfo);
 
 		hw_rtc->data[15] = convertToHex(timeinfo->tm_year -100);
-		hw_rtc->data[14] = convertToHex(timeinfo->tm_mon);
+		hw_rtc->data[14] = convertToHex(timeinfo->tm_mon + 1);
 		hw_rtc->data[13] = convertToHex(timeinfo->tm_mday);
 		hw_rtc->data[12] = convertToHex(timeinfo->tm_wday);
 
