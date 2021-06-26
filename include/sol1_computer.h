@@ -36,11 +36,11 @@ public:
 	unordered_map<string, Tasm_Opcode> ht_opcodes;
 
 
-	SOL1_BYTE apagar = 0;
-	int gambi_ide = 0;
-	int gambi_ide_total = 0;
-	int gambi_ide_read = 0;
-	int gambi_last_op = 0;
+	//SOL1_BYTE apagar = 0;
+	//int gambi_ide = 0;
+	//int gambi_ide_total = 0;
+	//int gambi_ide_read = 0;
+	//int gambi_last_op = 0;
 
 	
 	int init();

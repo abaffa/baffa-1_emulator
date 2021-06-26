@@ -5,11 +5,12 @@
 #include <ctype.h>
 
 #if defined(__linux__) || defined(__MINGW32__)
-
+#include <time.h>
 #else
+#include <chrono>
+using namespace std::chrono;
 
 #endif
-
 
 #include "config.h"
 #include "sol1_computer.h"
@@ -21,35 +22,44 @@
 #include <math.h>
 
 
+#ifdef _MSC_VER     
 
-
-
+#include <windows.h>
+/* Windows sleep in 100ns units */
+BOOLEAN nanosleep(LONGLONG ns) {
+	/* Declarations */
+	HANDLE timer;	/* Timer handle */
+	LARGE_INTEGER li;	/* Time defintion */
+	/* Create timer */
+	if (!(timer = CreateWaitableTimer(NULL, TRUE, NULL)))
+		return FALSE;
+	/* Set timer properties */
+	li.QuadPart = -ns;
+	if (!SetWaitableTimer(timer, &li, 0, NULL, NULL, FALSE)) {
+		CloseHandle(timer);
+		return FALSE;
+	}
+	/* Start & wait for timer */
+	WaitForSingleObject(timer, INFINITE);
+	/* Clean resources */
+	CloseHandle(timer);
+	/* Slept without problems */
+	return TRUE;
+}
+#endif
 
 /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 //boot sequence: bios, boot, kernel, shell
 /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-
 
 int step = 0;
 int microcodestep = 0;
 SOL1_MWORD oldPC = -1;
 SOL1_BYTE oldOP = -1;
 
-
 SOL1_BYTE last_opcode = 0xFF;
 
-
 FILE *fa;
-
-
-
-
-
-
-
-
 
 
 SOL1_BYTE SOL1_COMPUTER::get_current_opcode() {
@@ -112,20 +122,13 @@ void SOL1_COMPUTER::disassembly_current_opcode() {
 	}
 }
 
-
-
-
 //////////////////////////
 //////////////////////////
 //////////////////////////
 //////////////////////////
 //////////////////////////
-
-
-
 
 void SOL1_COMPUTER::refresh_int() {
-
 
 	SOL1_BYTE int_req_0 = 0x00;
 	SOL1_BYTE int_req_1 = 0x00;
@@ -449,40 +452,9 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 			if (mem_addr >= 0xFFD0 && mem_addr <= 0xFFD7) {
 
 
-				if (this->hw_ide.data[7] == 0b00001000 && mem_addr - 0xFFD0 == 0) {
+				if (mem_addr - 0xFFD0 == 0)
+					hw_ide_read(&this->hw_ide);
 
-					this->gambi_ide_total = this->hw_ide.data[2];
-
-					unsigned long sec_address_lba = this->hw_ide.data[3];
-					sec_address_lba = sec_address_lba | ((unsigned long)this->hw_ide.data[4]) << 8;
-					sec_address_lba = sec_address_lba | ((unsigned long)this->hw_ide.data[5]) << 16;
-					sec_address_lba = sec_address_lba | ((unsigned long)(this->hw_ide.data[6] & 0b00001111)) << 24;
-
-					unsigned long sec_address_byte = sec_address_lba * 512;
-
-					if (sec_address_byte < SOL1_IDE_MEMORY_SIZE) {
-						this->hw_ide.data[0] = this->hw_ide.memory[sec_address_byte + this->gambi_ide_read];
-
-						this->gambi_ide_read++;
-
-
-						if (this->gambi_ide_read > this->gambi_ide_total * 512)
-						{
-							this->gambi_ide_total = 0;
-							this->gambi_ide_read = 0;
-
-							this->hw_ide.data[7] = 0x00;
-						}
-					}
-					else {
-						this->gambi_ide_total = 0;
-						this->gambi_ide_read = 0;
-
-						this->hw_ide.data[7] = 0x24;
-					}
-				}
-
-				//hw_ide_read(this->cpu, uart_out);
 				this->bus.data_bus = this->hw_ide.data[mem_addr - 0xFFD0];
 
 
@@ -661,42 +633,9 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 					//this->hw_tty.print(str_out);
 				}
 
-
-				if (this->hw_ide.data[7] == 0b00001000 && mem_addr - 0xFFD0 == 0) {
-
-					this->gambi_ide_total = this->hw_ide.data[2];
-
-					unsigned long sec_address_lba = this->hw_ide.data[3];
-					sec_address_lba = sec_address_lba | ((unsigned long)this->hw_ide.data[4]) << 8;
-					sec_address_lba = sec_address_lba | ((unsigned long)this->hw_ide.data[5]) << 16;
-					sec_address_lba = sec_address_lba | ((unsigned long)(this->hw_ide.data[6] & 0b00001111)) << 24;
-
-					unsigned long sec_address_byte = sec_address_lba * 512;
-
-					if (sec_address_byte < SOL1_IDE_MEMORY_SIZE) {
-						this->hw_ide.memory[sec_address_byte + this->gambi_ide_read] = this->hw_ide.data[0];
-
-						this->gambi_ide_read++;
-
-
-						if (this->gambi_ide_read > this->gambi_ide_total * 512)
-						{
-							this->gambi_ide_total = 0;
-							this->gambi_ide_read = 0;
-
-							this->hw_ide.data[7] = 0x00;
-
-							hw_ide_save_disk(this->hw_ide.memory);
-						}
-					}
-					else {
-						this->gambi_ide_total = 0;
-						this->gambi_ide_read = 0;
-
-						this->hw_ide.data[7] = 0x34;
-					}
+				if (mem_addr - 0xFFD0 == 0) {
+					hw_ide_write(&this->hw_ide);
 				}
-
 
 				// SET HD NEW STATUS AFTER LOG
 				if (this->hw_ide.data[7] == 0x04) { // RESET IDE
@@ -714,15 +653,11 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 
 				else if (this->hw_ide.data[7] == 0x20) { // read sector cmd
 					this->hw_ide.data[7] = 0b00001000;
-					this->gambi_ide_total = 0;
-					this->gambi_ide_read = 0;
-
+					hw_ide_reset(&this->hw_ide);
 				}
 				else if (this->hw_ide.data[7] == 0x30) { // write sector cmd
 					this->hw_ide.data[7] = 0b00001000;
-					this->gambi_ide_total = 0;
-					this->gambi_ide_read = 0;
-
+					hw_ide_reset(&this->hw_ide);
 				}
 			}
 		}
@@ -778,7 +713,7 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 	if (this->cpu.microcode.mccycle.bpl_wrt == 0x00) { this->cpu.registers.BPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"BPl", this->bus.z_bus); } }
 
 
-
+	/*
 	if (!check_byte_bit(this->cpu.registers.MSWl.value(), MSWl_CPU_MODE)) {
 
 		if ((this->cpu.microcode.mccycle.sph_wrt == 0x00) || (this->cpu.microcode.mccycle.ssph_wrt == 0x00)) {
@@ -798,6 +733,22 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 		if (this->cpu.microcode.mccycle.ssph_wrt == 0x00) { this->cpu.registers.SSPh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SSPh", this->bus.z_bus); } }
 		if (this->cpu.microcode.mccycle.sspl_wrt == 0x00) { this->cpu.registers.SSPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SSPl", this->bus.z_bus); } }
 	}
+	*/
+
+	if (!check_byte_bit(this->cpu.registers.MSWl.value(), MSWl_CPU_MODE)) {
+
+		if ((this->cpu.microcode.mccycle.sph_wrt == 0x00) || (this->cpu.microcode.mccycle.ssph_wrt == 0x00)) {
+			//this->cpu.registers.SPh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SPh", this->bus.z_bus); }
+			this->cpu.registers.SSPh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SSPh", this->bus.z_bus); }
+		}
+		if ((this->cpu.microcode.mccycle.spl_wrt == 0x00) || this->cpu.microcode.mccycle.sspl_wrt == 0x00) {
+			//this->cpu.registers.SPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SPl", this->bus.z_bus); }
+			this->cpu.registers.SSPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SSPl", this->bus.z_bus); }
+		}
+	}
+	if (this->cpu.microcode.mccycle.sph_wrt == 0x00) { this->cpu.registers.SPh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SPh", this->bus.z_bus); } }
+	if (this->cpu.microcode.mccycle.spl_wrt == 0x00) { this->cpu.registers.SPl.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SPl", this->bus.z_bus); } }
+
 
 	//Index Registers
 	if (this->cpu.microcode.mccycle.sih_wrt == 0x00) { this->cpu.registers.SIh.set(this->bus.z_bus); if (this->cpu.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SIh", this->bus.z_bus); } }
@@ -969,21 +920,39 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 
 	hw_timer_tick_c0(&this->hw_timer);
 
-	this->bus.data_bus = 0;
-	this->bus.k_bus = 0;
-	this->bus.w_bus = 0;
-	this->bus.x_bus = 0;
-	this->bus.y_bus = 0;
-	this->bus.z_bus = 0;
-
+	this->bus.reset();
 }
 
 
 void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
 
+#if defined(__linux__) || defined(__MINGW32__)
+	struct timespec tstart = { 0,0 }, tend = { 0,0 };
+
+#elif _MSC_VER    
+	auto tstart = high_resolution_clock::now();
+	auto tend = high_resolution_clock::now();
+#endif 
+
 	char str_out[255];
 
+	double deltaTime = 0;
+	double cpu_clk = 0;
+	
+	long ticks = 0;
 	while (1) {
+
+#if defined(__linux__) || defined(__MINGW32__)
+		clock_gettime(CLOCK_MONOTONIC, &tend);
+		deltaTime = ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec);
+		clock_gettime(CLOCK_MONOTONIC, &tstart);
+
+#elif _MSC_VER        
+		tend = high_resolution_clock::now();
+		deltaTime = duration_cast<nanoseconds>(tend - tstart).count()*1e-9;
+		tstart = high_resolution_clock::now();
+#endif 
+		cpu_clk += deltaTime;
 
 		mc_sequencer(runtime_counter);
 
@@ -1035,7 +1004,7 @@ void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
 				char log_reg_lite[256];
 
 				char temp[4];
-						
+
 
 				sprintf(temp, "%02x", current_opcode);
 
@@ -1078,6 +1047,33 @@ void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
 			this->hw_tty.print("###########################################\n");
 			return;
 		}
+
+		if (microcodestep == 0 && step == 0) {
+
+			ticks++;
+
+			if (cpu_clk > 1) {
+				//printf("%d\n", ticks);
+				ticks = 0;
+				cpu_clk = 0;
+			}
+
+
+			if (ticks > 3800000) { // limiting 3.8 mhz
+#ifdef _MSC_VER     
+
+				nanosleep(1);
+#else
+				struct timespec ts;
+				ts.tv_sec = 0;
+				ts.tv_nsec = 1;
+				nanosleep(&ts, NULL);
+
+#endif
+
+			}
+		}
+
 	}
 
 	this->cpu.microcode.mccycle.next = 0x00;
@@ -1161,54 +1157,12 @@ int SOL1_COMPUTER::init() {
 	hw_ide_init(&this->hw_ide);
 	//this->hw_tty.init(this->cpu, &this->hw_uart);
 
-
-	int i;
-	long size = 0;
-
-
-
-	char * buf = loadfile(str_out, (char*)"bios.obj", &size);
-	this->hw_tty.print(str_out);
-
-	if (buf == NULL)
-		return 0;
-
-	for (i = 0; i < size; i++) {
-		this->cpu.memory.memory[i] = buf[i];
-	}
-
+	this->cpu.memory.load_bios();
 
 	hw_ide_load_disk(this->hw_ide.memory);
-	/*
-	buf = loadfile("boot.obj", &size);
-	//char * buf = loadfile("bios_paulo.obj", &size);
-	if (buf == NULL)
-		return 0;
-
-	for (i = 0; i < size; i++) {
-		hw_ide.memory[i] = buf[i];
-	}
-
-	buf = loadfile("kernel.obj", &size);
-	//char * buf = loadfile("bios_paulo.obj", &size);
-	if (buf == NULL)
-		return 0;
-
-	for (i = 0; i < size; i++) {
-		hw_ide.memory[512 + i] = buf[i];
-	}
-	*/
-
 
 	//init bus
-	this->bus.data_bus = 0b00000000;
-	this->bus.k_bus = 0b00000000; // input pra alu x e y
-	this->bus.w_bus = 0b00000000; // input pra alu x e y
-	this->bus.x_bus = 0b00000000; //alu entrada
-	this->bus.y_bus = 0b00000000; //alu entrada
-	this->bus.z_bus = 0b00000000; //alu saida
-
-
+	this->bus.reset();
 
 	if (this->cpu.SERVER) {
 		this->hw_tty.start_server(&this->hw_uart);

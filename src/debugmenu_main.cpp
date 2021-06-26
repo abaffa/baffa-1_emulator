@@ -33,6 +33,7 @@ void debugmenu_main_menu(HW_TTY& hw_tty) {
 	hw_tty.print("  G - Go(Run)\n");
 	hw_tty.print("  T - Debug Trace\n");
 	hw_tty.print("  Z - Reset CPU\n");
+	hw_tty.print("  V - Reload Bios\n");
 	hw_tty.print("\n");
 	hw_tty.print("  X - Debug Roms\n");
 	hw_tty.print("\n");
@@ -371,13 +372,17 @@ void debugmenu_main_edit_programcounter(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
 void debugmenu_main_reset_cpu(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
-
 	hw_tty.print("Reset CPU\n");
 	hw_tty.print("\n");
 	sol1_cpu.microcode.init();
 	sol1_cpu.reset();
 	sol1_cpu.display_registers(hw_tty);
-	
+}
+
+void debugmenu_main_reload_bios(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+
+	hw_tty.print("Reloading BIOS\n");
+	sol1_cpu.memory.load_bios();
 }
 
 
@@ -431,6 +436,9 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
 		else if (key == (int)'z' || key == (int)'Z')
 			debugmenu_main_reset_cpu(sol1_cpu, hw_tty);
+
+		else if (key == (int)'v' || key == (int)'V')
+			debugmenu_main_reload_bios(sol1_cpu, hw_tty);
 
 		////////
 

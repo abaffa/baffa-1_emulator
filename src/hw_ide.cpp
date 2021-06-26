@@ -11,15 +11,80 @@ void hw_ide_init(struct hw_ide* hw_ide) {
 	for (address = 0; address < SOL1_IDE_MEMORY_SIZE; address++) {
 		hw_ide->memory[address] = 0x00;
 	}
+
+	hw_ide_reset(hw_ide);
 }
 
-void hw_ide_write(struct hw_ide* hw_ide, SOL1_BYTE b) {
+void hw_ide_reset(struct hw_ide* hw_ide) {
+	hw_ide->gambi_ide_total = 0;
+	hw_ide->gambi_ide_read = 0;
+}
 
-	
+
+void hw_ide_write(struct hw_ide* hw_ide) {
+	if (hw_ide->data[7] == 0b00001000) {
+
+		hw_ide->gambi_ide_total = hw_ide->data[2];
+
+		unsigned long sec_address_lba = hw_ide->data[3];
+		sec_address_lba = sec_address_lba | ((unsigned long)hw_ide->data[4]) << 8;
+		sec_address_lba = sec_address_lba | ((unsigned long)hw_ide->data[5]) << 16;
+		sec_address_lba = sec_address_lba | ((unsigned long)(hw_ide->data[6] & 0b00001111)) << 24;
+
+		unsigned long sec_address_byte = sec_address_lba * 512;
+
+		if (sec_address_byte < SOL1_IDE_MEMORY_SIZE) {
+			hw_ide->memory[sec_address_byte + hw_ide->gambi_ide_read] = hw_ide->data[0];
+
+			hw_ide->gambi_ide_read++;
+
+			if (hw_ide->gambi_ide_read > hw_ide->gambi_ide_total * 512)
+			{
+				hw_ide->data[7] = 0x00;
+				hw_ide_reset(hw_ide);
+
+				hw_ide_save_disk(hw_ide->memory);
+			}
+		}
+		else {
+			hw_ide->data[7] = 0x34;
+			hw_ide_reset(hw_ide);
+		}
+	}
+
 }
 
 void hw_ide_read(struct hw_ide* hw_ide) {
+
+	if (hw_ide->data[7] == 0b00001000) {
+
+		hw_ide->gambi_ide_total = hw_ide->data[2];
+
+		unsigned long sec_address_lba = hw_ide->data[3];
+		sec_address_lba = sec_address_lba | ((unsigned long)hw_ide->data[4]) << 8;
+		sec_address_lba = sec_address_lba | ((unsigned long)hw_ide->data[5]) << 16;
+		sec_address_lba = sec_address_lba | ((unsigned long)(hw_ide->data[6] & 0b00001111)) << 24;
+
+		unsigned long sec_address_byte = sec_address_lba * 512;
+
+		if (sec_address_byte < SOL1_IDE_MEMORY_SIZE) {
+			hw_ide->data[0] = hw_ide->memory[sec_address_byte + hw_ide->gambi_ide_read];
+
+			hw_ide->gambi_ide_read++;
+
+			if (hw_ide->gambi_ide_read > hw_ide->gambi_ide_total * 512)
+			{
+				hw_ide->data[7] = 0x00;
+				hw_ide_reset(hw_ide);
+			}
+		}
+		else {
+			hw_ide->data[7] = 0x24;
+			hw_ide_reset(hw_ide);
+		}
 	}
+
+}
 
 
 

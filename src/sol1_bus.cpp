@@ -3,27 +3,32 @@
 
 
 SOL1_BYTE SOL1_BUS::bus_tristate(SOL1_REGISTERS& sol1_registers) {
-
-
-	return (get_byte_bit(sol1_registers.MSWl.value(), MSWl_DMA_ACK) |
-		get_byte_bit(sol1_registers.MSWl.value(), MSWl_HALT)) & 0b00000001; //IC151
+	return get_byte_bit(sol1_registers.MSWl.value(), MSWl_DMA_ACK) | get_byte_bit(sol1_registers.MSWl.value(), MSWl_HALT); //IC151
 }
 
 SOL1_BYTE SOL1_BUS::bus_rd(SOL1_REGISTERS& sol1_registers, SOL1_BYTE rd) {
 
-	if (bus_tristate(sol1_registers) != 0x00)
-		return 0x01;
+	if (bus_tristate(sol1_registers) != 0x00) return 0x01;
 
 	return (~rd) & 0b00000001;
 }
 
 SOL1_BYTE SOL1_BUS::bus_wr(SOL1_REGISTERS& sol1_registers, SOL1_BYTE wr) {
-	if (bus_tristate(sol1_registers) != 0x00)
-		return 0x01;
+	
+	if (bus_tristate(sol1_registers) != 0x00) return 0x01;
 
 	return (~wr) & 0b00000001;
 }
 
+
+void SOL1_BUS::reset() {
+	this->data_bus = 0b00000000;
+	this->k_bus = 0b00000000; // input pra alu x e y
+	this->w_bus = 0b00000000; // input pra alu x e y
+	this->x_bus = 0b00000000; //alu entrada
+	this->y_bus = 0b00000000; //alu entrada
+	this->z_bus = 0b00000000; //alu saida
+}
 
 
 SOL1_BYTE SOL1_BUS::k_bus_refresh(SOL1_REGISTERS& sol1_registers, SOL1_BYTE alu_b_src) {
@@ -192,12 +197,15 @@ SOL1_BYTE SOL1_BUS::w_bus_refresh(
 			break;
 		case 0x02:
 			w_bus = int_vector;
+			if (DEBUG_RDREG) { reg8bit_print(fa, (char *)"READ ", (char *)"INT_VECTOR", w_bus); }
 			break;
 		case 0x03:
 			w_bus = int_masks;
+			if (DEBUG_RDREG) { reg8bit_print(fa, (char *)"READ ", (char *)"INT_MASKS", w_bus); }
 			break;
 		case 0x04:
 			w_bus = int_status;
+			if (DEBUG_RDREG) { reg8bit_print(fa, (char *)"READ ", (char *)"INT_STATUS", w_bus); }
 			break;
 		}
 	}

@@ -1,7 +1,7 @@
 #include "sol1_memory.h"
 #include <stdlib.h>
 #include <assert.h>
-
+#include "utils.h"
 
 SOL1_MEMORY::SOL1_MEMORY()
 {
@@ -38,6 +38,22 @@ void SOL1_MEMORY::reset()
 
 }
 
+
+int SOL1_MEMORY::load_bios() {
+	char str_out[255];
+	int i;
+	long size = 0;
+	char * buf = loadfile(str_out, (char*)"bios.obj", &size);
+
+	if (buf == NULL)
+		return 0;
+
+	for (i = 0; i < size; i++) {
+		this->memory[i] = buf[i];
+	}
+
+	return 1;
+}
 
 void SOL1_MEMORY::display(SOL1_REGISTERS& registers, HW_TTY& hw_tty)
 {

@@ -31,6 +31,8 @@ public:
 	SOL1_MEMORY();
 	void reset();
 
+	int load_bios();
+
 	void display(SOL1_REGISTERS& registers, HW_TTY& hw_tty);
 	void display_test(SOL1_REGISTERS& registers, HW_TTY& hw_tty);
 };
