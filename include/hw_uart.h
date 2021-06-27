@@ -1,29 +1,48 @@
 #ifndef HWUART_H
 #define HWUART_H
 
-#include "queue_ll.h"
+#include <queue>
 
-struct hw_uart {
+#if defined(__linux__) || defined(__MINGW32__)
+#include <fcntl.h>
+#else
+#include <mutex> 
+#endif
+
+using namespace std;
+
+class hw_uart {
+
+public:
 
 	SOL1_BYTE status;
 	
-	Queue* uart_in;
-	Queue* uart_out;
+	queue<SOL1_BYTE> uart_in;
+	queue<SOL1_BYTE> uart_out;
 	SOL1_BYTE data[6];
 
+#ifdef _MSC_VER    
+	mutex mtx_out;
+	condition_variable cv_out;
+
+#else
+	pthread_mutex_t mtx_out;
+#endif
+
 	void *sol1_cpu;
+
+void init(void *sol1_cpu);
+
+int read();
+int write();
+
+SOL1_BYTE get_lsr();
+
+
+void send(SOL1_BYTE b);
+void receive(SOL1_BYTE b);
+
+void print(char *dir, int changed, char *print);
 };
 
-void hw_uart_init(struct hw_uart* hw_uart, void *sol1_cpu);
-
-int hw_uart_read(struct hw_uart* hw_uart);
-int hw_uart_write(struct hw_uart* hw_uart);
-
-SOL1_BYTE hw_uart_get_lsr(struct hw_uart* hw_uart);
-
-
-void hw_uart_send(struct hw_uart* hw_uart, SOL1_BYTE b);
-void hw_uart_receive(struct hw_uart* hw_uart, SOL1_BYTE b);
-
-void hw_uart_print(struct hw_uart* hw_uart, char *dir, int changed, char *print);
 #endif

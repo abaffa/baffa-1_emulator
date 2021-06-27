@@ -4,6 +4,8 @@
 #include "sol1_cpu.h"
 #include "hw_uart.h"
 
+#include "queue_ll.h"
+
 #if defined(__linux__) || defined(__MINGW32__)
 #include <sys/socket.h> 
 #include <arpa/inet.h>

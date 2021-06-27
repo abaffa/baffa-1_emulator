@@ -19,7 +19,7 @@ DWORD WINAPI TelnetClientThread(LPVOID pParam)
 void *TelnetClientThread(void *pParam)
 #endif
 {
-
+	
 	HW_TTY_CLIENT *current_client = (HW_TTY_CLIENT*)pParam;
 
 
@@ -166,7 +166,7 @@ void *TelnetClientThread(void *pParam)
 							*(((HW_TTY_CLIENT*)pParam)->debug_call) = 1;
 						}
 						else {
-							hw_uart_receive(current_client->hw_uart, buff[x]);
+							current_client->hw_uart->receive(buff[x]);
 							//current_client->sol1_cpu.microcode.mccycle.int_request = 0x01;
 						}
 					}

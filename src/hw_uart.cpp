@@ -3,102 +3,127 @@
 #include "utils.h"
 #include "hw_uart.h"
 
-struct uart_data {
-	SOL1_BYTE data;
-};
+#ifdef _MSC_VER    
+#include <windows.h>
+#else
+#include <pthread.h> 
+#include "utils.h"
+#endif
 
 
-void hw_uart_init(struct hw_uart* hw_uart, void *sol1_cpu) {
 
-	hw_uart->uart_in = queue_create();
-	hw_uart->uart_out = queue_create();
-	hw_uart->data[5] = 0xFF;
+void hw_uart::init(void *sol1_cpu) {
 
-	hw_uart->status = 0x00;
-	hw_uart->sol1_cpu = sol1_cpu;
+	//this->uart_in = queue_create();
+	//this->uart_out = queue_create();
+	this->data[5] = 0xFF;
+
+	this->status = 0x00;
+
+	this->sol1_cpu = sol1_cpu;
 }
 
-int hw_uart_write(struct hw_uart* hw_uart) {
+int hw_uart::write() {
 
-	if (!queue_empty(hw_uart->uart_in)) {
-		struct uart_data *data = (struct uart_data*)queue_remove(hw_uart->uart_in);
-		hw_uart->data[0] = data->data;
-		printf("%c", hw_uart->data[0]);
+	if (!this->uart_in.empty()) {
+		this->data[0] = this->uart_in.front(); this->uart_in.pop();
+		printf("%c", this->data[0]);
+
+		return 1;
+	}
+
+	return 0;
+}
+
+int hw_uart::read() {
+
+
+	if (!this->uart_out.empty() && ((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_request == 0x01) {
+#ifdef _MSC_VER    
+		//std::unique_lock<std::mutex> lock(this->mtx_out);
+#else
+		//pthread_mutex_lock(&this->mtx_out);
+#endif
+		this->data[0] = this->uart_out.front();  this->uart_out.pop();
+
+		((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_request = 0;
+
+#ifdef _MSC_VER    
+		//this->cv_out.notify_all();
+#else
+		//pthread_mutex_unlock(&this->mtx_out);
+#endif
+
+
 		return 1;
 	}
 	return 0;
 }
 
-int hw_uart_read(struct hw_uart* hw_uart) {
-	
-	((SOL1_CPU*)hw_uart->sol1_cpu)->microcode.mccycle.int_request = 0x00;
+SOL1_BYTE hw_uart::get_lsr() {
 
-	if (!queue_empty(hw_uart->uart_out)) {
-		struct uart_data *data = (struct uart_data*)queue_remove(hw_uart->uart_out);
-		hw_uart->data[0] = data->data;
+	if ((this->data[5] & 0x20) == 0x00) {
+		this->data[5] = 0x20;
 
-		return 1;
-	}
-	
-	return 0;
-}
+		if (!this->uart_in.empty())
+			this->data[5] |= 0x80;
 
-SOL1_BYTE hw_uart_get_lsr(struct hw_uart* hw_uart) {
-
-	if (!queue_empty(hw_uart->uart_out) || !queue_empty(hw_uart->uart_in)) {
-		hw_uart->data[5] = hw_uart->data[5] == 0x01 ? 0x20 : 0x01;
-	}
-	else {
-		hw_uart->data[5] = queue_empty(hw_uart->uart_in) ? 0x20 : 0xFF;
+		if (!this->uart_out.empty())
+			this->data[5] |= 0x40;
 
 	}
+	else
+		this->data[5] = (this->data[5] & 0xDF) | ~(this->data[5] & 0x20);
 
-	if (!queue_empty(hw_uart->uart_out)) {
-		((SOL1_CPU*)hw_uart->sol1_cpu)->microcode.mccycle.int_req = 0xFF;
-		((SOL1_CPU*)hw_uart->sol1_cpu)->microcode.mccycle.int_vector = 0x07 << 1;
-		((SOL1_CPU*)hw_uart->sol1_cpu)->microcode.mccycle.int_request = 0x01;
-	}
-
-	return hw_uart->data[5];
+	return this->data[5];
 }
 
 
-void hw_uart_receive(struct hw_uart* hw_uart, SOL1_BYTE b) {
+void hw_uart::receive(SOL1_BYTE data) {
 
-	struct uart_data *data = (struct uart_data*)malloc(sizeof(struct uart_data));
-	data->data = b;
-	queue_insert(hw_uart->uart_out, data);
+#ifdef _MSC_VER    
+	//std::unique_lock<std::mutex> lock(this->mtx_out);
+#else
+	//pthread_mutex_lock(&this->mtx_out);
+#endif
+	this->uart_out.push(data);
 
 
-	((SOL1_CPU*)hw_uart->sol1_cpu)->microcode.mccycle.int_req = 0xFF;
-	((SOL1_CPU*)hw_uart->sol1_cpu)->microcode.mccycle.int_vector = 0x07 << 1;
-	((SOL1_CPU*)hw_uart->sol1_cpu)->microcode.mccycle.int_request = 0x01;
+	((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_req = 0xFF;
+	((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_vector = 0x07 << 1;
+	((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_request = 0x01;
+
+
+#ifdef _MSC_VER    
+	//this->cv_out.notify_all();
+#else
+	//pthread_mutex_unlock(&this->mtx_out);
+#endif
+
 }
 
 
 
-void hw_uart_send(struct hw_uart* hw_uart, SOL1_BYTE b) {
-
-	struct uart_data *data = (struct uart_data*)malloc(sizeof(struct uart_data));
-	data->data = b;
-	queue_insert(hw_uart->uart_in, data);
+void hw_uart::send(SOL1_BYTE data) {
+	this->uart_in.push(data);
 }
 
 
-void hw_uart_print(struct hw_uart* hw_uart, char *dir, int changed, char *print) {
+void hw_uart::print(char *dir, int changed, char *print) {
 
 	int i = 0;
 	sprintf(print, ">>> UART [%s]:", dir);
 	for (i = 0; i < 6; i++) {
 		if (changed == i)
-			sprintf(print + strlen(print), "[%02x", hw_uart->data[i]);
+			sprintf(print + strlen(print), "[%02x", this->data[i]);
 		else if (changed == i - 1)
-			sprintf(print + strlen(print), "]%02x", hw_uart->data[i]);
+			sprintf(print + strlen(print), "]%02x", this->data[i]);
 		else
-			sprintf(print + strlen(print), " %02x", hw_uart->data[i]);
+			sprintf(print + strlen(print), " %02x", this->data[i]);
 	}
 	if (changed == 5)
 		sprintf(print + strlen(print), "]\n");
 	else
 		sprintf(print + strlen(print), "\n");
 }
+

@@ -21,33 +21,33 @@ using namespace std::chrono;
 
 #include <math.h>
 
-
-#ifdef _MSC_VER     
+/*
+#ifdef _MSC_VER
 
 #include <windows.h>
-/* Windows sleep in 100ns units */
+// Windows sleep in 100ns units
 BOOLEAN nanosleep(LONGLONG ns) {
-	/* Declarations */
-	HANDLE timer;	/* Timer handle */
-	LARGE_INTEGER li;	/* Time defintion */
-	/* Create timer */
+	// Declarations
+	HANDLE timer;	// Timer handle
+	LARGE_INTEGER li;	// Time defintion
+	// Create timer
 	if (!(timer = CreateWaitableTimer(NULL, TRUE, NULL)))
 		return FALSE;
-	/* Set timer properties */
+	// Set timer properties
 	li.QuadPart = -ns;
 	if (!SetWaitableTimer(timer, &li, 0, NULL, NULL, FALSE)) {
 		CloseHandle(timer);
 		return FALSE;
 	}
-	/* Start & wait for timer */
+	// Start & wait for timer
 	WaitForSingleObject(timer, INFINITE);
-	/* Clean resources */
+	// Clean resources
 	CloseHandle(timer);
-	/* Slept without problems */
+	// Slept without problems
 	return TRUE;
 }
 #endif
-
+*/
 /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 //boot sequence: bios, boot, kernel, shell
 /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -429,17 +429,20 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 			//UART SERVICES INTERRUPT
 			else if (mem_addr >= 0xFF80 && mem_addr <= 0xFF85) {
 
-				hw_uart_get_lsr(&this->hw_uart);
+				//this->hw_uart.get_lsr();
 
 				if (mem_addr - 0xFF80 == 0) {
-					hw_uart_read(&this->hw_uart);
+					this->hw_uart.read();
+				}
+				else if (mem_addr - 0xFF80 == 5) {
+					this->hw_uart.get_lsr();
 				}
 
 				this->bus.data_bus = this->hw_uart.data[mem_addr - 0xFF80];
 
 				if ((this->cpu.DEBUG_UART) && (get_current_opcode() > 0)) {
 					char log_uart[255];
-					hw_uart_print(&this->hw_uart, (char*)"READ", (mem_addr - 0xFF80), log_uart);
+					this->hw_uart.print((char*)"READ", (mem_addr - 0xFF80), log_uart);
 
 					save_to_log(str_out, fa, log_uart);
 					//this->hw_tty.print(str_out);
@@ -594,10 +597,10 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 			//UART SERVICES INTERRUPT
 			else if (mem_addr >= 0xFF80 && mem_addr <= 0xFF85) {
 
-				hw_uart_get_lsr(&this->hw_uart);
+				//this->hw_uart.get_lsr();
 
-				if (mem_addr - 0xFF80 == 0 && (this->hw_uart.data[5] == 0x20 || this->hw_uart.data[5] == 0x01)) {
-					hw_uart_send(&this->hw_uart, this->bus.data_bus);
+				if (mem_addr - 0xFF80 == 0) {
+					this->hw_uart.send(this->bus.data_bus);
 
 
 					this->hw_tty.send(this->bus.data_bus);
@@ -613,7 +616,7 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 				if ((this->cpu.DEBUG_UART & get_current_opcode()) > 0) {
 					//hw_uart_write(this->cpu, uart_out, this->bus.data_bus);
 					char log_uart[255];
-					hw_uart_print(&this->hw_uart, (char*)"WRITE", (mem_addr - 0xFF80), log_uart);
+					this->hw_uart.print((char*)"WRITE", (mem_addr - 0xFF80), log_uart);
 
 					save_to_log(str_out, fa, log_uart);
 					//this->hw_tty.print(str_out);
@@ -925,35 +928,39 @@ void SOL1_COMPUTER::mc_sequencer(long *runtime_counter) {
 
 
 void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
-
+	/*
 #if defined(__linux__) || defined(__MINGW32__)
 	struct timespec tstart = { 0,0 }, tend = { 0,0 };
 
-#elif _MSC_VER    
+#elif _MSC_VER
 	auto tstart = high_resolution_clock::now();
 	auto tend = high_resolution_clock::now();
-#endif 
+#endif
 
-	char str_out[255];
+
 
 	double deltaTime = 0;
 	double cpu_clk = 0;
-	
-	long ticks = 0;
-	while (1) {
 
+	long ticks = 0;
+	*/
+
+	char str_out[255];
+
+	while (1) {
+		/*
 #if defined(__linux__) || defined(__MINGW32__)
 		clock_gettime(CLOCK_MONOTONIC, &tend);
 		deltaTime = ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec);
 		clock_gettime(CLOCK_MONOTONIC, &tstart);
 
-#elif _MSC_VER        
+#elif _MSC_VER
 		tend = high_resolution_clock::now();
 		deltaTime = duration_cast<nanoseconds>(tend - tstart).count()*1e-9;
 		tstart = high_resolution_clock::now();
-#endif 
+#endif
 		cpu_clk += deltaTime;
-
+		*/
 		mc_sequencer(runtime_counter);
 
 		SOL1_BYTE current_opcode = get_current_opcode();
@@ -970,7 +977,7 @@ void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
 						this->hw_tty.debug_call = 1;
 					}
 					else {
-						hw_uart_receive(&this->hw_uart, dddd);
+						this->hw_uart.receive(dddd);
 						//this->cpu.microcode.mccycle.int_request = 0x01;
 					}
 				}
@@ -985,9 +992,22 @@ void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
 			return;
 		}
 
-		if (this->hw_uart.data[5] == 0xFF || this->hw_uart.data[5] == 0x20)
-			if (!queue_empty(this->hw_uart.uart_in))
-				hw_uart_write(&this->hw_uart);
+
+		//if (this->hw_uart.data[5] == 0xFF || this->hw_uart.data[5] == 0x20)
+		//	if (!this->hw_uart.uart_in.empty())
+
+		if (this->hw_uart.write()) {
+
+			if (!this->hw_uart.uart_out.empty()) {
+
+				this->cpu.microcode.mccycle.int_req = 0xFF;
+				this->cpu.microcode.mccycle.int_vector = 0x07 << 1;
+				this->cpu.microcode.mccycle.int_request = 0x01;
+			}
+		}
+		this->hw_uart.get_lsr();
+
+
 
 
 
@@ -1048,6 +1068,7 @@ void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
 			return;
 		}
 
+		/*
 		if (microcodestep == 0 && step == 0) {
 
 			ticks++;
@@ -1060,7 +1081,7 @@ void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
 
 
 			if (ticks > 3800000) { // limiting 3.8 mhz
-#ifdef _MSC_VER     
+#ifdef _MSC_VER
 
 				nanosleep(1);
 #else
@@ -1073,7 +1094,7 @@ void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
 
 			}
 		}
-
+		*/
 	}
 
 	this->cpu.microcode.mccycle.next = 0x00;
@@ -1150,7 +1171,7 @@ int SOL1_COMPUTER::init() {
 		exit(1);
 	}
 
-	hw_uart_init(&this->hw_uart, &this->cpu);
+	this->hw_uart.init(&this->cpu);
 	hw_rtc_init(&this->hw_rtc);
 	hw_rtc_start_clock(&this->hw_rtc);
 	hw_timer_init(&this->hw_timer);
@@ -1273,8 +1294,6 @@ void SOL1_COMPUTER::run() {
 				this->cpu.DEBUG_MICROCODE = 0;
 				this->cpu.DEBUG_REGISTERS = 0;
 				this->cpu.DEBUG_ALU = 0;
-				this->cpu.DEBUG_UFLAGS = 0;
-				this->cpu.DEBUG_UART = 0;
 				///
 				run = 1;
 				step = 0;
@@ -1303,12 +1322,6 @@ void SOL1_COMPUTER::run() {
 		}
 		else if (input[0] == 'g' || input[0] == 'G') {
 
-			///apagar
-			this->cpu.DEBUG_MICROCODE = 0;
-			this->cpu.DEBUG_REGISTERS = 0;
-			this->cpu.DEBUG_ALU = 0;
-			this->cpu.DEBUG_UFLAGS = 0;
-			this->cpu.DEBUG_UART = 0;
 			///
 			run = 1;
 			step = 0;

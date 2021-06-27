@@ -191,10 +191,10 @@ void *WebClientThread(void *pParam)
 						const char *ccc = str3.c_str();
 
 						for (i = 0; i < lll; i++) {
-							hw_uart_receive(new_web_client.hw_uart, ccc[i]);
+							new_web_client.hw_uart->receive(ccc[i]);
 						}
 
-						hw_uart_receive(new_web_client.hw_uart, '\r');
+						new_web_client.hw_uart->receive('\r');
 					}
 				}
 
