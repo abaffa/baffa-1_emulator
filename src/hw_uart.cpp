@@ -1,3 +1,20 @@
+//
+// hw_uart.cpp
+//
+////// BEGIN LICENSE NOTICE//////
+//
+//Sol-1 HomebrewCPU Minicomputer System Emulator
+//
+//Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
+//
+//This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+//
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110 - 1301, USA.
+//
+////// END LICENSE NOTICE//////
+//
 #include <stdlib.h>
 #include "sol1_cpu.h"
 #include "utils.h"
@@ -9,8 +26,6 @@
 #include <pthread.h> 
 #include "utils.h"
 #endif
-
-
 
 void hw_uart::init(void *sol1_cpu) {
 
@@ -38,7 +53,7 @@ int hw_uart::write() {
 int hw_uart::read() {
 
 
-	if (!this->uart_out.empty() && ((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_request == 0x01) {
+	if (!this->uart_out.empty() && ((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_request == 0x01) {
 #ifdef _MSC_VER    
 		//std::unique_lock<std::mutex> lock(this->mtx_out);
 #else
@@ -46,7 +61,7 @@ int hw_uart::read() {
 #endif
 		this->data[0] = this->uart_out.front();  this->uart_out.pop();
 
-		((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_request = 0;
+		((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_request = 0;
 
 #ifdef _MSC_VER    
 		//this->cv_out.notify_all();
@@ -89,9 +104,9 @@ void hw_uart::receive(SOL1_BYTE data) {
 	this->uart_out.push(data);
 
 
-	((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_req = 0xFF;
-	((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_vector = 0x07 << 1;
-	((SOL1_CPU*)this->sol1_cpu)->microcode.mccycle.int_request = 0x01;
+	((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_req = 0xFF;
+	((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_vector = 0x07 << 1;
+	((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_request = 0x01;
 
 
 #ifdef _MSC_VER    

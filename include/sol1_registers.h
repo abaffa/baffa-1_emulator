@@ -1,8 +1,28 @@
+//
+// sol1_registers.h
+//
+////// BEGIN LICENSE NOTICE//////
+//
+//Sol-1 HomebrewCPU Minicomputer System Emulator
+//
+//Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
+//
+//This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+//
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110 - 1301, USA.
+//
+////// END LICENSE NOTICE//////
+//
 #ifndef SOL1REGISTERS_H
 #define SOL1REGISTERS_H
 
 #include "config.h"
 #include "sol1_register_8bit.h"
+#include "sol1_controller_bus.h"
+#include "sol1_alu_bus.h"
+#include "HW_TTY.h"
 
 // FLAG - msw-h - bits
 #define MSWh_ZF 0x00 // ZeroFlag
@@ -97,11 +117,20 @@ public:
 	static SOL1_DWORD value(SOL1_REGISTER_8BIT& l, SOL1_REGISTER_8BIT& h);
 	static void set(SOL1_REGISTER_8BIT& l, SOL1_REGISTER_8BIT& h, SOL1_DWORD v);
 	static void reset(SOL1_REGISTER_8BIT& l, SOL1_REGISTER_8BIT& h);
+	
+	void mswh_flags_desc(HW_TTY& hw_tty);
+	void mswl_status_desc(HW_TTY& hw_tty);
+
+	void refresh(struct sol1_controller_bus *controller_bus, struct sol1_alu_bus* alu_bus, SOL1_BYTE data_bus, SOL1_BYTE u_sf, SOL1_CONFIG& config, FILE *fa);
+	void refresh_reg_flags(struct sol1_controller_bus *controller_bus, struct sol1_alu_bus* alu_bus, SOL1_BYTE u_sf);
+
+
+private:
+
+	SOL1_BYTE refresh_MSWh_ZF(struct sol1_controller_bus *controller_bus, struct sol1_alu_bus* alu_bus);
+	SOL1_BYTE refresh_MSWh_CF(struct sol1_controller_bus *controller_bus, struct sol1_alu_bus* alu_bus);
+	SOL1_BYTE refresh_MSWh_SF(struct sol1_controller_bus *controller_bus, struct sol1_alu_bus* alu_bus);
+	SOL1_BYTE refresh_MSWh_OF(struct sol1_controller_bus *controller_bus, struct sol1_alu_bus* alu_bus, SOL1_BYTE u_sf);
+
 };
-
-
-
-
-
-
 #endif

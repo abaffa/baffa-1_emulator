@@ -1,3 +1,20 @@
+//
+// debugmenu_main.cpp
+//
+////// BEGIN LICENSE NOTICE//////
+//
+//Sol-1 HomebrewCPU Minicomputer System Emulator
+//
+//Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
+//
+//This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+//
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110 - 1301, USA.
+//
+////// END LICENSE NOTICE//////
+//
 #include <stdio.h>
 
 #if defined(__linux__) || defined(__MINGW32__)
@@ -61,7 +78,7 @@ void debugmenu_main_edit_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
 	leftpad(input, value, 4);
 
 	unsigned short address = convert_hexstr_to_value(value);
-	sprintf(str_out, "\n  %04x=%02x ? ", address, memory.memory[address]); hw_tty.print(str_out);
+	sprintf(str_out, "\n  %04x=%02x ? ", address, memory.mem_bios[address]); hw_tty.print(str_out);
 	input = hw_tty.gets(2);
 
 	while (strlen(input) > 0) {
@@ -70,11 +87,11 @@ void debugmenu_main_edit_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
 
 		unsigned char b = convert_hexstr_to_value(value);
 
-		memory.memory[address] = b;
+		memory.mem_bios[address] = b;
 		address++;
 		if (address >= SOL1_BIOS_MEMORY_SIZE) { hw_tty.print("\n");  return; }
 
-		sprintf(str_out, "\n  %04x=%02x ? ", address, memory.memory[address]); hw_tty.print(str_out);
+		sprintf(str_out, "\n  %04x=%02x ? ", address, memory.mem_bios[address]); hw_tty.print(str_out);
 		input = hw_tty.gets(2);
 	}
 
@@ -116,7 +133,7 @@ void debugmenu_main_fill_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
 
 
 	for (address = start; address <= end && address < SOL1_BIOS_MEMORY_SIZE; address++)
-		memory.memory[address] = data;
+		memory.mem_bios[address] = data;
 
 	hw_tty.print("\n");
 }
@@ -150,7 +167,7 @@ void debugmenu_main_load_mem(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 	for (i = 0; i != numdigits; ++i)
 	{
 		unsigned char output = 16 * toInt(input[2 * i]) + toInt(input[2 * i + 1]);
-		sol1_cpu.memory.memory[i + start] = output;
+		sol1_cpu.memory.mem_bios[i + start] = output;
 	}
 
 	SOL1_REGISTERS::set(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh, start);
@@ -322,7 +339,7 @@ void debugmenu_main_edit_register(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 		leftpad(input, value, 4);
 		SOL1_MWORD index = convert_hexstr_to_value(value);
 		SOL1_REGISTERS::set(sol1_cpu.registers.MARl, sol1_cpu.registers.MARh, index);
-		SOL1_REGISTERS::set(sol1_cpu.registers.MDRl, sol1_cpu.registers.MDRh, sol1_cpu.memory.memory[index]);
+		SOL1_REGISTERS::set(sol1_cpu.registers.MDRl, sol1_cpu.registers.MDRh, sol1_cpu.memory.mem_bios[index]);
 	}
 
 	else if (strcmp(input, "MDR") == 0) {
@@ -374,7 +391,7 @@ void debugmenu_main_reset_cpu(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
 	hw_tty.print("Reset CPU\n");
 	hw_tty.print("\n");
-	sol1_cpu.microcode.init();
+	sol1_cpu.microcode.init(hw_tty);
 	sol1_cpu.reset();
 	sol1_cpu.display_registers(hw_tty);
 }

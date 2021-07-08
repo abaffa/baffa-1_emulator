@@ -57,9 +57,6 @@
     <ClCompile Include="..\..\..\src\sol1_alu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\linkedlist.cpp">
-      <Filter>Source Files\libs</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\queue_ll.cpp">
       <Filter>Source Files\libs</Filter>
     </ClCompile>
@@ -131,9 +128,6 @@
     <ClInclude Include="..\..\..\include\sol1_alu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\linkedlist.h">
-      <Filter>Header Files\libs</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\queue_ll.h">
       <Filter>Header Files\libs</Filter>
     </ClInclude>
@@ -165,6 +159,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\hw_tty_client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_controller_bus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sol1_alu_bus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

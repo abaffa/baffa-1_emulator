@@ -1,3 +1,20 @@
+//
+// sol1_memory.cpp
+//
+////// BEGIN LICENSE NOTICE//////
+//
+//Sol-1 HomebrewCPU Minicomputer System Emulator
+//
+//Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
+//
+//This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+//
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110 - 1301, USA.
+//
+////// END LICENSE NOTICE//////
+//
 #include "sol1_memory.h"
 #include <stdlib.h>
 #include <assert.h>
@@ -7,12 +24,21 @@ SOL1_MEMORY::SOL1_MEMORY()
 {
 
 	int i = 0;
-	this->memory = (SOL1_BYTE*)malloc(SOL1_BIOS_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->mem_bios = (SOL1_BYTE*)malloc(SOL1_BIOS_MEMORY_SIZE * sizeof(SOL1_BYTE));
 
-	this->memchip0 = (SOL1_BYTE*)malloc(SOL1_PAGING_MEMORY_SIZE * sizeof(SOL1_BYTE));
-	this->memchip1 = (SOL1_BYTE*)malloc(SOL1_PAGING_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->mem_page_table0 = (SOL1_BYTE*)malloc(SOL1_PAGING_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->mem_page_table1 = (SOL1_BYTE*)malloc(SOL1_PAGING_MEMORY_SIZE * sizeof(SOL1_BYTE));
 
 	this->main_memory = (SOL1_BYTE*)malloc(SOL1_MAIN_MEMORY_SIZE * sizeof(SOL1_BYTE));
+
+	this->main_memory0 = (SOL1_BYTE*)malloc(SOL1_MAIN_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->main_memory1 = (SOL1_BYTE*)malloc(SOL1_MAIN_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->main_memory2 = (SOL1_BYTE*)malloc(SOL1_MAIN_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->main_memory3 = (SOL1_BYTE*)malloc(SOL1_MAIN_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->main_memory4 = (SOL1_BYTE*)malloc(SOL1_MAIN_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->main_memory5 = (SOL1_BYTE*)malloc(SOL1_MAIN_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->main_memory6 = (SOL1_BYTE*)malloc(SOL1_MAIN_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	this->main_memory7 = (SOL1_BYTE*)malloc(SOL1_MAIN_MEMORY_SIZE * sizeof(SOL1_BYTE));
 
 	this->debug_mem_offset = 0;
 	this->debug_manual_offset = 0x00;
@@ -25,14 +51,23 @@ void SOL1_MEMORY::reset()
 	int address = 0;
 
 	for (address = 0; address < SOL1_BIOS_MEMORY_SIZE; address++) {
-		this->memory[address] = 0x00;
+		this->mem_bios[address] = 0x00;
 	}
 	for (address = 0; address < SOL1_PAGING_MEMORY_SIZE; address++) {
-		this->memchip0[address] = 0x00;
-		this->memchip1[address] = 0x00;
+		this->mem_page_table0[address] = 0x00;
+		this->mem_page_table1[address] = 0x00;
 	}
 	for (address = 0; address < SOL1_MAIN_MEMORY_SIZE; address++) {
 		this->main_memory[address] = 0x00;
+
+		this->main_memory0[address] = 0x00;
+		this->main_memory1[address] = 0x00;
+		this->main_memory2[address] = 0x00;
+		this->main_memory3[address] = 0x00;
+		this->main_memory4[address] = 0x00;
+		this->main_memory5[address] = 0x00;
+		this->main_memory6[address] = 0x00;
+		this->main_memory7[address] = 0x00;
 
 	}
 
@@ -49,7 +84,7 @@ int SOL1_MEMORY::load_bios() {
 		return 0;
 
 	for (i = 0; i < size; i++) {
-		this->memory[i] = buf[i];
+		this->mem_bios[i] = buf[i];
 	}
 
 	return 1;
@@ -82,21 +117,21 @@ void SOL1_MEMORY::display(SOL1_REGISTERS& registers, HW_TTY& hw_tty)
 			else
 				hw_tty.print("  ");
 		if (MAR == i || MAR - 1 == i) {
-			sprintf(str_out, "%02x*", this->memory[i]);
+			sprintf(str_out, "%02x*", this->mem_bios[i]);
 			hw_tty.print(str_out);
 		}
 		else {
-			sprintf(str_out, "%02x ", this->memory[i]);
+			sprintf(str_out, "%02x ", this->mem_bios[i]);
 			hw_tty.print(str_out);
 		}
 
 		if ((i + 1) % 16 == 0 && i <= 255 + this->debug_mem_offset) {
 			hw_tty.print("  |");
 			for (j = (i + 1) - 16; j < (i + 1); j++) {
-				if (this->memory[j] < 0x20)
+				if (this->mem_bios[j] < 0x20)
 					hw_tty.print(".");
 				else {
-					sprintf(str_out, "%c", this->memory[j]);
+					sprintf(str_out, "%c", this->mem_bios[j]);
 					hw_tty.print(str_out);
 				}
 			}
@@ -172,4 +207,6 @@ void SOL1_MEMORY::display_test(SOL1_REGISTERS&  registers, HW_TTY& hw_tty)
 
 		}
 	}
+
+
 }

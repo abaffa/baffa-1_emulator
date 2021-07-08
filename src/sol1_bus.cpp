@@ -1,6 +1,22 @@
+//
+// sol1_bus.cpp
+//
+////// BEGIN LICENSE NOTICE//////
+//
+//Sol-1 HomebrewCPU Minicomputer System Emulator
+//
+//Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
+//
+//This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+//
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110 - 1301, USA.
+//
+////// END LICENSE NOTICE//////
+//
 #include "sol1_bus.h"
 #include "utils.h"
-
 
 SOL1_BYTE SOL1_BUS::bus_tristate(SOL1_REGISTERS& sol1_registers) {
 	return get_byte_bit(sol1_registers.MSWl.value(), MSWl_DMA_ACK) | get_byte_bit(sol1_registers.MSWl.value(), MSWl_HALT); //IC151
@@ -25,9 +41,20 @@ void SOL1_BUS::reset() {
 	this->data_bus = 0b00000000;
 	this->k_bus = 0b00000000; // input pra alu x e y
 	this->w_bus = 0b00000000; // input pra alu x e y
-	this->x_bus = 0b00000000; //alu entrada
-	this->y_bus = 0b00000000; //alu entrada
-	this->z_bus = 0b00000000; //alu saida
+	
+	this->alu_bus.x_bus = 0b00000000; //alu entrada
+	this->alu_bus.y_bus = 0b00000000; //alu entrada
+	this->alu_bus.z_bus = 0b00000000; //alu saida
+
+
+	// flags do alu
+	this->alu_bus.alu_zf = 0x00; // ZeroFlag
+	this->alu_bus.alu_cf = 0x00; // Carry Flag
+	this->alu_bus.alu_of = 0x00; // Overflow Flag
+
+	this->alu_bus.alu_final_cf = 0x00;
+	this->alu_bus.alu_output = 0x00;
+	
 }
 
 

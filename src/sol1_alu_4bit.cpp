@@ -1,3 +1,20 @@
+//
+// sol1_alu_4bit.cpp
+//
+////// BEGIN LICENSE NOTICE//////
+//
+//Sol-1 HomebrewCPU Minicomputer System Emulator
+//
+//Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
+//
+//This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+//
+//This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110 - 1301, USA.
+//
+////// END LICENSE NOTICE//////
+//
 #include "sol1_alu_4bit.h"
 #include "utils.h"
 
@@ -70,17 +87,17 @@ static SOL1_BYTE IC74LSL181(SOL1_BYTE nA, SOL1_BYTE nB, SOL1_BYTE S, SOL1_BYTE M
 
 static void sol1_alu_4bit_reset(struct sol1_alu_4bit *alu) {
 
-	alu->_A = 0x00;
-	alu->_B = 0x00;
-	alu->_C = 0x00;
+	//alu->_A = 0x00;
+	//alu->_B = 0x00;
+	//alu->_C = 0x00;
 
-	alu->A = 0x00;
-	alu->B = 0x00;
+	//alu->A = 0x00;
+	//alu->B = 0x00;
 
-	alu->C = 0x00;
+	//alu->C = 0x00;
 	alu->alu_output = 0x00;
 
-	alu->CIN = 0x00; //carry in
+	//alu->CIN = 0x00; //carry in
 
 	alu->COUT = 0x00; //carry in
 
@@ -89,46 +106,13 @@ static void sol1_alu_4bit_reset(struct sol1_alu_4bit *alu) {
 	alu->G = 0x00;
 
 }
-void sol1_alu_4bit_init(struct sol1_alu_4bit *alu) {
-
-	sol1_alu_4bit_reset(alu);
-
-	// flags do alu
-	alu->alu_zf = 0x00; // ZeroFlag
-	alu->alu_cf = 0x00; // Carry Flag
-	alu->alu_of = 0x00; // Overflow Flag
-
-	alu->alu_final_cf = 0x00;
-
-	alu->alu_op = 0x00;
-	alu->alu_mode = 0x00;
-	alu->alu_cf_in_src = 0x00;  // Carry Flag
-	alu->alu_cf_in_inv = 0x00;  // Carry Flag
-	alu->alu_cf_out_inv = 0x00;  // Carry Flag
-
-	alu->alu_a_src = 0x00;
-	alu->alu_b_src = 0x00;
-}
-
-
-
 
 //74LS181
 SOL1_BYTE sol1_alu_4bit_op(struct sol1_alu_4bit* alu, SOL1_BYTE A, SOL1_BYTE B, SOL1_BYTE CIN, SOL1_BYTE S, SOL1_BYTE M) {
 
 	sol1_alu_4bit_reset(alu);
 
-	alu->_A = A;
-	alu->_B = B;
-	alu->CIN = CIN;
-
-
-	alu->alu_output = IC74LSL181(A, B, S, M, CIN,
-		&alu->EQ, &alu->COUT, &alu->P, &alu->G);
-
-	alu->C = alu->alu_output;
-	alu->_C = alu->alu_output;
-	
+	alu->alu_output = IC74LSL181(A, B, S, M, CIN, &alu->EQ, &alu->COUT, &alu->P, &alu->G);
 
 	return alu->alu_output;
 }
