@@ -87,6 +87,9 @@
     <ClCompile Include="..\..\..\src\sol1_bus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\linkedlist.cpp">
+      <Filter>Source Files\libs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\config.h">
@@ -166,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\sol1_alu_bus.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\linkedlist.h">
+      <Filter>Header Files\libs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

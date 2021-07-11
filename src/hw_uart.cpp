@@ -33,7 +33,7 @@ void hw_uart::init(void *sol1_cpu) {
 	//this->uart_out = queue_create();
 	this->data[5] = 0xFF;
 
-	this->status = 0x00;
+	//this->status = 0x00;
 
 	this->sol1_cpu = sol1_cpu;
 }
@@ -55,18 +55,19 @@ int hw_uart::read() {
 
 	if (!this->uart_out.empty() && ((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_request == 0x01) {
 #ifdef _MSC_VER    
-		//std::unique_lock<std::mutex> lock(this->mtx_out);
+		std::unique_lock<std::mutex> lock(this->mtx_out);
 #else
-		//pthread_mutex_lock(&this->mtx_out);
+		pthread_mutex_lock(&this->mtx_out);
 #endif
 		this->data[0] = this->uart_out.front();  this->uart_out.pop();
 
 		((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_request = 0;
+		
 
 #ifdef _MSC_VER    
-		//this->cv_out.notify_all();
+		this->cv_out.notify_all();
 #else
-		//pthread_mutex_unlock(&this->mtx_out);
+		pthread_mutex_unlock(&this->mtx_out);
 #endif
 
 
@@ -97,9 +98,9 @@ SOL1_BYTE hw_uart::get_lsr() {
 void hw_uart::receive(SOL1_BYTE data) {
 
 #ifdef _MSC_VER    
-	//std::unique_lock<std::mutex> lock(this->mtx_out);
+	std::unique_lock<std::mutex> lock(this->mtx_out);
 #else
-	//pthread_mutex_lock(&this->mtx_out);
+	pthread_mutex_lock(&this->mtx_out);
 #endif
 	this->uart_out.push(data);
 
@@ -110,9 +111,9 @@ void hw_uart::receive(SOL1_BYTE data) {
 
 
 #ifdef _MSC_VER    
-	//this->cv_out.notify_all();
+	this->cv_out.notify_all();
 #else
-	//pthread_mutex_unlock(&this->mtx_out);
+	pthread_mutex_unlock(&this->mtx_out);
 #endif
 
 }

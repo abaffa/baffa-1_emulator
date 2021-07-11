@@ -26,6 +26,7 @@
     <ClCompile Include="..\..\..\src\hw_tty.cpp" />
     <ClCompile Include="..\..\..\src\hw_uart.cpp" />
     <ClCompile Include="..\..\..\src\hw_web.cpp" />
+    <ClCompile Include="..\..\..\src\linkedlist.cpp" />
     <ClCompile Include="..\..\..\src\queue_ll.cpp" />
     <ClCompile Include="..\..\..\src\main.cpp" />
     <ClCompile Include="..\..\..\src\sol1_alu.cpp" />
@@ -53,6 +54,7 @@
     <ClInclude Include="..\..\..\include\hw_tty_client.h" />
     <ClInclude Include="..\..\..\include\hw_uart.h" />
     <ClInclude Include="..\..\..\include\hw_web.h" />
+    <ClInclude Include="..\..\..\include\linkedlist.h" />
     <ClInclude Include="..\..\..\include\queue_ll.h" />
     <ClInclude Include="..\..\..\include\sol1_alu.h" />
     <ClInclude Include="..\..\..\include\sol1_alu_4bit.h" />

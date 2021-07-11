@@ -38,7 +38,7 @@ public:
 	SOL1_BYTE bus_wr(SOL1_REGISTERS& sol1_registers, SOL1_BYTE wr);
 	/////
 
-
+	void init();
 	void reset();
 
 	SOL1_BYTE k_bus_refresh(SOL1_REGISTERS& sol1_registers, SOL1_BYTE alu_b_src);

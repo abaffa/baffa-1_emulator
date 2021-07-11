@@ -517,50 +517,99 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 		&  get_word_bit(~(get_word_bit(addr, 19) & get_word_bit(addr, 20) & get_word_bit(addr, 21)), 0)
 		, 0);
 
-	if ((get_word_bit(addr, 15) == 0x01 && not_IO_ADDRESSING == 0x01 && not_IO_ADDRESSING2 == 0x01) && BUFFER_MEM_IO == 0x01) {
+
+	SOL1_BYTE peripherical_sel = 0xFF;
+
+	if ((get_word_bit(addr, 15) == 0x01 && not_IO_ADDRESSING == 0x00 && not_IO_ADDRESSING2 == 0x01) && BUFFER_MEM_IO == 0x01) {
 		// adicionar controlle corretamente aos periféricos
-		SOL1_BYTE peripherical_sel = get_word_bit(addr, 4) | (get_word_bit(addr, 5) << 1) | (get_word_bit(addr, 6) << 2);
-
-		/*
-		switch (peripherical_sel) {
-		case 0:
-			printf("** UART_0 ** \n");
-			break;
-		case 1:
-			printf("** UART_1 ** \n");
-			break;
-		case 2:
-			printf("** RTC ** \n");
-			break;
-		case 3:
-			printf("** PIO_0 ** \n");
-			break;
-		case 4:
-			printf("** PIO_1 ** \n");
-			break;
-		case 5:
-			printf("** IDE ** \n");
-			break;
-		case 6:
-			printf("** TIMER ** \n");
-			break;
-		case 7:
-			printf("** BIOS_CONFIG ** \n");
-			break;
-		}
-		*/
+		peripherical_sel = get_word_bit(addr, 4) | (get_word_bit(addr, 5) << 1) | (get_word_bit(addr, 6) << 2);
 	}
-
-	//4 5 6 15
-	////////////////////////////////////////////////////////////////////////////
-
 
 	if (buffer_rd() == 0x00) {
 		unsigned long mem_addr = read_address_bus();
 
+		switch (peripherical_sel) {
+		case 0://UART SERVICES INTERRUPT = FF80 to FF85
 
-		if (mem_addr < 0xFF80 || mem_addr > 0xFFFF) {
+			//printf("** UART_0 ** \n");
+			//this->hw_uart.get_lsr();
 
+			if (mem_addr - 0xFF80 == 0 && (peripherical_sel == 0 || peripherical_sel == 1)) {
+				this->hw_uart.read();
+			}
+			else if (mem_addr - 0xFF80 == 5) {
+				this->hw_uart.get_lsr();
+			}
+			if ((peripherical_sel == 0 || peripherical_sel == 1))
+				this->bus.data_bus = this->hw_uart.data[mem_addr - 0xFF80];
+
+			if ((this->cpu.config.DEBUG_UART) && (get_current_opcode() > 0)) {
+				char log_uart[255];
+				this->hw_uart.print((char*)"READ", (mem_addr - 0xFF80), log_uart);
+
+				save_to_log(str_out, fa, log_uart);
+				//this->hw_tty.print(str_out);
+
+			}
+			break;
+		case 1:
+			//printf("** UART_1 ** \n");
+			break;
+		case 2://RTC I/O bank = FFA0 to FFAF
+
+			//printf("** RTC ** \n");
+			this->bus.data_bus = this->hw_rtc.data[mem_addr - 0xFFA0];
+
+			if ((this->cpu.config.DEBUG_RTC) > 0) {
+
+				char log_rtc[255];
+				hw_rtc_print(&this->hw_rtc, (char*)"READ ", (mem_addr - 0xFFA0), log_rtc);
+
+				save_to_log(str_out, fa, log_rtc);
+				//this->hw_tty.print(str_out);
+
+			}
+			break;
+		case 3:
+			//printf("** PIO_0 ** \n");
+			break;
+		case 4:
+			//printf("** PIO_1 ** \n");
+			break;
+		case 5: //IDE = FFD0 to FFD7
+			//printf("** IDE ** \n");
+			if (mem_addr - 0xFFD0 == 0)
+				hw_ide_read(&this->hw_ide);
+
+			this->bus.data_bus = this->hw_ide.data[mem_addr - 0xFFD0];
+
+
+			if ((this->cpu.config.DEBUG_IDE & get_current_opcode()) > 0) {
+				char log_ide[255];
+				hw_ide_print(&this->hw_ide, (char*)"READ ", (mem_addr - 0xFFD0), log_ide);
+
+				save_to_log(str_out, fa, log_ide);
+				//this->hw_tty.print(str_out);
+
+			}
+			break;
+		case 6: //TIMER = FFE0 - FFE3
+			//printf("** TIMER ** \n");
+			this->bus.data_bus = this->hw_timer.data[mem_addr - 0xFFE0];
+
+			if ((this->cpu.config.DEBUG_TIMER) > 0) {
+
+				char log_timer[255];
+				hw_timer_print(&this->hw_timer, (char*)"READ ", (mem_addr - 0xFFE0), log_timer);
+
+				save_to_log(str_out, fa, log_timer);
+				//this->hw_tty.print(str_out);
+			}
+			break;
+		case 7:
+			//printf("** BIOS_CONFIG ** \n");
+			break;
+		default:
 			//this->bus.data_bus = this->cpu.get_current_memory()[mem_addr];
 			this->bus.data_bus = this->read_memory(mem_addr);
 
@@ -580,84 +629,7 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 				save_to_log(str_out, fa, log);
 				//this->hw_tty.print(str_out);
 			}
-		}
-		else if (mem_addr >= 0xFF80 && mem_addr <= 0xFFFF) {
-
-			//RTC I/O bank = FFA0 to FFAF
-			if (mem_addr >= 0xFFA0 && mem_addr <= 0xFFAF) {
-				this->bus.data_bus = this->hw_rtc.data[mem_addr - 0xFFA0];
-
-				if ((this->cpu.config.DEBUG_RTC) > 0) {
-
-					char log_rtc[255];
-					hw_rtc_print(&this->hw_rtc, (char*)"READ ", (mem_addr - 0xFFA0), log_rtc);
-
-					save_to_log(str_out, fa, log_rtc);
-					//this->hw_tty.print(str_out);
-
-				}
-			}
-
-			//TIMER FFE0 - FFE3
-			else if (mem_addr >= 0xFFE0 && mem_addr <= 0xFFE3) {
-				this->bus.data_bus = this->hw_timer.data[mem_addr - 0xFFE0];
-
-				if ((this->cpu.config.DEBUG_TIMER) > 0) {
-
-					char log_timer[255];
-					hw_timer_print(&this->hw_timer, (char*)"READ ", (mem_addr - 0xFFE0), log_timer);
-
-					save_to_log(str_out, fa, log_timer);
-					//this->hw_tty.print(str_out);
-				}
-			}
-
-			//UART SERVICES INTERRUPT
-			else if (mem_addr >= 0xFF80 && mem_addr <= 0xFF85) {
-
-				//this->hw_uart.get_lsr();
-
-				if (mem_addr - 0xFF80 == 0) {
-					this->hw_uart.read();
-				}
-				else if (mem_addr - 0xFF80 == 5) {
-					this->hw_uart.get_lsr();
-				}
-
-				this->bus.data_bus = this->hw_uart.data[mem_addr - 0xFF80];
-
-				if ((this->cpu.config.DEBUG_UART) && (get_current_opcode() > 0)) {
-					char log_uart[255];
-					this->hw_uart.print((char*)"READ", (mem_addr - 0xFF80), log_uart);
-
-					save_to_log(str_out, fa, log_uart);
-					//this->hw_tty.print(str_out);
-
-				}
-
-			}
-
-
-			if (mem_addr >= 0xFFD0 && mem_addr <= 0xFFD7) {
-
-
-				if (mem_addr - 0xFFD0 == 0)
-					hw_ide_read(&this->hw_ide);
-
-				this->bus.data_bus = this->hw_ide.data[mem_addr - 0xFFD0];
-
-
-				if ((this->cpu.config.DEBUG_IDE & get_current_opcode()) > 0) {
-					char log_ide[255];
-					hw_ide_print(&this->hw_ide, (char*)"READ ", (mem_addr - 0xFFD0), log_ide);
-
-					save_to_log(str_out, fa, log_ide);
-					//this->hw_tty.print(str_out);
-
-				}
-
-			}
-
+			break;
 		}
 	}
 
@@ -699,20 +671,124 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 		this->cpu.microcode.u_cf, get_byte_bit(this->cpu.registers.MSWh.value(), MSWh_CF),
 		this->cpu.config, this->hw_tty);
 
-	////////////////////////////////////////////////////////////////////////////
-
-
+		////////////////////////////////////////////////////////////////////////////
 	
-
-
-	//#######################
-
 	if (buffer_wr() == 0x00) {
 		unsigned long mem_addr = read_address_bus();
 
+		switch (peripherical_sel) {
+		case 0://UART SERVICES INTERRUPT = FF80 to FF85
+			//printf("** UART_0 ** \n");
+			//this->hw_uart.get_lsr();
 
-		if (mem_addr < 0xFF80 || mem_addr > 0xFFFF) {
+			if (mem_addr - 0xFF80 == 0) {
+				this->hw_uart.send(this->bus.data_bus);
 
+
+				this->hw_tty.send(this->bus.data_bus);
+
+
+				if (this->cpu.config.WEB_SERVER)
+					this->hw_web.new_char(this->bus.data_bus);
+
+			}
+			else
+				this->hw_uart.data[mem_addr - 0xFF80] = this->bus.data_bus;
+
+			if ((this->cpu.config.DEBUG_UART & get_current_opcode()) > 0) {
+				//hw_uart_write(this->cpu, uart_out, this->bus.data_bus);
+				char log_uart[255];
+				this->hw_uart.print((char*)"WRITE", (mem_addr - 0xFF80), log_uart);
+
+				save_to_log(str_out, fa, log_uart);
+				//this->hw_tty.print(str_out);
+			}
+			break;
+		case 1:
+			//printf("** UART_1 ** \n");
+			break;
+		case 2://RTC I/O bank = FFA0 to FFAF
+			//printf("** RTC ** \n");
+			this->hw_rtc.data[mem_addr - 0xFFA0] = this->bus.data_bus;
+
+
+			if ((this->cpu.config.DEBUG_RTC) > 0) {
+				char log_rtc[255];
+				hw_rtc_print(&this->hw_rtc, (char*)"WRITE", (mem_addr - 0xFFA0), log_rtc);
+
+				save_to_log(str_out, fa, log_rtc);
+				//this->hw_tty.print(str_out);
+			}
+			break;
+		case 3:
+			//printf("** PIO_0 ** \n");
+			break;
+		case 4:
+			//printf("** PIO_1 ** \n");
+			break;
+		case 5: //IDE = FFD0 to FFD7
+			//printf("** IDE ** \n");
+			this->hw_ide.data[mem_addr - 0xFFD0] = this->bus.data_bus;
+
+			if ((this->cpu.config.DEBUG_IDE & get_current_opcode()) > 0) {
+				char log_ide[255];
+				hw_ide_print(&this->hw_ide, (char*)"WRITE", (mem_addr - 0xFFD0), log_ide);
+
+				save_to_log(str_out, fa, log_ide);
+				//this->hw_tty.print(str_out);
+			}
+
+			if (mem_addr - 0xFFD0 == 0) {
+				hw_ide_write(&this->hw_ide);
+			}
+
+			// SET HD NEW STATUS AFTER LOG
+			if (this->hw_ide.data[7] == 0x04) { // RESET IDE
+				this->hw_ide.data[7] = 0x0; // 0x80 ==busy// is ready again
+			}
+
+			else if (this->hw_ide.data[7] == 0xEF) { // SET FEATURE COMMAND
+				this->hw_ide.data[7] = 0x00; // is ready again
+			}
+
+			else if (this->hw_ide.data[7] == 0xE6) { // SLEEP
+				this->hw_ide.data[7] = 0x00;// zerar 
+				//hw_ide.data[7] = 0x80; // is ready again
+			}
+
+			else if (this->hw_ide.data[7] == 0x20) { // read sector cmd
+				this->hw_ide.data[7] = 0b00001000;
+				hw_ide_reset(&this->hw_ide);
+			}
+			else if (this->hw_ide.data[7] == 0x30) { // write sector cmd
+				this->hw_ide.data[7] = 0b00001000;
+				hw_ide_reset(&this->hw_ide);
+			}
+			break;
+		case 6: //TIMER = FFE0 - FFE3
+			//printf("** TIMER ** \n");
+			if (mem_addr - 0xFFE0 == 0x00)
+				hw_timer_set_c0(&this->hw_timer, this->bus.data_bus);
+
+			else if (mem_addr - 0xFFE0 == 0x01)
+				hw_timer_set_c1(&this->hw_timer, this->bus.data_bus);
+
+			else
+				this->hw_timer.data[mem_addr - 0xFFE0] = this->bus.data_bus;
+
+			if ((this->cpu.config.DEBUG_TIMER) > 0) {
+
+				char log_timer[255];
+				hw_timer_print(&this->hw_timer, (char*)"WRITE", (mem_addr - 0xFFE0), log_timer);
+
+				save_to_log(str_out, fa, log_timer);
+				//this->hw_tty.print(str_out);
+			}
+		case 7:
+			//printf("** BIOS_CONFIG ** \n");
+			break;
+
+		default:
 			if (this->cpu.config.DEBUG_WRMEM && get_current_opcode() > 0)
 			{
 				char log[255];
@@ -733,121 +809,11 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 
 			//this->cpu.get_current_memory()[mem_addr] = this->bus.data_bus;
 			this->write_memory(mem_addr, this->bus.data_bus);
-
+			break;
 		}
-		else if (mem_addr >= 0xFF80 && mem_addr <= 0xFFFF) {
-
-			//RTC I/O bank = FFA0 to FFAF
-			if (mem_addr >= 0xFFA0 && mem_addr <= 0xFFAF) {
-				this->hw_rtc.data[mem_addr - 0xFFA0] = this->bus.data_bus;
-
-
-				if ((this->cpu.config.DEBUG_RTC) > 0) {
-					char log_rtc[255];
-					hw_rtc_print(&this->hw_rtc, (char*)"WRITE", (mem_addr - 0xFFA0), log_rtc);
-
-					save_to_log(str_out, fa, log_rtc);
-					//this->hw_tty.print(str_out);
-				}
-			}
-
-			//TIMER FFE0 - FFE3
-			else if (mem_addr >= 0xFFE0 && mem_addr <= 0xFFE3) {
-
-				if (mem_addr - 0xFFE0 == 0x00)
-					hw_timer_set_c0(&this->hw_timer, this->bus.data_bus);
-
-				else if (mem_addr - 0xFFE0 == 0x01)
-					hw_timer_set_c1(&this->hw_timer, this->bus.data_bus);
-
-				else
-					this->hw_timer.data[mem_addr - 0xFFE0] = this->bus.data_bus;
-
-				if ((this->cpu.config.DEBUG_TIMER) > 0) {
-
-					char log_timer[255];
-					hw_timer_print(&this->hw_timer, (char*)"WRITE", (mem_addr - 0xFFE0), log_timer);
-
-					save_to_log(str_out, fa, log_timer);
-					//this->hw_tty.print(str_out);
-				}
-			}
-
-			//UART SERVICES INTERRUPT
-			else if (mem_addr >= 0xFF80 && mem_addr <= 0xFF85) {
-
-				//this->hw_uart.get_lsr();
-
-				if (mem_addr - 0xFF80 == 0) {
-					this->hw_uart.send(this->bus.data_bus);
-
-
-					this->hw_tty.send(this->bus.data_bus);
-
-
-					if (this->cpu.config.WEB_SERVER)
-						this->hw_web.new_char(this->bus.data_bus);
-
-				}
-				else
-					this->hw_uart.data[mem_addr - 0xFF80] = this->bus.data_bus;
-
-				if ((this->cpu.config.DEBUG_UART & get_current_opcode()) > 0) {
-					//hw_uart_write(this->cpu, uart_out, this->bus.data_bus);
-					char log_uart[255];
-					this->hw_uart.print((char*)"WRITE", (mem_addr - 0xFF80), log_uart);
-
-					save_to_log(str_out, fa, log_uart);
-					//this->hw_tty.print(str_out);
-				}
-
-			}
-
-			if (mem_addr >= 0xFFD0 && mem_addr <= 0xFFD7) {
-
-				this->hw_ide.data[mem_addr - 0xFFD0] = this->bus.data_bus;
-
-				if ((this->cpu.config.DEBUG_IDE & get_current_opcode()) > 0) {
-					char log_ide[255];
-					hw_ide_print(&this->hw_ide, (char*)"WRITE", (mem_addr - 0xFFD0), log_ide);
-
-					save_to_log(str_out, fa, log_ide);
-					//this->hw_tty.print(str_out);
-				}
-
-				if (mem_addr - 0xFFD0 == 0) {
-					hw_ide_write(&this->hw_ide);
-				}
-
-				// SET HD NEW STATUS AFTER LOG
-				if (this->hw_ide.data[7] == 0x04) { // RESET IDE
-					this->hw_ide.data[7] = 0x0; // 0x80 ==busy// is ready again
-				}
-
-				else if (this->hw_ide.data[7] == 0xEF) { // SET FEATURE COMMAND
-					this->hw_ide.data[7] = 0x00; // is ready again
-				}
-
-				else if (this->hw_ide.data[7] == 0xE6) { // SLEEP
-					this->hw_ide.data[7] = 0x00;// zerar 
-					//hw_ide.data[7] = 0x80; // is ready again
-				}
-
-				else if (this->hw_ide.data[7] == 0x20) { // read sector cmd
-					this->hw_ide.data[7] = 0b00001000;
-					hw_ide_reset(&this->hw_ide);
-				}
-				else if (this->hw_ide.data[7] == 0x30) { // write sector cmd
-					this->hw_ide.data[7] = 0b00001000;
-					hw_ide_reset(&this->hw_ide);
-				}
-			}
-		}
-
 	}
 
-
-	//}
+	////////////////////////////////////////////////////////////////////////////
 
 	this->cpu.registers.refresh(&this->cpu.microcode.controller_bus, &this->bus.alu_bus, this->bus.data_bus, this->cpu.microcode.u_sf, this->cpu.config, fa);
 
@@ -868,10 +834,7 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 			this->cpu.memory.mem_page_table1[ptb_mem_addr] = 0;
 		}
 	}
-
-
-
-
+	   	 
 	////////////////////////////////////////////////////////////////////////////
 
 	if (this->cpu.config.DEBUG_BUSES) {
@@ -951,7 +914,7 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 
 	hw_timer_tick_c0(&this->hw_timer);
 
-	//this->bus.reset();
+	this->bus.reset();
 }
 
 
@@ -1024,17 +987,42 @@ void SOL1_COMPUTER::RunCPU(long *runtime_counter) {
 		//if (this->hw_uart.data[5] == 0xFF || this->hw_uart.data[5] == 0x20)
 		//	if (!this->hw_uart.uart_in.empty())
 
-		if (this->hw_uart.write()) {
 
-			if (!this->hw_uart.uart_out.empty()) {
+		////////////////////////////////////////////////////////////////////////////
+		unsigned long addr = read_address_bus();
 
-				this->cpu.microcode.controller_bus.int_req = 0xFF;
-				this->cpu.microcode.controller_bus.int_vector = 0x07 << 1;
-				this->cpu.microcode.controller_bus.int_request = 0x01;
-			}
+		SOL1_BYTE BUFFER_MEM_IO = this->buffer_mem_io();
+
+		SOL1_BYTE not_IO_ADDRESSING = get_byte_bit(~(get_word_bit(addr, 7) & get_word_bit(addr, 8) & get_word_bit(addr, 9) & get_word_bit(addr, 10) & get_word_bit(addr, 11)
+			& get_word_bit(addr, 12) & get_word_bit(addr, 13) & get_word_bit(addr, 14)), 0);
+
+		SOL1_BYTE not_IO_ADDRESSING2 = get_byte_bit(
+			get_word_bit(~(get_word_bit(addr, 16) & get_word_bit(addr, 17) & get_word_bit(addr, 18)), 0)
+			&  get_word_bit(~(get_word_bit(addr, 19) & get_word_bit(addr, 20) & get_word_bit(addr, 21)), 0)
+			, 0);
+
+		SOL1_BYTE peripherical_sel = 0xFF;
+
+		if ((get_word_bit(addr, 15) == 0x01 && not_IO_ADDRESSING == 0x00 && not_IO_ADDRESSING2 == 0x01) && BUFFER_MEM_IO == 0x01) {
+			// adicionar controlle corretamente aos periféricos
+			peripherical_sel = get_word_bit(addr, 4) | (get_word_bit(addr, 5) << 1) | (get_word_bit(addr, 6) << 2);
 		}
-		this->hw_uart.get_lsr();
 
+		if (buffer_wr() == 0x00) {
+
+			if (this->hw_uart.write()) {
+
+				if (!this->hw_uart.uart_out.empty()) {
+
+					this->cpu.microcode.controller_bus.int_req = 0xFF;
+					this->cpu.microcode.controller_bus.int_vector = 0x07 << 1;
+					this->cpu.microcode.controller_bus.int_request = 0x01;
+				}
+			}
+			this->hw_uart.get_lsr();
+		}
+
+		////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1216,7 +1204,7 @@ int SOL1_COMPUTER::init() {
 	hw_ide_load_disk(this->hw_ide.memory);
 
 	//init bus
-	this->bus.reset();
+	this->bus.init();
 
 	if (this->cpu.config.SERVER) {
 		this->hw_tty.start_server(&this->hw_uart);

@@ -32,7 +32,7 @@ class hw_uart {
 
 public:
 
-	SOL1_BYTE status;
+	//SOL1_BYTE status;
 	
 	queue<SOL1_BYTE> uart_in;
 	queue<SOL1_BYTE> uart_out;

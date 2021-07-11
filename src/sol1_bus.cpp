@@ -37,11 +37,11 @@ SOL1_BYTE SOL1_BUS::bus_wr(SOL1_REGISTERS& sol1_registers, SOL1_BYTE wr) {
 }
 
 
-void SOL1_BUS::reset() {
+void SOL1_BUS::init() {
 	this->data_bus = 0b00000000;
 	this->k_bus = 0b00000000; // input pra alu x e y
 	this->w_bus = 0b00000000; // input pra alu x e y
-	
+
 	this->alu_bus.x_bus = 0b00000000; //alu entrada
 	this->alu_bus.y_bus = 0b00000000; //alu entrada
 	this->alu_bus.z_bus = 0b00000000; //alu saida
@@ -54,7 +54,16 @@ void SOL1_BUS::reset() {
 
 	this->alu_bus.alu_final_cf = 0x00;
 	this->alu_bus.alu_output = 0x00;
+}
+
+void SOL1_BUS::reset() {
+	this->data_bus = 0b00000000;
+	this->k_bus = 0b00000000; // input pra alu x e y
+	this->w_bus = 0b00000000; // input pra alu x e y
 	
+	this->alu_bus.x_bus = 0b00000000; //alu entrada
+	this->alu_bus.y_bus = 0b00000000; //alu entrada
+	this->alu_bus.z_bus = 0b00000000; //alu saida
 }
 
 
