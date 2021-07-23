@@ -534,14 +534,17 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 			//printf("** UART_0 ** \n");
 			//this->hw_uart.get_lsr();
 
-			if (mem_addr - 0xFF80 == 0 && (peripherical_sel == 0 || peripherical_sel == 1)) {
+			if (mem_addr - 0xFF80 == 0) {
 				this->hw_uart.read();
+				this->bus.data_bus = this->hw_uart.data[mem_addr - 0xFF80];
 			}
 			else if (mem_addr - 0xFF80 == 5) {
 				this->hw_uart.get_lsr();
-			}
-			if ((peripherical_sel == 0 || peripherical_sel == 1))
 				this->bus.data_bus = this->hw_uart.data[mem_addr - 0xFF80];
+			}
+			else {
+				this->bus.data_bus = this->hw_uart.data[mem_addr - 0xFF80];
+			}				
 
 			if ((this->cpu.config.DEBUG_UART) && (get_current_opcode() > 0)) {
 				char log_uart[255];

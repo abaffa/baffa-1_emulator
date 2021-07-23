@@ -30,7 +30,7 @@ struct sol1_controller_bus {
 	SOL1_BYTE cond_inv;
 	SOL1_BYTE cond_flags_src;
 	SOL1_BYTE cond_sel;
-	SOL1_BYTE u_escape;
+	SOL1_BYTE u_escape_0;
 
 	//ROM 03
 	SOL1_BYTE uzf_in_src;
@@ -98,7 +98,7 @@ struct sol1_controller_bus {
 	SOL1_BYTE pch_wrt;
 	SOL1_BYTE spl_wrt;
 	SOL1_BYTE sph_wrt;
-	//SOL1_BYTE IC10_8;
+	SOL1_BYTE u_escape_1;
 
 	//ROM 12
 	SOL1_BYTE u_esc_in_src;

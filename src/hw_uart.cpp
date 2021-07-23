@@ -85,11 +85,11 @@ SOL1_BYTE hw_uart::get_lsr() {
 			this->data[5] |= 0x80;
 
 		if (!this->uart_out.empty())
-			this->data[5] |= 0x40;
+			this->data[5] |= 0x41; //0x40;
 
 	}
 	else
-		this->data[5] = (this->data[5] & 0xDF) | ~(this->data[5] & 0x20);
+		this->data[5] = (this->data[5] & 0xDF) | ((~(this->data[5] & 0x20)) & 0x20); // | ~(this->data[5] & 0x20);
 
 	return this->data[5];
 }
