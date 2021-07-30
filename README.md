@@ -8,7 +8,9 @@ The microcode editor is available at https://github.com/abaffa/sol-1_simu.
 
 The emulator software is available at https://github.com/abaffa/sol-1_emulator.
 
-![so1_terminal](_images/so1_terminal.png)
+![sol1_terminal](_images/so1_terminal.png)
+
+![panel](_images/panel.png)
 
 -----BEGIN LICENSE NOTICE----- 
 
