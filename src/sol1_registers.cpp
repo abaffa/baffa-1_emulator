@@ -45,8 +45,6 @@ void SOL1_REGISTERS::refresh(struct sol1_controller_bus *controller_bus, struct 
 //IC86B //IC58B //IC86C //IC241 //IC14 //IC255 //IC23
 
 //
-
-
 	SOL1_BYTE inMSWh_ZF = refresh_MSWh_ZF(controller_bus, alu_bus);
 	SOL1_BYTE inMSWh_CF = refresh_MSWh_CF(controller_bus, alu_bus);
 	SOL1_BYTE inMSWh_SF = refresh_MSWh_SF(controller_bus, alu_bus);
@@ -114,11 +112,13 @@ void SOL1_REGISTERS::refresh(struct sol1_controller_bus *controller_bus, struct 
 
 	if (!check_byte_bit(this->MSWl.value(), MSWl_CPU_MODE)) {
 
-		if ((controller_bus->sph_wrt == 0x00) || (controller_bus->ssph_wrt == 0x00)) {
+		//if ((controller_bus->sph_wrt == 0x00) || (controller_bus->ssph_wrt == 0x00)) {
+		if (controller_bus->sph_wrt == 0x00){
 			//this->SPh.set(alu_bus->z_bus); if (config.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SPh", alu_bus->z_bus); }
 			this->SSPh.set(alu_bus->z_bus); if (config.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SSPh", alu_bus->z_bus); }
 		}
-		if ((controller_bus->spl_wrt == 0x00) || controller_bus->sspl_wrt == 0x00) {
+		//if ((controller_bus->spl_wrt == 0x00) || controller_bus->sspl_wrt == 0x00) {
+		if (controller_bus->spl_wrt == 0x00){
 			//this->SPl.set(alu_bus->z_bus); if (config.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SPl", alu_bus->z_bus); }
 			this->SSPl.set(alu_bus->z_bus); if (config.DEBUG_WRREG) { reg8bit_print(fa, (char*)"WRITE", (char*)"SSPl", alu_bus->z_bus); }
 		}

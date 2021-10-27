@@ -23,7 +23,7 @@
 
 void SOL1_MICROCODE::init(HW_TTY& hw_tty) {
 
-	this->u_zf = 0x00;
+	this->u_zf = 0x00; 
 	this->u_cf = 0x00;
 	this->u_sf = 0x00;
 	this->u_of = 0x00;
@@ -110,8 +110,8 @@ void SOL1_MICROCODE::init(HW_TTY& hw_tty) {
 	this->controller_bus.gh_wrt = 0x00;
 	this->controller_bus.imm = 0x00;
 
-	this->controller_bus.sspl_wrt = 0x01; ////////?????????????????
-	this->controller_bus.ssph_wrt = 0x01; ////////?????????????????
+	//this->controller_bus.sspl_wrt = 0x01; ////////?????????????????
+	//this->controller_bus.ssph_wrt = 0x01; ////////?????????????????
 
 	//?????????????
 	this->controller_bus.memory_io = 0x00; // bus_mem_io //?????????????????
@@ -128,7 +128,7 @@ void SOL1_MICROCODE::init(HW_TTY& hw_tty) {
 	this->controller_bus.int_vector_wrt = 0x00;
 	this->controller_bus.int_ack = 0x00;
 	this->controller_bus.int_request = 0x00; ////////?????????????????
-	this->controller_bus.int_req = 0xFF;
+	this->controller_bus.int_req = 0x00;
 	//
 
 	this->controller_bus.dma_req = 0x00; ////////????????????????? CLOCK DE DMA
@@ -140,65 +140,29 @@ void SOL1_MICROCODE::init(HW_TTY& hw_tty) {
 
 	this->controller_bus.panel_regsel = 0x00;
 
+	this->controller_bus.panel_rd = 0x01;
+	this->controller_bus.panel_wr = 0x00;
+	this->controller_bus.panel_mem_io = 0x00;
+
+	this->controller_bus.panel_address = 0x00;
+	this->controller_bus.panel_data = 0x00;
+	this->controller_bus.panel_req = 0x00;
+
+	this->controller_bus.panel_run = 0x00;
+	this->controller_bus.panel_step = 0x000;
+	this->controller_bus.panel_microcodestep = 0x00;
+
+	this->controller_bus.clk = 0x00;
+
+
+	this->controller_bus.reset = 0x00;
+	this->controller_bus.restart = 0x00;
+
 
 	this->rom.init(hw_tty);
 }
 
 
-
-
-SOL1_DWORD SOL1_MICROCODE::u_adder_refresh(SOL1_BYTE typ, SOL1_BYTE final_condition, SOL1_CONFIG& config, HW_TTY& hw_tty) {
-
-	//if type = branch, and condition = false, then next = +1
-
-	//Typ1 Typ0		Desc
-	//0    0		offset
-	//0    1		branch
-	//1    0		pre-fetch
-	//1    1		post_fetch
-
-	SOL1_BYTE u_offset6 = get_byte_bit(this->controller_bus.u_offset, 6);
-
-	if (typ == 0b00000001 && !check_byte_bit(final_condition, 0))
-		this->u_adder_b = 0x01;
-	else
-		this->u_adder_b = this->controller_bus.u_offset |
-		set_word_bit(u_offset6, 7) |
-		set_word_bit(u_offset6, 8) |
-		set_word_bit(u_offset6, 9) |
-		set_word_bit(u_offset6, 10) |
-		set_word_bit(u_offset6, 11) |
-		set_word_bit(u_offset6, 12) |
-		set_word_bit(u_offset6, 13);
-
-	this->u_adder = (this->u_ad_bus & 0b0011111111111111) + this->u_adder_b;
-
-	if (config.DEBUG_UADDER) {
-		hw_tty.print("***** U_ADDER\n");
-		display_u_adder(this->controller_bus.next, this->controller_bus.final_condition, hw_tty);
-		hw_tty.print("\n");
-	}
-
-	return this->u_adder;
-}
-
-void SOL1_MICROCODE::display_u_adder(SOL1_BYTE typ, SOL1_BYTE final_condition, HW_TTY& hw_tty) {
-
-	char str_out[255];
-	hw_tty.print("* next(typ): "); print_nibble_bin(str_out, typ); hw_tty.print(str_out);
-	hw_tty.print(" | ");
-	hw_tty.print(" u_offset: "); print_byte_bin(str_out, this->controller_bus.u_offset); hw_tty.print(str_out);
-	hw_tty.print(" | ");
-	hw_tty.print("Final Condition : "); print_nibble_bin(str_out, final_condition); hw_tty.print(str_out);
-	hw_tty.print("\n");
-
-	hw_tty.print("* A(u_ad): ");  print_word_bin_nibbles(str_out, this->u_ad_bus); hw_tty.print(str_out);
-	hw_tty.print("\n");
-	hw_tty.print("* B: ");  print_word_bin_nibbles(str_out, this->u_adder_b); hw_tty.print(str_out);
-	hw_tty.print("\n");
-	hw_tty.print("* u_adder: ");  print_word_bin(str_out, this->u_adder); hw_tty.print(str_out);
-	hw_tty.print("\n");
-}
 
 
 void SOL1_MICROCODE::u_flags_refresh(SOL1_BYTE reg_status_value, SOL1_BYTE reg_flags_value, struct sol1_alu_bus *alu_bus, SOL1_CONFIG& config, HW_TTY& hw_tty)
@@ -427,6 +391,61 @@ void SOL1_MICROCODE::update_final_condition(SOL1_BYTE reg_status_value, SOL1_BYT
 
 	}
 }
+void SOL1_MICROCODE::display_u_adder(SOL1_BYTE typ, SOL1_BYTE final_condition, HW_TTY& hw_tty) {
+
+	char str_out[255];
+	hw_tty.print("* next(typ): "); print_nibble_bin(str_out, typ); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	hw_tty.print(" u_offset: "); print_byte_bin(str_out, this->controller_bus.u_offset); hw_tty.print(str_out);
+	hw_tty.print(" | ");
+	hw_tty.print("Final Condition : "); print_nibble_bin(str_out, final_condition); hw_tty.print(str_out);
+	hw_tty.print("\n");
+
+	hw_tty.print("* A(u_ad): ");  print_word_bin_nibbles(str_out, this->u_ad_bus); hw_tty.print(str_out);
+	hw_tty.print("\n");
+	hw_tty.print("* B: ");  print_word_bin_nibbles(str_out, this->u_adder_b); hw_tty.print(str_out);
+	hw_tty.print("\n");
+	hw_tty.print("* u_adder: ");  print_word_bin(str_out, this->u_adder); hw_tty.print(str_out);
+	hw_tty.print("\n");
+}
+
+SOL1_DWORD SOL1_MICROCODE::u_adder_refresh(SOL1_BYTE typ, SOL1_BYTE final_condition, SOL1_CONFIG& config, HW_TTY& hw_tty) {
+
+	//if type = branch, and condition = false, then next = +1
+
+	//Typ1 Typ0		Desc
+	//0    0		offset
+	//0    1		branch
+	//1    0		pre-fetch
+	//1    1		post_fetch
+
+	SOL1_BYTE u_offset6 = get_byte_bit(this->controller_bus.u_offset, 6);
+
+	if (typ == 0b00000001 && !check_byte_bit(final_condition, 0))
+		this->u_adder_b = 0x01;
+	else
+		this->u_adder_b = this->controller_bus.u_offset |
+		set_word_bit(u_offset6, 7) |
+		set_word_bit(u_offset6, 8) |
+		set_word_bit(u_offset6, 9) |
+		set_word_bit(u_offset6, 10) |
+		set_word_bit(u_offset6, 11) |
+		set_word_bit(u_offset6, 12) |
+		set_word_bit(u_offset6, 13);
+
+	this->u_adder = (this->u_ad_bus & 0b0011111111111111) + this->u_adder_b;
+
+	if (config.DEBUG_UADDER) {
+		hw_tty.print("***** U_ADDER\n");
+		display_u_adder(this->controller_bus.next, this->controller_bus.final_condition, hw_tty);
+		hw_tty.print("\n");
+	}
+
+	return this->u_adder;
+}
+
+
+// Sets u-address
 void SOL1_MICROCODE::addresser(SOL1_BYTE reg_status_value, SOL1_CONFIG& config, HW_TTY& hw_tty) {
 
 	////////////////////////////////////////////////////////////////////////////
@@ -488,7 +507,12 @@ void SOL1_MICROCODE::addresser(SOL1_BYTE reg_status_value, SOL1_CONFIG& config, 
 	SOL1_REGISTERS::set(this->U_ADDRESSl, this->U_ADDRESSh, u_address);
 
 	this->old_u_ad_bus = this->u_ad_bus;
-	this->u_ad_bus = u_address;
+
+	if (this->controller_bus.reset == 0x00) 
+		this->u_ad_bus = u_address;
+	else
+		this->u_ad_bus = 0;
+
 
 
 
@@ -523,15 +547,15 @@ void SOL1_MICROCODE::addresser(SOL1_BYTE reg_status_value, SOL1_CONFIG& config, 
 	//return this->u_ad_bus;
 }
 
-
+// Sets Microcode
 void SOL1_MICROCODE::sequencer_update(SOL1_BYTE reg_status_value, SOL1_CONFIG& config, HW_TTY& hw_tty) {
 
 	//CLOCK LOW
-	this->addresser(reg_status_value, config, hw_tty);
+	this->addresser(reg_status_value, config, hw_tty); // Sets u-address
 
 	////////////////////////////////////////////////////////////////////////////
 
-	this->load_microcode_from_rom();
+	this->load_microcode_from_rom(); // Sets Microcode from Rom
 
 	if (config.DEBUG_MICROCODE) {
 		char str_out[255];
@@ -544,118 +568,237 @@ void SOL1_MICROCODE::sequencer_update(SOL1_BYTE reg_status_value, SOL1_CONFIG& c
 	}
 }
 
-
+// Sets Microcode from Rom
 void SOL1_MICROCODE::load_microcode_from_rom() {
 
-	// ROM 0
-	this->controller_bus.next = this->rom.roms[0][this->u_ad_bus] & 0b00000011;///////////////////////
+	if (this->controller_bus.reset == 0x00) {
 
-	// ROM 1
-	this->controller_bus.u_offset = ((this->rom.roms[1][this->u_ad_bus] & 0b00000001) << 6) | ((this->rom.roms[0][this->u_ad_bus] >> 2) & 0b00111111);////////////////////
-	this->controller_bus.cond_inv = (this->rom.roms[1][this->u_ad_bus] >> 1) & 0b00000001;
-	this->controller_bus.cond_flags_src = (this->rom.roms[1][this->u_ad_bus] >> 2) & 0b00000001;
-	this->controller_bus.cond_sel = (this->rom.roms[1][this->u_ad_bus] >> 3) & 0b00001111;
-	this->controller_bus.u_escape_0 = this->rom.roms[1][this->u_ad_bus] >> 7 & 0b00000001; //ESCAPE
+		// ROM 0
+		this->controller_bus.next = this->rom.roms[0][this->u_ad_bus] & 0b00000011;///////////////////////
 
-	// ROM 2
-	this->controller_bus.uzf_in_src = this->rom.roms[2][this->u_ad_bus] & 0b00000011;/////////////////
-	this->controller_bus.ucf_in_src = (this->rom.roms[2][this->u_ad_bus] >> 2) & 0b00000011;//////////
-	this->controller_bus.usf_in_src = (this->rom.roms[2][this->u_ad_bus] >> 4) & 0b00000001;//////////
-	this->controller_bus.uof_in_src = (this->rom.roms[2][this->u_ad_bus] >> 5) & 0b00000001;//////////
-	this->controller_bus.ir_wrt = (this->rom.roms[2][this->u_ad_bus] >> 6) & 0b00000001;/////////////////
-	this->controller_bus.status_wrt = (this->rom.roms[2][this->u_ad_bus] >> 7) & 0b00000001;/////////////
+		// ROM 1
+		this->controller_bus.u_offset = ((this->rom.roms[1][this->u_ad_bus] & 0b00000001) << 6) | ((this->rom.roms[0][this->u_ad_bus] >> 2) & 0b00111111);////////////////////
+		this->controller_bus.cond_inv = (this->rom.roms[1][this->u_ad_bus] >> 1) & 0b00000001;
+		this->controller_bus.cond_flags_src = (this->rom.roms[1][this->u_ad_bus] >> 2) & 0b00000001;
+		this->controller_bus.cond_sel = (this->rom.roms[1][this->u_ad_bus] >> 3) & 0b00001111;
+		this->controller_bus.u_escape_0 = this->rom.roms[1][this->u_ad_bus] >> 7 & 0b00000001; //ESCAPE
 
-	// ROM 3
-	this->controller_bus.shift_src = this->rom.roms[3][this->u_ad_bus] & 0b00000111;/////////////////////
-	this->controller_bus.zbus_out_src = (this->rom.roms[3][this->u_ad_bus] >> 3) & 0b00000011;///////////
-	this->controller_bus.alu_a_src = ((this->rom.roms[3][this->u_ad_bus] >> 5) & 0b00000111) | ((this->rom.roms[4][this->u_ad_bus] & 0b00000111) << 3);/////////////////////
+		// ROM 2
+		this->controller_bus.uzf_in_src = this->rom.roms[2][this->u_ad_bus] & 0b00000011;/////////////////
+		this->controller_bus.ucf_in_src = (this->rom.roms[2][this->u_ad_bus] >> 2) & 0b00000011;//////////
+		this->controller_bus.usf_in_src = (this->rom.roms[2][this->u_ad_bus] >> 4) & 0b00000001;//////////
+		this->controller_bus.uof_in_src = (this->rom.roms[2][this->u_ad_bus] >> 5) & 0b00000001;//////////
+		this->controller_bus.ir_wrt = (this->rom.roms[2][this->u_ad_bus] >> 6) & 0b00000001;/////////////////
+		this->controller_bus.status_wrt = (this->rom.roms[2][this->u_ad_bus] >> 7) & 0b00000001;/////////////
 
-	// ROM 4
-	this->controller_bus.alu_op = (this->rom.roms[4][this->u_ad_bus] >> 3) & 0b00001111;//////////////
-	this->controller_bus.alu_mode = (this->rom.roms[4][this->u_ad_bus] >> 7) & 0b00000001;////////////
+		// ROM 3
+		this->controller_bus.shift_src = this->rom.roms[3][this->u_ad_bus] & 0b00000111;/////////////////////
+		this->controller_bus.zbus_out_src = (this->rom.roms[3][this->u_ad_bus] >> 3) & 0b00000011;///////////
+		this->controller_bus.alu_a_src = ((this->rom.roms[3][this->u_ad_bus] >> 5) & 0b00000111) | ((this->rom.roms[4][this->u_ad_bus] & 0b00000111) << 3);/////////////////////
 
-	// ROM 5
-	this->controller_bus.alu_cf_in_src = (this->rom.roms[5][this->u_ad_bus]) & 0b00000011;////////////
-	this->controller_bus.alu_cf_in_inv = (this->rom.roms[5][this->u_ad_bus] >> 2) & 0b00000001;///////
-	this->controller_bus.zf_in_src = (this->rom.roms[5][this->u_ad_bus] >> 3) & 0b00000011;///////////////
-	this->controller_bus.alu_cf_out_inv = (this->rom.roms[5][this->u_ad_bus] >> 5) & 0b00000001;//////
-	this->controller_bus.cf_in_src = ((this->rom.roms[5][this->u_ad_bus] >> 6) & 0b00000011) | ((this->rom.roms[6][this->u_ad_bus] & 0b00000001) << 2);/////////////////////
+		// ROM 4
+		this->controller_bus.alu_op = (this->rom.roms[4][this->u_ad_bus] >> 3) & 0b00001111;//////////////
+		this->controller_bus.alu_mode = (this->rom.roms[4][this->u_ad_bus] >> 7) & 0b00000001;////////////
 
-	// ROM 6
-	this->controller_bus.sf_in_src = (this->rom.roms[6][this->u_ad_bus] >> 1) & 0b00000011;///////////////
-	this->controller_bus.of_in_src = (this->rom.roms[6][this->u_ad_bus] >> 3) & 0b00000111;///////////////
-	this->controller_bus.rd = (this->rom.roms[6][this->u_ad_bus] >> 6) & 0b00000001;//////////////////////
-	this->controller_bus.wr = (this->rom.roms[6][this->u_ad_bus] >> 7) & 0b00000001;//////////////////////
+		// ROM 5
+		this->controller_bus.alu_cf_in_src = (this->rom.roms[5][this->u_ad_bus]) & 0b00000011;////////////
+		this->controller_bus.alu_cf_in_inv = (this->rom.roms[5][this->u_ad_bus] >> 2) & 0b00000001;///////
+		this->controller_bus.zf_in_src = (this->rom.roms[5][this->u_ad_bus] >> 3) & 0b00000011;///////////////
+		this->controller_bus.alu_cf_out_inv = (this->rom.roms[5][this->u_ad_bus] >> 5) & 0b00000001;//////
+		this->controller_bus.cf_in_src = ((this->rom.roms[5][this->u_ad_bus] >> 6) & 0b00000011) | ((this->rom.roms[6][this->u_ad_bus] & 0b00000001) << 2);/////////////////////
 
-	// ROM 7
-	this->controller_bus.alu_b_src = this->rom.roms[7][this->u_ad_bus] & 0b00000111;//////////////////
-	this->controller_bus.display_reg_load = (this->rom.roms[7][this->u_ad_bus] >> 3) & 0b00000001;////
-	this->controller_bus.dl_wrt = (this->rom.roms[7][this->u_ad_bus] >> 4) & 0b00000001;//////////////
-	this->controller_bus.dh_wrt = (this->rom.roms[7][this->u_ad_bus] >> 5) & 0b00000001;//////////////
-	this->controller_bus.cl_wrt = (this->rom.roms[7][this->u_ad_bus] >> 6) & 0b00000001;//////////////
-	this->controller_bus.ch_wrt = (this->rom.roms[7][this->u_ad_bus] >> 7) & 0b00000001;//////////////
+		// ROM 6
+		this->controller_bus.sf_in_src = (this->rom.roms[6][this->u_ad_bus] >> 1) & 0b00000011;///////////////
+		this->controller_bus.of_in_src = (this->rom.roms[6][this->u_ad_bus] >> 3) & 0b00000111;///////////////
+		this->controller_bus.rd = (this->rom.roms[6][this->u_ad_bus] >> 6) & 0b00000001;//////////////////////
+		this->controller_bus.wr = (this->rom.roms[6][this->u_ad_bus] >> 7) & 0b00000001;//////////////////////
 
-	// ROM 8
-	this->controller_bus.bl_wrt = (this->rom.roms[8][this->u_ad_bus] >> 0) & 0b00000001;//////////////
-	this->controller_bus.bh_wrt = (this->rom.roms[8][this->u_ad_bus] >> 1) & 0b00000001;//////////////
-	this->controller_bus.al_wrt = (this->rom.roms[8][this->u_ad_bus] >> 2) & 0b00000001;//////////////
-	this->controller_bus.ah_wrt = (this->rom.roms[8][this->u_ad_bus] >> 3) & 0b00000001;//////////////
-	this->controller_bus.mdr_in_src = (this->rom.roms[8][this->u_ad_bus] >> 4) & 0b00000001;//////////
-	this->controller_bus.mdr_out_src = (this->rom.roms[8][this->u_ad_bus] >> 5) & 0b00000001;/////////
-	this->controller_bus.mdr_out_en = (this->rom.roms[8][this->u_ad_bus] >> 6) & 0b00000001;//////////
-	this->controller_bus.mdrl_wrt = (this->rom.roms[8][this->u_ad_bus] >> 7) & 0b00000001;////////////
+		// ROM 7
+		this->controller_bus.alu_b_src = this->rom.roms[7][this->u_ad_bus] & 0b00000111;//////////////////
+		this->controller_bus.display_reg_load = (this->rom.roms[7][this->u_ad_bus] >> 3) & 0b00000001;////
+		this->controller_bus.dl_wrt = (this->rom.roms[7][this->u_ad_bus] >> 4) & 0b00000001;//////////////
+		this->controller_bus.dh_wrt = (this->rom.roms[7][this->u_ad_bus] >> 5) & 0b00000001;//////////////
+		this->controller_bus.cl_wrt = (this->rom.roms[7][this->u_ad_bus] >> 6) & 0b00000001;//////////////
+		this->controller_bus.ch_wrt = (this->rom.roms[7][this->u_ad_bus] >> 7) & 0b00000001;//////////////
 
-	// ROM 9
-	this->controller_bus.mdrh_wrt = (this->rom.roms[9][this->u_ad_bus] >> 0) & 0b00000001;////////////
-	this->controller_bus.tdrl_wrt = (this->rom.roms[9][this->u_ad_bus] >> 1) & 0b00000001;////////////
-	this->controller_bus.tdrh_wrt = (this->rom.roms[9][this->u_ad_bus] >> 2) & 0b00000001;////////////
-	this->controller_bus.dil_wrt = (this->rom.roms[9][this->u_ad_bus] >> 3) & 0b00000001;/////////////
-	this->controller_bus.dih_wrt = (this->rom.roms[9][this->u_ad_bus] >> 4) & 0b00000001;/////////////
-	this->controller_bus.sil_wrt = (this->rom.roms[9][this->u_ad_bus] >> 5) & 0b00000001;/////////////
-	this->controller_bus.sih_wrt = (this->rom.roms[9][this->u_ad_bus] >> 6) & 0b00000001;/////////////
-	this->controller_bus.marl_wrt = (this->rom.roms[9][this->u_ad_bus] >> 7) & 0b00000001;////////////
+		// ROM 8
+		this->controller_bus.bl_wrt = (this->rom.roms[8][this->u_ad_bus] >> 0) & 0b00000001;//////////////
+		this->controller_bus.bh_wrt = (this->rom.roms[8][this->u_ad_bus] >> 1) & 0b00000001;//////////////
+		this->controller_bus.al_wrt = (this->rom.roms[8][this->u_ad_bus] >> 2) & 0b00000001;//////////////
+		this->controller_bus.ah_wrt = (this->rom.roms[8][this->u_ad_bus] >> 3) & 0b00000001;//////////////
+		this->controller_bus.mdr_in_src = (this->rom.roms[8][this->u_ad_bus] >> 4) & 0b00000001;//////////
+		this->controller_bus.mdr_out_src = (this->rom.roms[8][this->u_ad_bus] >> 5) & 0b00000001;/////////
+		this->controller_bus.mdr_out_en = (this->rom.roms[8][this->u_ad_bus] >> 6) & 0b00000001;//////////
+		this->controller_bus.mdrl_wrt = (this->rom.roms[8][this->u_ad_bus] >> 7) & 0b00000001;////////////
 
-	// ROM 10
-	this->controller_bus.marh_wrt = (this->rom.roms[10][this->u_ad_bus] >> 0) & 0b00000001;///////////
-	this->controller_bus.bpl_wrt = (this->rom.roms[10][this->u_ad_bus] >> 1) & 0b00000001;////////////
-	this->controller_bus.bph_wrt = (this->rom.roms[10][this->u_ad_bus] >> 2) & 0b00000001;////////////
-	this->controller_bus.pcl_wrt = (this->rom.roms[10][this->u_ad_bus] >> 3) & 0b00000001;////////////
-	this->controller_bus.pch_wrt = (this->rom.roms[10][this->u_ad_bus] >> 4) & 0b00000001;////////////
-	this->controller_bus.spl_wrt = (this->rom.roms[10][this->u_ad_bus] >> 5) & 0b00000001;////////////
-	this->controller_bus.sph_wrt = (this->rom.roms[10][this->u_ad_bus] >> 6) & 0b00000001;////////////
-	this->controller_bus.u_escape_1 = (this->rom.roms[10][this->u_ad_bus] >> 7) & 0b00000001;////////////
+		// ROM 9
+		this->controller_bus.mdrh_wrt = (this->rom.roms[9][this->u_ad_bus] >> 0) & 0b00000001;////////////
+		this->controller_bus.tdrl_wrt = (this->rom.roms[9][this->u_ad_bus] >> 1) & 0b00000001;////////////
+		this->controller_bus.tdrh_wrt = (this->rom.roms[9][this->u_ad_bus] >> 2) & 0b00000001;////////////
+		this->controller_bus.dil_wrt = (this->rom.roms[9][this->u_ad_bus] >> 3) & 0b00000001;/////////////
+		this->controller_bus.dih_wrt = (this->rom.roms[9][this->u_ad_bus] >> 4) & 0b00000001;/////////////
+		this->controller_bus.sil_wrt = (this->rom.roms[9][this->u_ad_bus] >> 5) & 0b00000001;/////////////
+		this->controller_bus.sih_wrt = (this->rom.roms[9][this->u_ad_bus] >> 6) & 0b00000001;/////////////
+		this->controller_bus.marl_wrt = (this->rom.roms[9][this->u_ad_bus] >> 7) & 0b00000001;////////////
 
-	// ROM 11
-	this->controller_bus.u_esc_in_src = (this->rom.roms[11][this->u_ad_bus] >> 0) & 0b00000001;/////
-	this->controller_bus.int_vector_wrt = (this->rom.roms[11][this->u_ad_bus] >> 1) & 0b00000001;/////
-	this->controller_bus.mask_flags_wrt = (this->rom.roms[11][this->u_ad_bus] >> 2) & 0b00000001;/////
-	this->controller_bus.mar_in_src = (this->rom.roms[11][this->u_ad_bus] >> 3) & 0b00000001;/////////
-	this->controller_bus.int_ack = (this->rom.roms[11][this->u_ad_bus] >> 4) & 0b00000001;
-	this->controller_bus.clear_all_ints = (this->rom.roms[11][this->u_ad_bus] >> 5) & 0b00000001;
-	this->controller_bus.ptb_wrt = (this->rom.roms[11][this->u_ad_bus] >> 6) & 0b00000001;////////////
-	this->controller_bus.pagtbl_ram_we = (this->rom.roms[11][this->u_ad_bus] >> 7) & 0b00000001;//////
+		// ROM 10
+		this->controller_bus.marh_wrt = (this->rom.roms[10][this->u_ad_bus] >> 0) & 0b00000001;///////////
+		this->controller_bus.bpl_wrt = (this->rom.roms[10][this->u_ad_bus] >> 1) & 0b00000001;////////////
+		this->controller_bus.bph_wrt = (this->rom.roms[10][this->u_ad_bus] >> 2) & 0b00000001;////////////
+		this->controller_bus.pcl_wrt = (this->rom.roms[10][this->u_ad_bus] >> 3) & 0b00000001;////////////
+		this->controller_bus.pch_wrt = (this->rom.roms[10][this->u_ad_bus] >> 4) & 0b00000001;////////////
+		this->controller_bus.spl_wrt = (this->rom.roms[10][this->u_ad_bus] >> 5) & 0b00000001;////////////
+		this->controller_bus.sph_wrt = (this->rom.roms[10][this->u_ad_bus] >> 6) & 0b00000001;////////////
+		this->controller_bus.u_escape_1 = (this->rom.roms[10][this->u_ad_bus] >> 7) & 0b00000001;////////////
 
-	// ROM 12
-	this->controller_bus.mdr_to_pagtbl_en = (this->rom.roms[12][this->u_ad_bus] >> 0) & 0b00000001;///
-	this->controller_bus.force_user_ptb = (this->rom.roms[12][this->u_ad_bus] >> 1) & 0b00000001;
-	// empty bit 3
-	// empty bit 4
-	// empty bit 5
-	// empty bit 6
-	this->controller_bus.gl_wrt = (this->rom.roms[12][this->u_ad_bus] >> 6) & 0b00000001;/////////////
-	this->controller_bus.gh_wrt = (this->rom.roms[12][this->u_ad_bus] >> 7) & 0b00000001;/////////////
+		// ROM 11
+		this->controller_bus.u_esc_in_src = (this->rom.roms[11][this->u_ad_bus] >> 0) & 0b00000001;/////
+		this->controller_bus.int_vector_wrt = (this->rom.roms[11][this->u_ad_bus] >> 1) & 0b00000001;/////
+		this->controller_bus.mask_flags_wrt = (this->rom.roms[11][this->u_ad_bus] >> 2) & 0b00000001;/////
+		this->controller_bus.mar_in_src = (this->rom.roms[11][this->u_ad_bus] >> 3) & 0b00000001;/////////
+		this->controller_bus.int_ack = (this->rom.roms[11][this->u_ad_bus] >> 4) & 0b00000001;
+		this->controller_bus.clear_all_ints = (this->rom.roms[11][this->u_ad_bus] >> 5) & 0b00000001;
+		this->controller_bus.ptb_wrt = (this->rom.roms[11][this->u_ad_bus] >> 6) & 0b00000001;////////////
+		this->controller_bus.pagtbl_ram_we = (this->rom.roms[11][this->u_ad_bus] >> 7) & 0b00000001;//////
 
-	// ROM 13
-	this->controller_bus.imm = this->rom.roms[13][this->u_ad_bus]; ///////////////////////////////////
+		// ROM 12
+		this->controller_bus.mdr_to_pagtbl_en = (this->rom.roms[12][this->u_ad_bus] >> 0) & 0b00000001;///
+		this->controller_bus.force_user_ptb = (this->rom.roms[12][this->u_ad_bus] >> 1) & 0b00000001;
+		// empty bit 3
+		// empty bit 4
+		// empty bit 5
+		// empty bit 6
+		this->controller_bus.gl_wrt = (this->rom.roms[12][this->u_ad_bus] >> 6) & 0b00000001;/////////////
+		this->controller_bus.gh_wrt = (this->rom.roms[12][this->u_ad_bus] >> 7) & 0b00000001;/////////////
 
-	// ROM 14
-	// empty bit 0
-	// empty bit 1
-	// empty bit 2
-	// empty bit 3
-	// empty bit 4
-	// empty bit 5
-	// empty bit 6
-	// empty bit 7
+		// ROM 13
+		this->controller_bus.imm = this->rom.roms[13][this->u_ad_bus]; ///////////////////////////////////
+
+		// ROM 14
+		// empty bit 0
+		// empty bit 1
+		// empty bit 2
+		// empty bit 3
+		// empty bit 4
+		// empty bit 5
+		// empty bit 6
+		// empty bit 7
+
+
+	}
+	else {
+		// ROM 0
+		this->controller_bus.next = 0;
+
+		// ROM 1
+		this->controller_bus.u_offset = 0;
+		this->controller_bus.cond_inv = 0;
+		this->controller_bus.cond_flags_src = 0;
+		this->controller_bus.cond_sel = 0;
+		this->controller_bus.u_escape_0 = 0;
+
+		// ROM 2
+		this->controller_bus.uzf_in_src = 0;
+		this->controller_bus.ucf_in_src = 0;
+		this->controller_bus.usf_in_src = 0;
+		this->controller_bus.uof_in_src = 0;
+		this->controller_bus.ir_wrt = 0;
+		this->controller_bus.status_wrt = 0;
+
+		// ROM 3
+		this->controller_bus.shift_src = 0;
+		this->controller_bus.zbus_out_src = 0;
+		this->controller_bus.alu_a_src = 0;
+
+		// ROM 4
+		this->controller_bus.alu_op = 0;
+		this->controller_bus.alu_mode = 0;
+
+		// ROM 5
+		this->controller_bus.alu_cf_in_src = 0;
+		this->controller_bus.alu_cf_in_inv = 0;
+		this->controller_bus.zf_in_src = 0;
+		this->controller_bus.alu_cf_out_inv = 0;
+		this->controller_bus.cf_in_src = 0;
+
+		// ROM 6
+		this->controller_bus.sf_in_src = 0;
+		this->controller_bus.of_in_src = 0;
+		this->controller_bus.rd = 0;
+		this->controller_bus.wr = 0;
+
+		// ROM 7
+		this->controller_bus.alu_b_src = 0;
+		this->controller_bus.display_reg_load = 0;
+		this->controller_bus.dl_wrt = 0;
+		this->controller_bus.dh_wrt = 0;
+		this->controller_bus.cl_wrt = 0;
+		this->controller_bus.ch_wrt = 0;
+
+		// ROM 8
+		this->controller_bus.bl_wrt = 0; 
+		this->controller_bus.bh_wrt = 0;
+		this->controller_bus.al_wrt = 0;
+		this->controller_bus.ah_wrt = 0;
+		this->controller_bus.mdr_in_src = 0;
+		this->controller_bus.mdr_out_src = 0;
+		this->controller_bus.mdr_out_en = 0;
+		this->controller_bus.mdrl_wrt = 0;
+
+		// ROM 9
+		this->controller_bus.mdrh_wrt = 0;
+		this->controller_bus.tdrl_wrt = 0;
+		this->controller_bus.tdrh_wrt = 0;
+		this->controller_bus.dil_wrt = 0;
+		this->controller_bus.dih_wrt = 0; 
+		this->controller_bus.sil_wrt = 0;
+		this->controller_bus.sih_wrt = 0;
+		this->controller_bus.marl_wrt = 0;
+
+		// ROM 10
+		this->controller_bus.marh_wrt = 0;
+		this->controller_bus.bpl_wrt = 0;
+		this->controller_bus.bph_wrt = 0;
+		this->controller_bus.pcl_wrt = 0;
+		this->controller_bus.pch_wrt = 0;
+		this->controller_bus.spl_wrt = 0;
+		this->controller_bus.sph_wrt = 0;
+		this->controller_bus.u_escape_1 = 0;
+
+		// ROM 11
+		this->controller_bus.u_esc_in_src = 0;
+		this->controller_bus.int_vector_wrt = 0;
+		this->controller_bus.mask_flags_wrt = 0;
+		this->controller_bus.mar_in_src = 0;
+		this->controller_bus.int_ack = 0;
+		this->controller_bus.clear_all_ints = 0;
+		this->controller_bus.ptb_wrt = 0;
+		this->controller_bus.pagtbl_ram_we = 0;
+
+		// ROM 12
+		this->controller_bus.mdr_to_pagtbl_en = 0;
+		this->controller_bus.force_user_ptb = 0;
+		// empty bit 3
+		// empty bit 4
+		// empty bit 5
+		// empty bit 6
+		this->controller_bus.gl_wrt = 0;
+		this->controller_bus.gh_wrt = 0;
+
+		// ROM 13
+		this->controller_bus.imm = 0;
+
+		// ROM 14
+		// empty bit 0
+		// empty bit 1
+		// empty bit 2
+		// empty bit 3
+		// empty bit 4
+		// empty bit 5
+		// empty bit 6
+		// empty bit 7
+
+
+	}
 }
 

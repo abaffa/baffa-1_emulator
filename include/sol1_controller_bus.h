@@ -137,8 +137,8 @@ struct sol1_controller_bus {
 
 
 	///////////////////////////////////////////////////////////
-	SOL1_BYTE sspl_wrt;
-	SOL1_BYTE ssph_wrt;
+	//SOL1_BYTE sspl_wrt;
+	//SOL1_BYTE ssph_wrt;
 
 	//?????????????
 	SOL1_BYTE memory_io; // bus_mem_io //?????????????????
@@ -167,6 +167,23 @@ struct sol1_controller_bus {
 	SOL1_BYTE final_condition;
 
 	SOL1_BYTE panel_regsel;
+	SOL1_BYTE panel_rd;
+	SOL1_BYTE panel_wr;
+	SOL1_BYTE panel_mem_io;
+
+	long panel_address;
+	SOL1_BYTE panel_data;
+	SOL1_BYTE panel_req;
+
+	SOL1_BYTE panel_run = 0;
+	SOL1_BYTE panel_step = 0;
+	SOL1_BYTE panel_microcodestep = 0;
+
+	SOL1_BYTE clk = 0;
+
+
+	SOL1_BYTE reset = 0;
+	SOL1_BYTE restart = 0;
 };
 
 #endif

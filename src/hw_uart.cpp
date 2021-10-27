@@ -53,16 +53,13 @@ int hw_uart::write() {
 int hw_uart::read() {
 
 
-	if (!this->uart_out.empty() && ((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_request == 0x01) {
+	if (!this->uart_out.empty()) {
 #ifdef _MSC_VER    
 		std::unique_lock<std::mutex> lock(this->mtx_out);
 #else
 		pthread_mutex_lock(&this->mtx_out);
 #endif
 		this->data[0] = this->uart_out.front();  this->uart_out.pop();
-
-		((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_request = 0;
-		
 
 #ifdef _MSC_VER    
 		this->cv_out.notify_all();
@@ -104,11 +101,7 @@ void hw_uart::receive(SOL1_BYTE data) {
 #endif
 	this->uart_out.push(data);
 
-
-	((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_req = 0xFF;
-	((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_vector = 0x07 << 1;
-	((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_request = 0x01;
-
+	((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_req = ((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_req | 0b10000000;
 
 #ifdef _MSC_VER    
 	this->cv_out.notify_all();

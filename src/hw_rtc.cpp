@@ -59,13 +59,13 @@ void hw_rtc_init(struct hw_rtc* hw_rtc) {
 
 
 SOL1_BYTE convertToHex(int v) {
-	char buffer[5];
+	char buffer[16];
 	SOL1_BYTE ret = strtol(itoa(v, buffer, 10), NULL, 16);
 	return ret;
 }
 
 SOL1_BYTE convertToInt(int v) {
-	char buffer[5];
+	char buffer[16];
 	SOL1_BYTE ret = strtol(itoa(v, buffer, 16), NULL, 10);
 	return ret;
 }

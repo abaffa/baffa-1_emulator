@@ -22,18 +22,41 @@ SOL1_BYTE SOL1_BUS::bus_tristate(SOL1_REGISTERS& sol1_registers) {
 	return get_byte_bit(sol1_registers.MSWl.value(), MSWl_DMA_ACK) | get_byte_bit(sol1_registers.MSWl.value(), MSWl_HALT); //IC151
 }
 
-SOL1_BYTE SOL1_BUS::bus_rd(SOL1_REGISTERS& sol1_registers, SOL1_BYTE rd) {
+SOL1_BYTE SOL1_BUS::bus_rd(SOL1_REGISTERS& sol1_registers, SOL1_BYTE rd, SOL1_BYTE panel_rd) {
 
-	if (bus_tristate(sol1_registers) != 0x00) return 0x01;
+	SOL1_BYTE ret = 0x00;
 
-	return (~rd) & 0b00000001;
+	if (bus_tristate(sol1_registers) != 0x00)
+		ret = panel_rd;
+	else
+		ret = rd;
+
+	return (~ret) & 0b00000001;
 }
 
-SOL1_BYTE SOL1_BUS::bus_wr(SOL1_REGISTERS& sol1_registers, SOL1_BYTE wr) {
-	
-	if (bus_tristate(sol1_registers) != 0x00) return 0x01;
+SOL1_BYTE SOL1_BUS::bus_wr(SOL1_REGISTERS& sol1_registers, SOL1_BYTE wr, SOL1_BYTE panel_wr) {
 
-	return (~wr) & 0b00000001;
+	SOL1_BYTE ret = 0x00;
+
+	if (bus_tristate(sol1_registers) != 0x00)
+		ret = panel_wr;
+	else
+		ret = wr;
+
+	return (~ret) & 0b00000001;
+}
+
+
+SOL1_BYTE SOL1_BUS::bus_mem_io(SOL1_REGISTERS& sol1_registers, SOL1_BYTE mem_io, SOL1_BYTE panel_mem_io) {
+
+	SOL1_BYTE ret = 0x00;
+
+	if (bus_tristate(sol1_registers) != 0x00)
+		ret = panel_mem_io;
+	else
+		ret = mem_io;
+
+	return ret;
 }
 
 

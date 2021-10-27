@@ -63,9 +63,7 @@ public:
 	int init();
 
 	void run();
-
-
-
+	   
 
 	SOL1_BYTE get_current_opcode();
 	SOL1_BYTE get_current_opcode_cycle();
@@ -79,6 +77,9 @@ public:
 
 	SOL1_BYTE read_memory(SOL1_MWORD addr);
 	void write_memory(SOL1_MWORD addr, SOL1_BYTE value);
+
+	void hardware_rd(SOL1_BYTE peripherical_sel);
+	void hardware_wr(SOL1_BYTE peripherical_sel);
 
 	void clock_cycle(long *runtime_counter);
 	void RunCPU(long *runtime_counter);

@@ -54,7 +54,7 @@ public:
 	SOL1_BYTE uof_in_src;
 	*/
 
-	SOL1_REGISTER_8BIT U_FLAGS;
+	SOL1_REGISTER_8BIT U_FLAGS; 
 	SOL1_DWORD u_adder_b;
 	SOL1_DWORD u_ad_bus; SOL1_DWORD old_u_ad_bus;
 	SOL1_DWORD u_adder;
@@ -74,7 +74,7 @@ public:
 	
 	SOL1_DWORD u_adder_refresh(SOL1_BYTE typ, SOL1_BYTE final_condition, SOL1_CONFIG& config, HW_TTY& hw_tty);
 	void u_flags_refresh(SOL1_BYTE reg_status_value, SOL1_BYTE reg_flags_value, struct sol1_alu_bus *alu_bus, SOL1_CONFIG& config, HW_TTY& hw_tty);
-	
+
 	SOL1_BYTE page_table_addr_src(SOL1_BYTE reg_status_value);
 	SOL1_BYTE int_pending(SOL1_BYTE reg_status_value);
 	SOL1_BYTE any_interruption(SOL1_BYTE reg_status_value);

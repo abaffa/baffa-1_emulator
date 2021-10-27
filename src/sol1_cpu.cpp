@@ -41,10 +41,10 @@ const char* SOL1_ROM_CONTROL_LIST[] = {
 void SOL1_CPU::init(HW_TTY& hw_tty)
 {
 
-
+	
 
 	sol1_alu_init(&this->alu);
-	
+
 	this->microcode.init(hw_tty);
 
 	reset();
