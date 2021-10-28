@@ -503,7 +503,7 @@ unsigned long SOL1_COMPUTER::read_address_bus() {
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-void SOL1_COMPUTER::hardware_rd(SOL1_BYTE peripherical_sel) {
+void SOL1_COMPUTER::mem_rd(SOL1_BYTE peripherical_sel) {
 
 	char str_out[255];
 
@@ -620,7 +620,7 @@ void SOL1_COMPUTER::hardware_rd(SOL1_BYTE peripherical_sel) {
 	}
 }
 
-void SOL1_COMPUTER::hardware_wr(SOL1_BYTE peripherical_sel) {
+void SOL1_COMPUTER::mem_wr(SOL1_BYTE peripherical_sel) {
 
 	char str_out[255];
 
@@ -770,6 +770,7 @@ void SOL1_COMPUTER::hardware_wr(SOL1_BYTE peripherical_sel) {
 		}
 	}
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -778,19 +779,95 @@ void SOL1_COMPUTER::hardware_wr(SOL1_BYTE peripherical_sel) {
 
 
 
+int SOL1_COMPUTER::peripheral_selection() {
+	unsigned long addr = read_address_bus();
 
+	SOL1_BYTE BUFFER_MEM_IO = this->buffer_mem_io();
+
+	SOL1_BYTE not_IO_ADDRESSING = get_byte_bit(~(get_word_bit(addr, 7) & get_word_bit(addr, 8) & get_word_bit(addr, 9) & get_word_bit(addr, 10) & get_word_bit(addr, 11)
+		& get_word_bit(addr, 12) & get_word_bit(addr, 13) & get_word_bit(addr, 14)), 0);
+
+	SOL1_BYTE not_IO_ADDRESSING2 = get_byte_bit(
+		get_word_bit(~(get_word_bit(addr, 16) & get_word_bit(addr, 17) & get_word_bit(addr, 18)), 0)
+		&  get_word_bit(~(get_word_bit(addr, 19) & get_word_bit(addr, 20) & get_word_bit(addr, 21)), 0)
+		, 0);
+
+
+	SOL1_BYTE peripheral_sel = 0xFF;
+
+	if ((get_word_bit(addr, 15) == 0x01 && not_IO_ADDRESSING == 0x00 && not_IO_ADDRESSING2 == 0x01) && BUFFER_MEM_IO == 0x01) {
+		// adicionar controlle corretamente aos periféricos
+		peripheral_sel = get_word_bit(addr, 4) | (get_word_bit(addr, 5) << 1) | (get_word_bit(addr, 6) << 2);
+	}
+
+	return peripheral_sel;
+}
+
+void SOL1_COMPUTER::bus_update() {
+	// W = X
+	this->bus.w_bus = this->bus.w_bus_refresh(this->cpu.registers, this->cpu.microcode.controller_bus.panel_regsel,
+	this->cpu.microcode.controller_bus.alu_a_src, this->cpu.microcode.controller_bus.display_reg_load && this->cpu.display_reg_load,
+	this->cpu.microcode.controller_bus.int_vector, this->cpu.registers.INT_MASKS.value(), this->cpu.microcode.controller_bus.int_status, fa, this->cpu.config.DEBUG_RDREG, this->hw_tty);
+
+	////////////////////////////////////////////////////////////////////////////
+	// K = Y
+	this->bus.k_bus = this->bus.k_bus_refresh(this->cpu.registers, this->cpu.microcode.controller_bus.alu_b_src);
+	////////////////////////////////////////////////////////////////////////////
+
+	this->bus.alu_bus.x_bus = this->bus.x_bus_refresh(this->cpu.registers, this->cpu.microcode.controller_bus.alu_a_src, this->bus.w_bus);
+	this->bus.alu_bus.y_bus = (this->cpu.microcode.controller_bus.alu_b_src == 0x00) ? this->cpu.microcode.controller_bus.imm : this->bus.k_bus;
+}
+
+void SOL1_COMPUTER::alu_update() {
+	this->cpu.alu.ALU_EXEC(&this->cpu.microcode.controller_bus, &this->bus.alu_bus, this->cpu.alu.u_cf, get_byte_bit(this->cpu.registers.MSWh.value(), MSWh_CF), this->cpu.config, this->hw_tty);
+	this->cpu.alu.u_flags_refresh(&this->cpu.microcode.controller_bus, this->cpu.registers.MSWl.value(), this->cpu.registers.MSWh.value(), &this->bus.alu_bus, this->cpu.config, this->hw_tty);
+}
+
+
+
+
+void SOL1_COMPUTER::refresh_pagetable_mem() {
+	if (this->cpu.microcode.controller_bus.pagtbl_ram_we == 0x01)
+	{
+		SOL1_MWORD ptb_mem_addr = ((this->cpu.registers.MARh.value() >> 3) & 0b00011111);
+		if (this->cpu.microcode.page_table_addr_src(this->cpu.registers.MSWl.value()) == 0x01)
+			ptb_mem_addr = ptb_mem_addr | this->cpu.registers.PTB.value() << 5;
+
+		if (this->cpu.microcode.controller_bus.mdr_to_pagtbl_en == 0x1) {
+			this->cpu.memory.mem_page_table0[ptb_mem_addr] = this->cpu.registers.MDRl.value();
+			this->cpu.memory.mem_page_table1[ptb_mem_addr] = this->cpu.registers.MDRh.value();
+		}
+
+		else {
+			this->cpu.memory.mem_page_table0[ptb_mem_addr] = 0;
+			this->cpu.memory.mem_page_table1[ptb_mem_addr] = 0;
+		}
+	}
+}
+
+void SOL1_COMPUTER::mdr_update(){
+	if ((this->cpu.microcode.controller_bus.mdr_out_en & 0b00000001) == 0x01) {
+		switch (this->cpu.microcode.controller_bus.mdr_out_src & 0b00000001) {
+		case 0x00:
+			this->bus.data_bus = this->cpu.registers.MDRl.value();
+			break;
+		case 0x01:
+			this->bus.data_bus = this->cpu.registers.MDRh.value();
+			break;
+		}
+	}
+}
 
 
 void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 
-	this->cpu.microcode.controller_bus.clk = 0x01;
+	this->cpu.microcode.controller_bus.clk = 0x00;
 
 	char str_out[255];
 	//this->hw_tty.print("#################################################################################\n");
 	//sprintf(str_out,"# Runtime Counter: %d\n", (*runtime_counter)++); this->hw_tty.print(str_out)
 	//this->hw_tty.print("#################################################################################\n");
-
-
+	
 	////////////////////////////////////////////////////////////////////////////
 
 	// Sets Microcode
@@ -803,11 +880,9 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 	SOL1_BYTE current_opcode_cycle = get_current_opcode_cycle();
 
 
-	if ((this->cpu.config.DEBUG_LOG_OPCODE) && (current_opcode > 0))
-		//if ((get_current_opcode() != 0 || (get_current_opcode() == 0 && (get_current_opcode_cycle(this->cpu) < 10 | get_current_opcode_cycle(this->cpu) > 14))))
-		disassembly_current_opcode();
-
-
+	//if ((get_current_opcode() != 0 || (get_current_opcode() == 0 && (get_current_opcode_cycle(this->cpu) < 10 | get_current_opcode_cycle(this->cpu) > 14))))
+	if ((this->cpu.config.DEBUG_LOG_OPCODE) && (current_opcode > 0)) disassembly_current_opcode();
+	
 	if (!(this->cpu.microcode.rom.bkpt_opcode == 0 && this->cpu.microcode.rom.bkpt_cycle == 0) &&
 		(current_opcode == this->cpu.microcode.rom.bkpt_opcode && current_opcode_cycle == this->cpu.microcode.rom.bkpt_cycle))
 	{
@@ -822,7 +897,7 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 			//sprintf(str_out, "U-ADDRESS: ");  print_word_bin(str_out + strlen(str_out), this->cpu.microcode.u_ad_bus); sprintf(str_out + strlen(str_out), "\n"); this->hw_tty.print(str_out);
 			//sprintf(str_out, "OPCODE: %02x (cycle %02x)\n", current_opcode, current_opcode_cycle); this->hw_tty.print(str_out);
 			//sprintf(str_out, "microcode: \n"); this->hw_tty.print(str_out);
-			sprintf(str_out, "* U_FLAGS="); print_byte_bin(str_out + strlen(str_out), this->cpu.microcode.U_FLAGS.value()); sprintf(str_out + strlen(str_out), "\n"); this->hw_tty.print(str_out);
+			sprintf(str_out, "* U_FLAGS="); print_byte_bin(str_out + strlen(str_out), this->cpu.alu.U_FLAGS.value()); sprintf(str_out + strlen(str_out), "\n"); this->hw_tty.print(str_out);
 			this->cpu.microcode.rom.display_current_cycles_desc(current_opcode, current_opcode_cycle, this->hw_tty);
 			this->hw_tty.print("\n");
 		}
@@ -831,118 +906,41 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 
 
 	////////////////////////////////////////////////////////////////////////////
-	// MEMORY READ
-
-	//IC7  //IC24 //IC19 //183
-
-	if ((this->cpu.microcode.controller_bus.mdr_out_en & 0b00000001) == 0x01) {
-		switch (this->cpu.microcode.controller_bus.mdr_out_src & 0b00000001) {
-		case 0x00:
-			this->bus.data_bus = this->cpu.registers.MDRl.value();
-			break;
-		case 0x01:
-			this->bus.data_bus = this->cpu.registers.MDRh.value();
-			break;
-		}
-	}
-	//244 MICROCODE SIGNALS NEED
-	//INVERTER BECAUSE THEY GET RESET TO
-	//ZERO AT BEGINNING, AND 244 ARE LOW ACTIVE.
-	//THIS CAUSES PROBLEMS ON RESET.
-
+	// MDR READ
+	this->mdr_update();
 	////////////////////////////////////////////////////////////////////////////
-	unsigned long addr = read_address_bus();
-
-	SOL1_BYTE BUFFER_MEM_IO = this->buffer_mem_io();
-
-	SOL1_BYTE not_IO_ADDRESSING = get_byte_bit(~(get_word_bit(addr, 7) & get_word_bit(addr, 8) & get_word_bit(addr, 9) & get_word_bit(addr, 10) & get_word_bit(addr, 11)
-		& get_word_bit(addr, 12) & get_word_bit(addr, 13) & get_word_bit(addr, 14)), 0);
-
-	SOL1_BYTE not_IO_ADDRESSING2 = get_byte_bit(
-		get_word_bit(~(get_word_bit(addr, 16) & get_word_bit(addr, 17) & get_word_bit(addr, 18)), 0)
-		&  get_word_bit(~(get_word_bit(addr, 19) & get_word_bit(addr, 20) & get_word_bit(addr, 21)), 0)
-		, 0);
-
-
-	SOL1_BYTE peripherical_sel = 0xFF;
-
-	if ((get_word_bit(addr, 15) == 0x01 && not_IO_ADDRESSING == 0x00 && not_IO_ADDRESSING2 == 0x01) && BUFFER_MEM_IO == 0x01) {
-		// adicionar controlle corretamente aos periféricos
-		peripherical_sel = get_word_bit(addr, 4) | (get_word_bit(addr, 5) << 1) | (get_word_bit(addr, 6) << 2);
-	}
-
-	hardware_rd(peripherical_sel);
-
+	// MEMORY / PERIPHERAL READ
+	SOL1_BYTE peripheral_sel = this->peripheral_selection();
+	mem_rd(peripheral_sel);
 	////////////////////////////////////////////////////////////////////////////
-	// W = X
-	this->bus.w_bus = this->bus.w_bus_refresh(this->cpu.registers, this->cpu.microcode.controller_bus.panel_regsel,
-		this->cpu.microcode.controller_bus.alu_a_src, this->cpu.microcode.controller_bus.display_reg_load && this->cpu.display_reg_load,
-		this->cpu.microcode.controller_bus.int_vector, this->cpu.registers.INT_MASKS.value(), this->cpu.microcode.controller_bus.int_status, fa, this->cpu.config.DEBUG_RDREG, this->hw_tty);
-
-	////////////////////////////////////////////////////////////////////////////
-	// K = Y
-	this->bus.k_bus = this->bus.k_bus_refresh(this->cpu.registers, this->cpu.microcode.controller_bus.alu_b_src);
-	////////////////////////////////////////////////////////////////////////////
-	//IC184 //IC204 //IC170 //IC179 //IC181 //IC182
-	this->bus.alu_bus.x_bus = this->bus.x_bus_refresh(this->cpu.registers, this->cpu.microcode.controller_bus.alu_a_src, this->bus.w_bus);
-
-	////////////////////////////////////////////////////////////////////////////
-	//IC98 //IC22
-	this->bus.alu_bus.y_bus = (this->cpu.microcode.controller_bus.alu_b_src == 0x00) ? this->cpu.microcode.controller_bus.imm : this->bus.k_bus;
-
-
+	// BUSES K, W, X, Y
+	this->bus_update();
 	///////////////////////////////////////////////////////////////////////////
-	//SOL1_BYTE clk = 0x1;
-	//SOL1_BYTE rst = 0x1;
-	//clk //IC28
-	// SETA IR ANTES DA OPERACAO
+	// IR 
 	if (this->cpu.microcode.controller_bus.ir_wrt == 0x00) this->cpu.microcode.IR.set(this->bus.data_bus);
 	////////////////////////////////////////////////////////////////////////////
 	// ALU
-
-	//sol1_u_flags(this->cpu, alu, bus->z_bus);
-	//update_final_condition(this->cpu);
-
-	//this->cpu.registers.refresh_reg_flags(&this->cpu.microcode.controller_bus, &this->bus.alu_bus, this->cpu.microcode.u_sf);
-
-	//this->cpu.alu.u_flags_refresh(this->cpu.registers.MSWl.value(), this->cpu.registers.MSWh.value(), &this->bus.alu_bus, this->cpu.config, this->hw_tty);
-
-	//this->cpu.alu.ALU_EXEC(&this->cpu.microcode.controller_bus, &this->bus.alu_bus,
-	//	get_byte_bit(this->cpu.registers.MSWh.value(), MSWh_CF),
-	//	this->cpu.config, this->hw_tty);
-	this->cpu.microcode.u_flags_refresh(this->cpu.registers.MSWl.value(), this->cpu.registers.MSWh.value(), &this->bus.alu_bus, this->cpu.config, this->hw_tty);
-
-	ALU_EXEC(&this->cpu.alu, &this->cpu.microcode.controller_bus, &this->bus.alu_bus,
-		this->cpu.microcode.u_cf, get_byte_bit(this->cpu.registers.MSWh.value(), MSWh_CF),
-		this->cpu.config, this->hw_tty);
-
+	this->alu_update();
 	////////////////////////////////////////////////////////////////////////////
-
-	hardware_wr(peripherical_sel);
-
+	// MEMORY / PERIPHERAL WRITE
+	mem_wr(peripheral_sel);
 	////////////////////////////////////////////////////////////////////////////
-
-	this->cpu.registers.refresh(&this->cpu.microcode.controller_bus, &this->bus.alu_bus, this->bus.data_bus, this->cpu.microcode.u_sf, this->cpu.config, fa);
-
-	if (this->cpu.microcode.controller_bus.pagtbl_ram_we == 0x01)
-	{
-		SOL1_MWORD ptb_mem_addr = ((this->cpu.registers.MARh.value() >> 3) & 0b00011111);
-		if (this->cpu.microcode.page_table_addr_src(this->cpu.registers.MSWl.value()) == 0x01)
-			ptb_mem_addr = ptb_mem_addr | this->cpu.registers.PTB.value() << 5;
-
-		if (this->cpu.microcode.controller_bus.mdr_to_pagtbl_en == 0x1) {
-			this->cpu.memory.mem_page_table0[ptb_mem_addr] = this->cpu.registers.MDRl.value();
-			this->cpu.memory.mem_page_table1[ptb_mem_addr] = this->cpu.registers.MDRh.value();
-
-		}
-
-		else {
-			this->cpu.memory.mem_page_table0[ptb_mem_addr] = 0;
-			this->cpu.memory.mem_page_table1[ptb_mem_addr] = 0;
-		}
-	}
-
+	// REGISTERS
+	this->cpu.registers.refresh(&this->cpu.microcode.controller_bus, &this->bus.alu_bus, this->bus.data_bus, this->cpu.alu.u_sf, this->cpu.config, fa);
 	////////////////////////////////////////////////////////////////////////////
+	// PAGETABLE 
+	this->refresh_pagetable_mem();
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	this->cpu.microcode.u_adder_refresh(this->cpu.microcode.controller_bus.next, this->cpu.microcode.controller_bus.final_condition, this->cpu.config, this->hw_tty);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+	//CLOCK HIGH
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	this->cpu.microcode.controller_bus.clk = 0x01;	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	if (this->cpu.config.DEBUG_BUSES) {
 		this->hw_tty.print("***** BUS\n");
@@ -975,21 +973,7 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 		this->cpu.display_registers(this->hw_tty);
 
 	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//CLOCK HIGH
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	this->cpu.microcode.controller_bus.clk = 0x00;
-	//this->cpu.registers.refresh_reg_flags(&this->cpu.microcode.controller_bus, &this->bus.alu_bus, this->cpu.microcode.u_sf);
-
-	this->cpu.microcode.u_flags_refresh(this->cpu.registers.MSWl.value(), this->cpu.registers.MSWh.value(), &this->bus.alu_bus, this->cpu.config, this->hw_tty);
-	this->cpu.microcode.u_adder_refresh(this->cpu.microcode.controller_bus.next, this->cpu.microcode.controller_bus.final_condition, this->cpu.config, this->hw_tty);
-	//this->cpu.alu.u_flags_refresh(this->cpu.registers.MSWl.value(), this->cpu.registers.MSWh.value(), &this->bus.alu_bus, this->cpu.config, this->hw_tty);
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	
 	if (!(this->cpu.microcode.rom.bkpt_opcode == 0 && this->cpu.microcode.rom.bkpt_cycle == 0) &&
 		(current_opcode == this->cpu.microcode.rom.bkpt_opcode &&
 			current_opcode_cycle == this->cpu.microcode.rom.bkpt_cycle))
@@ -1010,7 +994,7 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 			//sprintf(str_out, "U-ADDRESS: ");  print_word_bin(str_out + strlen(str_out), this->cpu.microcode.u_ad_bus); sprintf(str_out + strlen(str_out), "\n"); this->hw_tty.print(str_out);
 			//sprintf(str_out, "OPCODE: %02x (cycle %02x)\n", current_opcode, current_opcode_cycle); this->hw_tty.print(str_out);
 			//sprintf(str_out, "microcode: \n"); this->hw_tty.print(str_out);
-			sprintf(str_out, "* U_FLAGS="); print_byte_bin(str_out + strlen(str_out), this->cpu.microcode.U_FLAGS.value()); sprintf(str_out + strlen(str_out), "\n"); this->hw_tty.print(str_out);
+			sprintf(str_out, "* U_FLAGS="); print_byte_bin(str_out + strlen(str_out), this->cpu.alu.U_FLAGS.value()); sprintf(str_out + strlen(str_out), "\n"); this->hw_tty.print(str_out);
 			this->cpu.microcode.rom.display_current_cycles_desc(current_opcode, current_opcode_cycle, this->hw_tty);
 			this->hw_tty.print("\n");
 		}

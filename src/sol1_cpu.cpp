@@ -43,7 +43,7 @@ void SOL1_CPU::init(HW_TTY& hw_tty)
 
 	
 
-	sol1_alu_init(&this->alu);
+	this->alu.sol1_alu_init();
 
 	this->microcode.init(hw_tty);
 

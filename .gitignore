@@ -352,3 +352,11 @@ MigrationBackup/
 /bin
 /_old
 /sol-1_vc - Copia
+/sol-1_vc/sol-1_emul/sol-1_emul/data_novo.dsk
+/sol-1_vc/sol-1_emul/sol-1_emul/data_lastver.dsk
+/sol-1_vc/sol-1_emul/sol-1_emul/data_firstver.dsk
+/sol-1_vc/sol-1_emul/sol-1_emul/data_BAFFAV0.dsk
+/sol-1_vc/sol-1_emul/sol-1_emul/data_backup.dsk
+/sol-1_vc/sol-1_emul/sol-1_emul/data_atual.dsk
+/sol-1_vc/sol-1_emul/sol-1_emul/data_antes_mkfs.dsk
+/sol-1_vc/sol-1_emul/sol-1_emul/data - Copia.dsk

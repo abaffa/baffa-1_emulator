@@ -78,11 +78,17 @@ public:
 	SOL1_BYTE read_memory(SOL1_MWORD addr);
 	void write_memory(SOL1_MWORD addr, SOL1_BYTE value);
 
-	void hardware_rd(SOL1_BYTE peripherical_sel);
-	void hardware_wr(SOL1_BYTE peripherical_sel);
+	void mem_rd(SOL1_BYTE peripherical_sel);
+	void mem_wr(SOL1_BYTE peripherical_sel);
 
 	void clock_cycle(long *runtime_counter);
 	void RunCPU(long *runtime_counter);
+
+	int peripheral_selection();
+	void bus_update();
+	void alu_update();
+	void refresh_pagetable_mem();
+	void mdr_update();
 };
 
 

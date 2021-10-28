@@ -35,7 +35,7 @@ public:
 	SOL1_REGISTERS registers;
 	SOL1_MICROCODE microcode;
 
-	struct sol1_alu alu;
+	SOL1_ALU alu;
 
 	char last_op_desc[512];
 

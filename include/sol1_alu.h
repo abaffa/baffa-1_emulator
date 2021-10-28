@@ -21,12 +21,14 @@
 #include "sol1_alu_4bit.h"
 #include "sol1_controller_bus.h"
 #include "sol1_alu_bus.h"
+#include "sol1_register_8bit.h"
 #include "config.h"
 #include "hw_tty.h"
 
 
-struct sol1_alu
+class SOL1_ALU
 {
+public:
 	SOL1_BYTE _A;
 	SOL1_BYTE _B;
 	SOL1_BYTE _C;
@@ -42,15 +44,32 @@ struct sol1_alu
 
 	SOL1_BYTE EQ; //EQ
 	SOL1_BYTE F; //Larger, equal, zero, carry out
+
+	SOL1_BYTE u_zf;
+	SOL1_BYTE u_cf;
+	SOL1_BYTE u_sf;
+	SOL1_BYTE u_of;
+	SOL1_BYTE u_esc;
+	SOL1_REGISTER_8BIT U_FLAGS;
+
+
+	void sol1_alu_init();
+	void sol1_alu_display_registers(struct sol1_controller_bus *controller_bus, struct sol1_alu_bus *alu_bus, HW_TTY& hw_tty);
+
+
+	SOL1_BYTE ALU_EXEC(struct sol1_controller_bus *controller_bus, struct sol1_alu_bus *alu_bus,
+		SOL1_BYTE u_cf, SOL1_BYTE msw_cf, SOL1_CONFIG& config, HW_TTY& hw_tty);
+
+	void u_flags_refresh(struct sol1_controller_bus *controller_bus, SOL1_BYTE reg_status_value, SOL1_BYTE reg_flags_value, struct sol1_alu_bus *alu_bus, SOL1_CONFIG& config, HW_TTY& hw_tty);
+
+private:
+	void sol1_alu_reset();
+	
+	void display_u_flags(struct sol1_controller_bus *controller_bus, HW_TTY& hw_tty);
+	void display_u_flags_lite(struct sol1_controller_bus *controller_bus, HW_TTY& hw_tty);
+	
+	void update_final_condition(struct sol1_controller_bus *controller_bus, SOL1_BYTE reg_status_value, SOL1_BYTE reg_flags_value);
+
+	SOL1_BYTE int_pending(struct sol1_controller_bus *controller_bus, SOL1_BYTE reg_status_value);
 };
-
-
-void sol1_alu_init(struct sol1_alu *alu);
-void sol1_alu_display_registers(struct sol1_alu *alu, struct sol1_controller_bus *controller_bus, struct sol1_alu_bus *alu_bus, HW_TTY& hw_tty);
-
-
-SOL1_BYTE ALU_EXEC(sol1_alu *alu, struct sol1_controller_bus *controller_bus, struct sol1_alu_bus *alu_bus,
-	SOL1_BYTE u_cf, SOL1_BYTE msw_cf, SOL1_CONFIG& config, HW_TTY& hw_tty);
-
-
 #endif
