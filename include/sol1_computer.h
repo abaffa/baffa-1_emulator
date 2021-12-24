@@ -88,7 +88,7 @@ public:
 	void bus_update();
 	void alu_update();
 	void refresh_pagetable_mem();
-	void mdr_update();
+	void mdr_enable();
 };
 
 

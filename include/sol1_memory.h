@@ -31,16 +31,16 @@ public:
 	SOL1_BYTE *mem_page_table0;
 	SOL1_BYTE *mem_page_table1;
 
-	SOL1_BYTE *main_memory;
+	SOL1_BYTE *low_memory;
 
-	SOL1_BYTE *main_memory0;
-	SOL1_BYTE *main_memory1;
-	SOL1_BYTE *main_memory2;
-	SOL1_BYTE *main_memory3;
-	SOL1_BYTE *main_memory4;
-	SOL1_BYTE *main_memory5;
-	SOL1_BYTE *main_memory6;
-	SOL1_BYTE *main_memory7;
+	SOL1_BYTE *high_memory0;
+	SOL1_BYTE *high_memory1;
+	SOL1_BYTE *high_memory2;
+	SOL1_BYTE *high_memory3;
+	SOL1_BYTE *high_memory4;
+	SOL1_BYTE *high_memory5;
+	SOL1_BYTE *high_memory6;
+	SOL1_BYTE *high_memory7;
 
 	/*
 	SOL1_REGISTER_8BIT *MARh; // memory address register
@@ -59,7 +59,14 @@ public:
 
 	int load_bios();
 
-	void display(SOL1_REGISTERS& registers, HW_TTY& hw_tty);
+	void displayMainMemory(SOL1_REGISTERS& registers, HW_TTY& hw_tty);
+	void displayBiosMemory(SOL1_REGISTERS& registers, HW_TTY& hw_tty);
+	void displayLowMemory(SOL1_REGISTERS& registers, HW_TTY& hw_tty);
+	
 	void display_test(SOL1_REGISTERS& registers, HW_TTY& hw_tty);
+
+private:
+	void displayMemory(SOL1_BYTE* mem_bytes, int offset, SOL1_MWORD MAR, HW_TTY &hw_tty);
+	
 };
 #endif

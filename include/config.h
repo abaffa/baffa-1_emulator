@@ -52,7 +52,7 @@
 
 #define PANEL_ENABLED 1
 
-#define INI_SERVER 0
+#define INI_SERVER 1
 #define INI_WEB_SERVER 0
 
 //#define INI_DEBUG_OPCODE 0

@@ -100,21 +100,21 @@ void *MTRtcThread(void *pParam)
 	hw_rtc->data[11] = convertToHex(timeinfo->tm_hour);
 	hw_rtc->data[10] = convertToHex(timeinfo->tm_min);
 	hw_rtc->data[9] = convertToHex(timeinfo->tm_sec);
-	
+
 	while (true)
 	{
-		
+
 		timeinfo->tm_year = convertToInt(hw_rtc->data[15]) + 100;
-		timeinfo->tm_mon = convertToInt(hw_rtc->data[14] - 1);
+		timeinfo->tm_mon = convertToInt(hw_rtc->data[14]) - 1;
 		timeinfo->tm_mday = convertToInt(hw_rtc->data[13]);
 
 		timeinfo->tm_hour = convertToInt(hw_rtc->data[11]);
 		timeinfo->tm_min = convertToInt(hw_rtc->data[10]);
-		timeinfo->tm_sec = convertToInt(hw_rtc->data[9])+1;
+		timeinfo->tm_sec = convertToInt(hw_rtc->data[9]) + 1;
 
 		mktime(timeinfo);
 
-		hw_rtc->data[15] = convertToHex(timeinfo->tm_year -100);
+		hw_rtc->data[15] = convertToHex(timeinfo->tm_year - 100);
 		hw_rtc->data[14] = convertToHex(timeinfo->tm_mon + 1);
 		hw_rtc->data[13] = convertToHex(timeinfo->tm_mday);
 		hw_rtc->data[12] = convertToHex(timeinfo->tm_wday);

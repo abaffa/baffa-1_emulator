@@ -317,7 +317,7 @@ SOL1_BYTE *SOL1_CPU::get_current_memory() {
 		memory = this->memory.mem_bios;
 
 	else
-		memory = this->memory.main_memory;
+		memory = this->memory.low_memory;
 
 	return memory;
 }

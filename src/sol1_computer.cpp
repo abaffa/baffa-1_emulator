@@ -366,32 +366,32 @@ SOL1_BYTE SOL1_COMPUTER::read_memory(SOL1_MWORD addr) {
 			memory = this->cpu.memory.mem_bios[addr];
 
 		else if (enable_main_mem == 0x00)
-			memory = this->cpu.memory.main_memory[addr];
+			memory = this->cpu.memory.low_memory[addr];
 		else {
 			switch (mem_sel) {
 			case 0:
-				memory = this->cpu.memory.main_memory0[addr];
+				memory = this->cpu.memory.high_memory0[addr];
 				break;
 			case 1:
-				memory = this->cpu.memory.main_memory1[addr];
+				memory = this->cpu.memory.high_memory1[addr];
 				break;
 			case 2:
-				memory = this->cpu.memory.main_memory2[addr];
+				memory = this->cpu.memory.high_memory2[addr];
 				break;
 			case 3:
-				memory = this->cpu.memory.main_memory3[addr];
+				memory = this->cpu.memory.high_memory3[addr];
 				break;
 			case 4:
-				memory = this->cpu.memory.main_memory4[addr];
+				memory = this->cpu.memory.high_memory4[addr];
 				break;
 			case 5:
-				memory = this->cpu.memory.main_memory5[addr];
+				memory = this->cpu.memory.high_memory5[addr];
 				break;
 			case 6:
-				memory = this->cpu.memory.main_memory6[addr];
+				memory = this->cpu.memory.high_memory6[addr];
 				break;
 			case 7:
-				memory = this->cpu.memory.main_memory7[addr];
+				memory = this->cpu.memory.high_memory7[addr];
 				break;
 			}
 
@@ -421,33 +421,33 @@ void SOL1_COMPUTER::write_memory(SOL1_MWORD addr, SOL1_BYTE value) {
 	SOL1_BYTE mem_sel = get_word_bit(addr, 19) | (get_word_bit(addr, 20) << 1) | (get_word_bit(addr, 21) << 2);
 
 	if (BUFFER_WR == 0x00 && enable_main_mem == 0x00) {
-		this->cpu.memory.main_memory[addr] = value;
+		this->cpu.memory.low_memory[addr] = value;
 	}
 	else if (BUFFER_WR == 0x00) {
 		switch (mem_sel) {
 		case 0:
-			this->cpu.memory.main_memory0[addr] = value;
+			this->cpu.memory.high_memory0[addr] = value;
 			break;
 		case 1:
-			this->cpu.memory.main_memory1[addr] = value;
+			this->cpu.memory.high_memory1[addr] = value;
 			break;
 		case 2:
-			this->cpu.memory.main_memory2[addr] = value;
+			this->cpu.memory.high_memory2[addr] = value;
 			break;
 		case 3:
-			this->cpu.memory.main_memory3[addr] = value;
+			this->cpu.memory.high_memory3[addr] = value;
 			break;
 		case 4:
-			this->cpu.memory.main_memory4[addr] = value;
+			this->cpu.memory.high_memory4[addr] = value;
 			break;
 		case 5:
-			this->cpu.memory.main_memory5[addr] = value;
+			this->cpu.memory.high_memory5[addr] = value;
 			break;
 		case 6:
-			this->cpu.memory.main_memory6[addr] = value;
+			this->cpu.memory.high_memory6[addr] = value;
 			break;
 		case 7:
-			this->cpu.memory.main_memory7[addr] = value;
+			this->cpu.memory.high_memory7[addr] = value;
 			break;
 		}
 	}
@@ -806,8 +806,8 @@ int SOL1_COMPUTER::peripheral_selection() {
 void SOL1_COMPUTER::bus_update() {
 	// W = X
 	this->bus.w_bus = this->bus.w_bus_refresh(this->cpu.registers, this->cpu.microcode.controller_bus.panel_regsel,
-	this->cpu.microcode.controller_bus.alu_a_src, this->cpu.microcode.controller_bus.display_reg_load && this->cpu.display_reg_load,
-	this->cpu.microcode.controller_bus.int_vector, this->cpu.registers.INT_MASKS.value(), this->cpu.microcode.controller_bus.int_status, fa, this->cpu.config.DEBUG_RDREG, this->hw_tty);
+		this->cpu.microcode.controller_bus.alu_a_src, this->cpu.microcode.controller_bus.display_reg_load && this->cpu.display_reg_load,
+		this->cpu.microcode.controller_bus.int_vector, this->cpu.registers.INT_MASKS.value(), this->cpu.microcode.controller_bus.int_status, fa, this->cpu.config.DEBUG_RDREG, this->hw_tty);
 
 	////////////////////////////////////////////////////////////////////////////
 	// K = Y
@@ -845,7 +845,7 @@ void SOL1_COMPUTER::refresh_pagetable_mem() {
 	}
 }
 
-void SOL1_COMPUTER::mdr_update(){
+void SOL1_COMPUTER::mdr_enable() {
 	if ((this->cpu.microcode.controller_bus.mdr_out_en & 0b00000001) == 0x01) {
 		switch (this->cpu.microcode.controller_bus.mdr_out_src & 0b00000001) {
 		case 0x00:
@@ -861,28 +861,65 @@ void SOL1_COMPUTER::mdr_update(){
 
 void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 
-	this->cpu.microcode.controller_bus.clk = 0x00;
+	this->cpu.microcode.controller_bus.clk = this->cpu.microcode.controller_bus.clk == 0 ? 1 : 0;
 
 	char str_out[255];
 	//this->hw_tty.print("#################################################################################\n");
 	//sprintf(str_out,"# Runtime Counter: %d\n", (*runtime_counter)++); this->hw_tty.print(str_out)
 	//this->hw_tty.print("#################################################################################\n");
-	
+
+	if (this->cpu.microcode.controller_bus.clk == 1) {
+		//CYCLE
+		////////////////////////////////////////////////////////////////////////////
+		// MICROCODE
+		this->cpu.microcode.u_adder_refresh(this->cpu.microcode.controller_bus.next, this->cpu.microcode.controller_bus.final_condition, this->cpu.config, this->hw_tty);
+
+		this->cpu.microcode.sequencer_update(this->cpu.registers.MSWl.value(), this->cpu.config, this->hw_tty);		// Sets Microcode
+
+		////////////////////////////////////////////////////////////////////////////		
+
+		refresh_int();	//Refresh Interruptions
+
+		this->refresh_pagetable_mem();	// PAGETABLE 
+
+		////////////////////////////////////////////////////////////////////////////
+		// MEMORY / PERIPHERAL READ/WRITE
+		SOL1_BYTE peripheral_sel = this->peripheral_selection();
+		mem_rd(peripheral_sel);
+		this->mdr_enable();		// MDR READ - MDR ORDER IS CRITICAL - must be before MEM WR 	
+		mem_wr(peripheral_sel);
+
+		////////////////////////////////////////////////////////////////////////////
+
+		this->bus_update();		// BUSES K, W, X, Y		
+
+		this->alu_update();		// ALU
+	}
+	else {
+		////////////////////////////////////////////////////////////////////////////
+		// REGISTERS
+		// IR 
+		if (this->cpu.microcode.controller_bus.ir_wrt == 0x00) this->cpu.microcode.IR.set(this->bus.data_bus);
+		// GENERAL
+		this->cpu.registers.refresh(&this->cpu.microcode.controller_bus, &this->bus.alu_bus, this->bus.data_bus, this->cpu.alu.u_sf, this->cpu.config, fa);
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+
+
+	//CLOCK HIGH
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//this->cpu.microcode.controller_bus.clk = 0x01;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
-
-	// Sets Microcode
-	this->cpu.microcode.sequencer_update(this->cpu.registers.MSWl.value(), this->cpu.config, this->hw_tty);
-
-	//Refresh Interruptions
-	refresh_int();
-
+	// DEBUG
 	SOL1_BYTE current_opcode = get_current_opcode();
 	SOL1_BYTE current_opcode_cycle = get_current_opcode_cycle();
 
 
 	//if ((get_current_opcode() != 0 || (get_current_opcode() == 0 && (get_current_opcode_cycle(this->cpu) < 10 | get_current_opcode_cycle(this->cpu) > 14))))
 	if ((this->cpu.config.DEBUG_LOG_OPCODE) && (current_opcode > 0)) disassembly_current_opcode();
-	
+
 	if (!(this->cpu.microcode.rom.bkpt_opcode == 0 && this->cpu.microcode.rom.bkpt_cycle == 0) &&
 		(current_opcode == this->cpu.microcode.rom.bkpt_opcode && current_opcode_cycle == this->cpu.microcode.rom.bkpt_cycle))
 	{
@@ -903,44 +940,6 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 		}
 		debugmenu_main(this->cpu, this->hw_tty);
 	}
-
-
-	////////////////////////////////////////////////////////////////////////////
-	// MDR READ
-	this->mdr_update();
-	////////////////////////////////////////////////////////////////////////////
-	// MEMORY / PERIPHERAL READ
-	SOL1_BYTE peripheral_sel = this->peripheral_selection();
-	mem_rd(peripheral_sel);
-	////////////////////////////////////////////////////////////////////////////
-	// BUSES K, W, X, Y
-	this->bus_update();
-	///////////////////////////////////////////////////////////////////////////
-	// IR 
-	if (this->cpu.microcode.controller_bus.ir_wrt == 0x00) this->cpu.microcode.IR.set(this->bus.data_bus);
-	////////////////////////////////////////////////////////////////////////////
-	// ALU
-	this->alu_update();
-	////////////////////////////////////////////////////////////////////////////
-	// MEMORY / PERIPHERAL WRITE
-	mem_wr(peripheral_sel);
-	////////////////////////////////////////////////////////////////////////////
-	// REGISTERS
-	this->cpu.registers.refresh(&this->cpu.microcode.controller_bus, &this->bus.alu_bus, this->bus.data_bus, this->cpu.alu.u_sf, this->cpu.config, fa);
-	////////////////////////////////////////////////////////////////////////////
-	// PAGETABLE 
-	this->refresh_pagetable_mem();
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	this->cpu.microcode.u_adder_refresh(this->cpu.microcode.controller_bus.next, this->cpu.microcode.controller_bus.final_condition, this->cpu.config, this->hw_tty);
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-	//CLOCK HIGH
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	this->cpu.microcode.controller_bus.clk = 0x01;	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	if (this->cpu.config.DEBUG_BUSES) {
 		this->hw_tty.print("***** BUS\n");
@@ -965,7 +964,7 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 
 	if (this->cpu.config.DEBUG_MEMORY) {
 		//this->hw_tty.print("***** MEMORY\n"); 
-		this->cpu.memory.display(this->cpu.registers, this->hw_tty);
+		this->cpu.memory.displayMainMemory(this->cpu.registers, this->hw_tty);
 	}
 
 	if (this->cpu.config.DEBUG_REGISTERS) {
@@ -973,7 +972,7 @@ void SOL1_COMPUTER::clock_cycle(long *runtime_counter) {
 		this->cpu.display_registers(this->hw_tty);
 
 	}
-	
+
 	if (!(this->cpu.microcode.rom.bkpt_opcode == 0 && this->cpu.microcode.rom.bkpt_cycle == 0) &&
 		(current_opcode == this->cpu.microcode.rom.bkpt_opcode &&
 			current_opcode_cycle == this->cpu.microcode.rom.bkpt_cycle))
@@ -1477,7 +1476,7 @@ void SOL1_COMPUTER::run() {
 			}
 
 			else if (input[0] == 'o' || input[0] == 'O') {
-				this->cpu.memory.display(this->cpu.registers, this->hw_tty);
+				this->cpu.memory.displayMainMemory(this->cpu.registers, this->hw_tty);
 				debug = 1;
 			}
 			else if (input[0] == 'r' || input[0] == 'R') {
@@ -1491,8 +1490,7 @@ void SOL1_COMPUTER::run() {
 
 			free(input);
 
-
-			if (debug == 0 || PANEL_ENABLED == 0)
+			if ((debug == 0 && PANEL_ENABLED == 0) || PANEL_ENABLED == 1)
 				RunCPU(&runtime_counter);
 			else
 				debug = 0;

@@ -414,7 +414,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 		////////
 
 		if (key == (int)'d' || key == (int)'D')
-			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 
 		//else if (key == (int)'i' || key == (int)'I')
 
@@ -475,7 +475,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 			sol1_cpu.memory.debug_manual_offset = sol1_cpu.memory.debug_manual_offset == 0x00 ? 0x01 : 0x00;
 
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
-				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 			else
 				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 		}
@@ -486,7 +486,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 					sol1_cpu.memory.debug_mem_offset += 0x10;
 				sol1_cpu.memory.debug_manual_offset = 1;
 				
-				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 
 			}
 			else {
@@ -505,7 +505,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 			sol1_cpu.memory.debug_manual_offset = 1;
 
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
-				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 			else
 				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 		}
@@ -515,7 +515,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 					sol1_cpu.memory.debug_mem_offset += 0x100;
 				sol1_cpu.memory.debug_manual_offset = 1;
 
-				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 			}
 			else {
 				if (sol1_cpu.memory.debug_mem_offset + 0x100 < SOL1_MAIN_MEMORY_SIZE)
@@ -534,7 +534,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 			sol1_cpu.memory.debug_manual_offset = 1;
 
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
-				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 			else
 				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 		}
@@ -544,7 +544,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 					sol1_cpu.memory.debug_mem_offset += 0x1000;
 				sol1_cpu.memory.debug_manual_offset = 1;
 
-				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 			}
 			else {
 				if (sol1_cpu.memory.debug_mem_offset + 0x1000 < SOL1_MAIN_MEMORY_SIZE)
@@ -561,7 +561,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 			sol1_cpu.memory.debug_manual_offset = 1;
 
 			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
-				sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 			else
 				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
 
@@ -574,7 +574,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 				sol1_cpu.memory.debug_mem_offset += 0x10;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'!') {
 			if (sol1_cpu.memory.debug_mem_offset - 0x10 >= 0)
@@ -583,14 +583,14 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 				sol1_cpu.memory.debug_mem_offset = 0;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'$') {
 			if (sol1_cpu.memory.debug_mem_offset + 0x100 < SOL1_BIOS_MEMORY_SIZE)
 				sol1_cpu.memory.debug_mem_offset += 0x100;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'#') {
 			if (sol1_cpu.memory.debug_mem_offset - 0x100 >= 0)
@@ -599,14 +599,14 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 				sol1_cpu.memory.debug_mem_offset = 0;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'^') {
 			if (sol1_cpu.memory.debug_mem_offset + 0x1000 < SOL1_BIOS_MEMORY_SIZE)
 				sol1_cpu.memory.debug_mem_offset += 0x1000;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'%') {
 			if (sol1_cpu.memory.debug_mem_offset - 0x1000 >= 0)
@@ -615,7 +615,7 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 				sol1_cpu.memory.debug_mem_offset = 0;
 			sol1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.display(sol1_cpu.registers, hw_tty);
+			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
 
 		}
 
