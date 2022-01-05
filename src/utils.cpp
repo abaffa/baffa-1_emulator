@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -103,9 +103,9 @@ char* itoa(int value, char* result, int base) {
 
 #endif
 
-void print_word_bin(char *s, SOL1_DWORD n) {
-	SOL1_BYTE h = MSB(n);
-	SOL1_BYTE l = LSB(n);
+void print_word_bin(char *s, BAFFA1_DWORD n) {
+	BAFFA1_BYTE h = MSB(n);
+	BAFFA1_BYTE l = LSB(n);
 
 	sprintf(s, "%02x ", h);
 	sprintf(s + strlen(s), "%c%c%c%c%c%c%c%c", BYTE_TO_BINARY(h));
@@ -114,15 +114,15 @@ void print_word_bin(char *s, SOL1_DWORD n) {
 	sprintf(s + strlen(s), "%c%c%c%c%c%c%c%c", BYTE_TO_BINARY(l));
 }
 
-void print_word_bin_nibbles(char *s, SOL1_DWORD n) {
-	SOL1_BYTE bh = MSB(n);
-	SOL1_BYTE bl = LSB(n);
+void print_word_bin_nibbles(char *s, BAFFA1_DWORD n) {
+	BAFFA1_BYTE bh = MSB(n);
+	BAFFA1_BYTE bl = LSB(n);
 
-	SOL1_BYTE bhnh = MSN(bh);
-	SOL1_BYTE bhnl = LSN(bh);
+	BAFFA1_BYTE bhnh = MSN(bh);
+	BAFFA1_BYTE bhnl = LSN(bh);
 
-	SOL1_BYTE blnh = MSN(bl);
-	SOL1_BYTE blnl = LSN(bl);
+	BAFFA1_BYTE blnh = MSN(bl);
+	BAFFA1_BYTE blnl = LSN(bl);
 
 	sprintf(s, "%01x ", bhnh);
 	sprintf(s + strlen(s), "%c%c%c%c", NIBBLE_TO_BINARY(bhnh));
@@ -141,12 +141,12 @@ void print_word_bin_nibbles(char *s, SOL1_DWORD n) {
 }
 
 
-void print_byte_bin(char *s, SOL1_BYTE b) {
+void print_byte_bin(char *s, BAFFA1_BYTE b) {
 	sprintf(s, "%02x ", b);
 	sprintf(s + strlen(s), "%c%c%c%c%c%c%c%c", BYTE_TO_BINARY(b));
 }
 
-void print_nibble_bin(char *s, SOL1_BYTE b) {
+void print_nibble_bin(char *s, BAFFA1_BYTE b) {
 	sprintf(s, "%01x ", b);
 	sprintf(s + strlen(s), "%c%c%c%c", NIBBLE_TO_BINARY(b));
 }
@@ -211,7 +211,7 @@ unsigned int convert_hexstr_to_value(char *value) {
 }
 
 
-SOL1_DWORD get_word_bit(SOL1_DWORD v, int bit) {
+BAFFA1_DWORD get_word_bit(BAFFA1_DWORD v, int bit) {
 	if (bit == 0)
 		return v & 0b0000000000000001;
 
@@ -219,14 +219,14 @@ SOL1_DWORD get_word_bit(SOL1_DWORD v, int bit) {
 }
 
 
-SOL1_BYTE get_byte_bit(SOL1_BYTE v, int bit) {
+BAFFA1_BYTE get_byte_bit(BAFFA1_BYTE v, int bit) {
 	if (bit == 0)
 		return v & 0b00000001;
 
 	return (v & (0b00000001 << bit)) >> bit;
 }
 
-SOL1_BYTE check_byte_bit(SOL1_BYTE v, int bit) {
+BAFFA1_BYTE check_byte_bit(BAFFA1_BYTE v, int bit) {
 	if (bit == 0)
 		return (v & 0b00000001) != 0x00;
 
@@ -234,7 +234,7 @@ SOL1_BYTE check_byte_bit(SOL1_BYTE v, int bit) {
 }
 
 
-SOL1_BYTE set_byte_bit(SOL1_BYTE v, int bit) {
+BAFFA1_BYTE set_byte_bit(BAFFA1_BYTE v, int bit) {
 	if (bit == 0)
 		return v & 0b00000001;
 
@@ -242,7 +242,7 @@ SOL1_BYTE set_byte_bit(SOL1_BYTE v, int bit) {
 }
 
 
-SOL1_DWORD set_word_bit(SOL1_DWORD v, int bit) {
+BAFFA1_DWORD set_word_bit(BAFFA1_DWORD v, int bit) {
 	if (bit == 0)
 		return v & 0b00000001;
 
@@ -303,7 +303,7 @@ void save_to_log(char *s, FILE *fa, char *str)
 
 
 
-void reg8bit_print(FILE *fa, char *dir, char *reg, SOL1_BYTE value) {
+void reg8bit_print(FILE *fa, char *dir, char *reg, BAFFA1_BYTE value) {
 	char line[255];
 	sprintf(line, "         \t\t\t\t%s REG\t %s \t= %02x\n", dir, reg, value);
 	save_to_log(NULL, fa, line);

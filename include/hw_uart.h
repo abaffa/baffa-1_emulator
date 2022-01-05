@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -32,11 +32,11 @@ class hw_uart {
 
 public:
 
-	//SOL1_BYTE status;
+	//BAFFA1_BYTE status;
 	
-	queue<SOL1_BYTE> uart_in;
-	queue<SOL1_BYTE> uart_out;
-	SOL1_BYTE data[6];
+	queue<BAFFA1_BYTE> uart_in;
+	queue<BAFFA1_BYTE> uart_out;
+	BAFFA1_BYTE data[6];
 
 #ifdef _MSC_VER    
 	mutex mtx_out;
@@ -46,18 +46,18 @@ public:
 	pthread_mutex_t mtx_out;
 #endif
 
-	void *sol1_cpu;
+	void *baffa1_cpu;
 
-void init(void *sol1_cpu);
+void init(void *baffa1_cpu);
 
 int read();
 int write();
 
-SOL1_BYTE get_lsr();
+BAFFA1_BYTE get_lsr();
 
 
-void send(SOL1_BYTE b);
-void receive(SOL1_BYTE b);
+void send(BAFFA1_BYTE b);
+void receive(BAFFA1_BYTE b);
 
 void print(char *dir, int changed, char *print);
 };

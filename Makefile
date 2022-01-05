@@ -2,19 +2,19 @@ INCLUDES= -I ./include
 FLAGS = -O3 -std=c++11
 #FLAGS2 = -g
 
-OBJECTS=./build/utils.o ./build/tasm_opcode.o ./build/sol1_rom.o ./build/sol1_register_8bit.o ./build/sol1_registers.o ./build/sol1_microcode.o ./build/sol1_memory.o ./build/sol1_alu_4bit.o ./build/sol1_alu.o ./build/queue_ll.o ./build/linkedlist.o ./build/hw_web.o ./build/hw_uart.o ./build/hw_tty.o ./build/hw_timer.o ./build/hw_rtc.o ./build/hw_ide.o ./build/debugmenu_roms.o ./build/debugmenu_main.o ./build/sol1_cpu.o ./build/sol1_bus.o ./build/sol1_computer.o
+OBJECTS=./build/utils.o ./build/tasm_opcode.o ./build/baffa1_rom.o ./build/baffa1_register_8bit.o ./build/baffa1_registers.o ./build/baffa1_microcode.o ./build/baffa1_memory.o ./build/baffa1_alu_4bit.o ./build/baffa1_alu.o ./build/queue_ll.o ./build/linkedlist.o ./build/hw_web.o ./build/hw_uart.o ./build/hw_tty.o ./build/hw_timer.o ./build/hw_rtc.o ./build/hw_ide.o ./build/debugmenu_roms.o ./build/debugmenu_main.o ./build/baffa1_cpu.o ./build/baffa1_bus.o ./build/baffa1_computer.o
 
 all: ${OBJECTS} 
 	gcc ${FLAGS} ${INCLUDES} ./src/main.cpp ${OBJECTS} -L ./lib -lmingw32 -lstdc++ -o ./bin/main.exe	
 
-./build/sol1_computer.o:src/sol1_computer.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_computer.cpp -c -o ./build/sol1_computer.o
+./build/baffa1_computer.o:src/baffa1_computer.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_computer.cpp -c -o ./build/baffa1_computer.o
 
-./build/sol1_bus.o:src/sol1_bus.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_bus.cpp -c -o ./build/sol1_bus.o
+./build/baffa1_bus.o:src/baffa1_bus.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_bus.cpp -c -o ./build/baffa1_bus.o
 
-./build/sol1_cpu.o:src/sol1_cpu.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_cpu.cpp -c -o ./build/sol1_cpu.o
+./build/baffa1_cpu.o:src/baffa1_cpu.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_cpu.cpp -c -o ./build/baffa1_cpu.o
 
 ./build/debugmenu_main.o:src/debugmenu_main.cpp
 	gcc ${FLAGS} ${INCLUDES} ./src/debugmenu_main.cpp -c -o ./build/debugmenu_main.o
@@ -46,26 +46,26 @@ all: ${OBJECTS}
 ./build/queue_ll.o:src/queue_ll.cpp
 	gcc ${FLAGS} ${INCLUDES} ./src/queue_ll.cpp -c -o ./build/queue_ll.o
 
-./build/sol1_alu.o:src/sol1_alu.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_alu.cpp -c -o ./build/sol1_alu.o
+./build/baffa1_alu.o:src/baffa1_alu.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_alu.cpp -c -o ./build/baffa1_alu.o
 
-./build/sol1_alu_4bit.o:src/sol1_alu_4bit.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_alu_4bit.cpp -c -o ./build/sol1_alu_4bit.o
+./build/baffa1_alu_4bit.o:src/baffa1_alu_4bit.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_alu_4bit.cpp -c -o ./build/baffa1_alu_4bit.o
 
-./build/sol1_memory.o:src/sol1_memory.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_memory.cpp -c -o ./build/sol1_memory.o
+./build/baffa1_memory.o:src/baffa1_memory.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_memory.cpp -c -o ./build/baffa1_memory.o
 
-./build/sol1_microcode.o:src/sol1_microcode.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_microcode.cpp -c -o ./build/sol1_microcode.o
+./build/baffa1_microcode.o:src/baffa1_microcode.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_microcode.cpp -c -o ./build/baffa1_microcode.o
 
-./build/sol1_registers.o:src/sol1_registers.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_registers.cpp -c -o ./build/sol1_registers.o
+./build/baffa1_registers.o:src/baffa1_registers.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_registers.cpp -c -o ./build/baffa1_registers.o
 
-./build/sol1_register_8bit.o:src/sol1_register_8bit.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_register_8bit.cpp -c -o ./build/sol1_register_8bit.o
+./build/baffa1_register_8bit.o:src/baffa1_register_8bit.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_register_8bit.cpp -c -o ./build/baffa1_register_8bit.o
 
-./build/sol1_rom.o:src/sol1_rom.cpp
-	gcc ${FLAGS} ${INCLUDES} ./src/sol1_rom.cpp -c -o ./build/sol1_rom.o
+./build/baffa1_rom.o:src/baffa1_rom.cpp
+	gcc ${FLAGS} ${INCLUDES} ./src/baffa1_rom.cpp -c -o ./build/baffa1_rom.o
 
 ./build/tasm_opcode.o:src/tasm_opcode.cpp
 	gcc ${FLAGS} ${INCLUDES} ./src/tasm_opcode.cpp -c -o ./build/tasm_opcode.o

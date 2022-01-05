@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -15,8 +15,8 @@
 //
 ////// END LICENSE NOTICE//////
 //
-#ifndef TASM_OPCODESOL1COMPUTER_H
-#define SOL1COMPUTER_H
+#ifndef TASM_OPCODEBAFFA1COMPUTER_H
+#define BAFFA1COMPUTER_H
 
 #include <string>
 using namespace std;

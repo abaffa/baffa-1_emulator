@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -52,24 +52,24 @@ public:
 	HW_TTY_CLIENT clients[10];
 
 	struct net_data {
-		SOL1_BYTE data;
+		BAFFA1_BYTE data;
 	};
 
-	SOL1_BYTE started;
-	SOL1_BYTE debug_call;
-	SOL1_BYTE console;
+	BAFFA1_BYTE started;
+	BAFFA1_BYTE debug_call;
+	BAFFA1_BYTE console;
 
 	//void init(struct hw_uart *hw_uart);
 	void start_server(struct hw_uart* hw_uart);
 
-	queue<SOL1_BYTE> tty_in;
+	queue<BAFFA1_BYTE> tty_in;
 
-	void send(SOL1_BYTE b);
-	SOL1_BYTE receive();
+	void send(BAFFA1_BYTE b);
+	BAFFA1_BYTE receive();
 
 	void print(const char* s);
 
-	void set_input(SOL1_BYTE b);
+	void set_input(BAFFA1_BYTE b);
 
 	char* gets(int max_value);
 	char* getline();

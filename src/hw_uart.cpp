@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -16,7 +16,7 @@
 ////// END LICENSE NOTICE//////
 //
 #include <stdlib.h>
-#include "sol1_cpu.h"
+#include "baffa1_cpu.h"
 #include "utils.h"
 #include "hw_uart.h"
 
@@ -27,7 +27,7 @@
 #include "utils.h"
 #endif
 
-void hw_uart::init(void *sol1_cpu) {
+void hw_uart::init(void *baffa1_cpu) {
 
 	//this->uart_in = queue_create();
 	//this->uart_out = queue_create();
@@ -35,7 +35,7 @@ void hw_uart::init(void *sol1_cpu) {
 
 	//this->status = 0x00;
 
-	this->sol1_cpu = sol1_cpu;
+	this->baffa1_cpu = baffa1_cpu;
 }
 
 int hw_uart::write() {
@@ -73,7 +73,7 @@ int hw_uart::read() {
 	return 0;
 }
 
-SOL1_BYTE hw_uart::get_lsr() {
+BAFFA1_BYTE hw_uart::get_lsr() {
 
 	if ((this->data[5] & 0x20) == 0x00) {
 		this->data[5] = 0x20;
@@ -92,7 +92,7 @@ SOL1_BYTE hw_uart::get_lsr() {
 }
 
 
-void hw_uart::receive(SOL1_BYTE data) {
+void hw_uart::receive(BAFFA1_BYTE data) {
 
 #ifdef _MSC_VER    
 	std::unique_lock<std::mutex> lock(this->mtx_out);
@@ -101,7 +101,7 @@ void hw_uart::receive(SOL1_BYTE data) {
 #endif
 	this->uart_out.push(data);
 
-	((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_req = ((SOL1_CPU*)this->sol1_cpu)->microcode.controller_bus.int_req | 0b10000000;
+	((BAFFA1_CPU*)this->baffa1_cpu)->microcode.controller_bus.int_req = ((BAFFA1_CPU*)this->baffa1_cpu)->microcode.controller_bus.int_req | 0b10000000;
 
 #ifdef _MSC_VER    
 	this->cv_out.notify_all();
@@ -113,7 +113,7 @@ void hw_uart::receive(SOL1_BYTE data) {
 
 
 
-void hw_uart::send(SOL1_BYTE data) {
+void hw_uart::send(BAFFA1_BYTE data) {
 	this->uart_in.push(data);
 }
 

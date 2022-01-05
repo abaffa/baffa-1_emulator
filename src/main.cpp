@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -17,7 +17,7 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
-#include "sol1_computer.h"
+#include "baffa1_computer.h"
 
 #ifdef __MINGW32__
 
@@ -29,10 +29,10 @@ int main(int argc, char** argv) {
 
 	if (PANEL_ENABLED == 0x00) {
 
-		SOL1_COMPUTER sol1_computer;
+		BAFFA1_COMPUTER baffa1_computer;
 
-		sol1_computer.init();
-		sol1_computer.run();
+		baffa1_computer.init();
+		baffa1_computer.run();
 
 	}
 
@@ -46,10 +46,10 @@ int main(int argc, char** argv) {
 
 DWORD WINAPI run_thread(LPVOID vargp) {
 
-	SOL1_COMPUTER* sol1_computer = (SOL1_COMPUTER*)vargp;
+	BAFFA1_COMPUTER* baffa1_computer = (BAFFA1_COMPUTER*)vargp;
 
-	sol1_computer->init();
-	sol1_computer->run();
+	baffa1_computer->init();
+	baffa1_computer->run();
 
 	return NULL;
 }
@@ -75,7 +75,7 @@ void draw_circle(SDL_Renderer *renderer, int x, int y, int radius, SDL_Color col
 }
 
 
-SDL_Color getColor(SOL1_BYTE v, int bit) {
+SDL_Color getColor(BAFFA1_BYTE v, int bit) {
 	SDL_Color led_on = { 255, 0,  0 };
 	SDL_Color led_off = { 90, 0,  0 };
 
@@ -84,7 +84,7 @@ SDL_Color getColor(SOL1_BYTE v, int bit) {
 
 
 
-SDL_Color getInvColor(SOL1_BYTE v, int bit) {
+SDL_Color getInvColor(BAFFA1_BYTE v, int bit) {
 	SDL_Color led_on = { 255, 0,  0 };
 	SDL_Color led_off = { 90, 0,  0 };
 
@@ -92,7 +92,7 @@ SDL_Color getInvColor(SOL1_BYTE v, int bit) {
 }
 
 
-SDL_Color getColorWord(SOL1_DWORD v, int bit) {
+SDL_Color getColorWord(BAFFA1_DWORD v, int bit) {
 	SDL_Color led_on = { 255, 0,  0 };
 	SDL_Color led_off = { 90, 0,  0 };
 
@@ -100,7 +100,7 @@ SDL_Color getColorWord(SOL1_DWORD v, int bit) {
 }
 
 
-SOL1_DWORD get_mem_bit(long v, int bit) {
+BAFFA1_DWORD get_mem_bit(long v, int bit) {
 	if (bit == 0)
 		return v & 0b0000000000000000000001;
 
@@ -108,7 +108,7 @@ SOL1_DWORD get_mem_bit(long v, int bit) {
 }
 
 
-SDL_Color getColorMem(SOL1_DWORD v, int bit) {
+SDL_Color getColorMem(BAFFA1_DWORD v, int bit) {
 	SDL_Color led_on = { 255, 0,  0 };
 	SDL_Color led_off = { 90, 0,  0 };
 
@@ -152,17 +152,18 @@ static void button_process_event(button_t *btn, const SDL_Event *ev) {
 	}
 }
 
-
+#include "baffa1_alu_bus.h"
+#include "baffa1_controller_bus.h"
 int main(int argc, char** argv) {
 
 
 
 	if (PANEL_ENABLED == 0x00) {
 
-		SOL1_COMPUTER sol1_computer;
+		BAFFA1_COMPUTER baffa1_computer;
 
-		sol1_computer.init();
-		sol1_computer.run();
+		baffa1_computer.init();
+		baffa1_computer.run();
 
 	}
 	else {
@@ -190,14 +191,14 @@ int main(int argc, char** argv) {
 		SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, image);
 
 
-		SOL1_COMPUTER sol1_computer;
+		BAFFA1_COMPUTER baffa1_computer;
 
 #ifdef __MINGW32__
 		pthread_t tid;
 		pthread_create(&tid, NULL, run_thread, (void *)&z80);
 #elif _MSC_VER        
 		DWORD tid;
-		HANDLE myHandle = CreateThread(0, 0, run_thread, (void *)&sol1_computer, 0, &tid);
+		HANDLE myHandle = CreateThread(0, 0, run_thread, (void *)&baffa1_computer, 0, &tid);
 #endif
 	
 
@@ -208,14 +209,14 @@ int main(int argc, char** argv) {
 
 			button_t t_reset;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.reset, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.reset, 0) == 0x00)
 				t_reset = { {540,300,20,40}, {128,128,128,128} };
 			else
 				t_reset = { {540,300,20,40}, {66, 66, 255, 255} };
 
 			button_t t_restart;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.restart, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.restart, 0) == 0x00)
 				t_restart = { {60,110,20,40}, {128,128,128,128} };
 			else
 				t_restart = { {60,110,20,40}, {66, 66, 255, 255} };
@@ -224,7 +225,7 @@ int main(int argc, char** argv) {
 			button_t t_regsel[5];
 
 			for (i = 4; i >= 0; i--)
-				if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.panel_regsel, i) == 0x00)
+				if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.panel_regsel, i) == 0x00)
 					t_regsel[i] = { {310 + (30 * (4 - i)),410,20,40}, {128,128,128,128} };
 				else
 					t_regsel[i] = { {310 + (30 * (4 - i)),410,20,40} , {66, 66, 255, 255} };
@@ -232,28 +233,28 @@ int main(int argc, char** argv) {
 
 			button_t t_mem_io;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.panel_mem_io, 0) != 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.panel_mem_io, 0) != 0x00)
 				t_mem_io = { {690,300,20,40}, {128,128,128,128} };
 			else
 				t_mem_io = { {690,300,20,40}, {66, 66, 255, 255} };
 
 			button_t t_wr;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.panel_wr, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.panel_wr, 0) == 0x00)
 				t_wr = { {660,300,20,40}, {128,128,128,128} };
 			else
 				t_wr = { {660,300,20,40}, {66, 66, 255, 255} };
 
 			button_t t_rd;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.panel_rd, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.panel_rd, 0) == 0x00)
 				t_rd = { {630,300,20,40}, {128,128,128,128} };
 			else
 				t_rd = { {630,300,20,40}, {66, 66, 255, 255} };
 
 			button_t t_dma_req;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.dma_req, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.dma_req, 0) == 0x00)
 				t_dma_req = { {600,300,20,40}, {128,128,128,128} };
 			else
 				t_dma_req = { {600,300,20,40}, {66, 66, 255, 255} };
@@ -263,7 +264,7 @@ int main(int argc, char** argv) {
 			button_t t_address_value[22];
 
 			for (i = 21; i >= 0; i--)
-				if (get_mem_bit(sol1_computer.cpu.microcode.controller_bus.panel_address, i) == 0x00)
+				if (get_mem_bit(baffa1_computer.cpu.microcode.controller_bus.panel_address, i) == 0x00)
 					t_address_value[i] = { {60 + (30 * (21 - i)),520,20,40}, {128,128,128,128} };
 				else
 					t_address_value[i] = { {60 + (30 * (21 - i)),520,20,40} , {66, 66, 255, 255} };
@@ -273,7 +274,7 @@ int main(int argc, char** argv) {
 			button_t t_data_value[8];
 
 			for (i = 7; i >= 0; i--)
-				if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.panel_data, i) == 0x00)
+				if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.panel_data, i) == 0x00)
 					t_data_value[i] = { {480 + (30 * (7 - i)),410,20,40}, {128,128,128,128} };
 				else
 					t_data_value[i] = { {480 + (30 * (7 - i)),410,20,40} , {66, 66, 255, 255} };
@@ -282,7 +283,7 @@ int main(int argc, char** argv) {
 			button_t t_int_req[8];
 
 			for (i = 0; i <= 7; i++)
-				if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.panel_req, i) == 0x00)
+				if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.panel_req, i) == 0x00)
 					t_int_req[i] = { {480 + (30 * (i)),230,20,40}, {128,128,128,128} };
 				else
 					t_int_req[i] = { {480 + (30 * (i)),230,20,40} , {66, 66, 255, 255} };
@@ -290,7 +291,7 @@ int main(int argc, char** argv) {
 			//button_t t_int_request;
 
 			/*
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.int_request, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.int_request, 0) == 0x00)
 				t_int_request = { {450,230,20,40}, {128,128,128,128} };
 			else
 				t_int_request = { {450,230,20,40} , {66, 66, 255, 255} };
@@ -298,14 +299,14 @@ int main(int argc, char** argv) {
 
 			button_t t_wait;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.wait, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.wait, 0) == 0x00)
 				t_wait = { {330,230,20,40}, {128,128,128,128} };
 			else
 				t_wait = { {330,230,20,40}, {66, 66, 255, 255} };
 
 			button_t t_ext_input;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.ext_input, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.ext_input, 0) == 0x00)
 				t_ext_input = { {360,230,20,40}, {128,128,128,128} };
 			else
 				t_ext_input = { {360,230,20,40}, {66, 66, 255, 255} };
@@ -314,14 +315,14 @@ int main(int argc, char** argv) {
 
 			button_t t_panel_microcodestep;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.panel_microcodestep, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.panel_microcodestep, 0) == 0x00)
 				t_panel_microcodestep = { {390,230,20,40}, {128,128,128,128} };
 			else
 				t_panel_microcodestep = { {390,230,20,40}, {66, 66, 255, 255} };
 
 			button_t t_panel_run;
 
-			if (get_byte_bit(sol1_computer.cpu.microcode.controller_bus.panel_run, 0) == 0x00)
+			if (get_byte_bit(baffa1_computer.cpu.microcode.controller_bus.panel_run, 0) == 0x00)
 				t_panel_run = { {420,230,20,40}, {128,128,128,128} };
 			else
 				t_panel_run = { {420,230,20,40}, {66, 66, 255, 255} };
@@ -385,78 +386,78 @@ int main(int argc, char** argv) {
 
 
 
-			long  address_bus = sol1_computer.read_address_bus();
-			SOL1_BYTE data_bus = sol1_computer.bus.data_bus;
-			SOL1_BYTE ir = sol1_computer.cpu.microcode.IR.value();
-			SOL1_BYTE w = sol1_computer.bus.w_bus;
+			long  address_bus = baffa1_computer.read_address_bus();
+			BAFFA1_BYTE data_bus = baffa1_computer.bus.data_bus;
+			BAFFA1_BYTE ir = baffa1_computer.cpu.microcode.IR.value();
+			BAFFA1_BYTE w = baffa1_computer.bus.w_bus;
 
 
-			SOL1_BYTE marl = sol1_computer.cpu.registers.MARl.value();
-			SOL1_BYTE marh = sol1_computer.cpu.registers.MARh.value();
+			BAFFA1_BYTE marl = baffa1_computer.cpu.registers.MARl.value();
+			BAFFA1_BYTE marh = baffa1_computer.cpu.registers.MARh.value();
 
-			SOL1_BYTE flags = sol1_computer.cpu.registers.MSWh.value();
-			SOL1_BYTE status = sol1_computer.cpu.registers.MSWl.value();
+			BAFFA1_BYTE flags = baffa1_computer.cpu.registers.MSWh.value();
+			BAFFA1_BYTE status = baffa1_computer.cpu.registers.MSWl.value();
 
-			SOL1_BYTE int_status = sol1_computer.cpu.microcode.controller_bus.int_status;
+			BAFFA1_BYTE int_status = baffa1_computer.cpu.microcode.controller_bus.int_status;
 
 
 			draw_circle(renderer, 70 + (30 * 0), 200, 10, getColor(flags, 0));
 			draw_circle(renderer, 70 + (30 * 1), 200, 10, getColor(flags, 1));
 			draw_circle(renderer, 70 + (30 * 2), 200, 10, getColor(flags, 2));
 			draw_circle(renderer, 70 + (30 * 3), 200, 10, getColor(flags, 3));
-			draw_circle(renderer, 70 + (30 * 4), 200, 10, getInvColor(sol1_computer.buffer_rd(), 0));
-			draw_circle(renderer, 70 + (30 * 5), 200, 10, getInvColor(sol1_computer.buffer_wr(), 0));
-			draw_circle(renderer, 70 + (30 * 6), 200, 10, getInvColor(sol1_computer.buffer_mem_io(), 0));
-			draw_circle(renderer, 70 + (30 * 9), 200, 10, getColor(sol1_computer.cpu.microcode.controller_bus.wait, 0));
-			draw_circle(renderer, 70 + (30 * 10), 200, 10, getColor(sol1_computer.cpu.microcode.controller_bus.ext_input, 0));
+			draw_circle(renderer, 70 + (30 * 4), 200, 10, getInvColor(baffa1_computer.buffer_rd(), 0));
+			draw_circle(renderer, 70 + (30 * 5), 200, 10, getInvColor(baffa1_computer.buffer_wr(), 0));
+			draw_circle(renderer, 70 + (30 * 6), 200, 10, getInvColor(baffa1_computer.buffer_mem_io(), 0));
+			draw_circle(renderer, 70 + (30 * 9), 200, 10, getColor(baffa1_computer.cpu.microcode.controller_bus.wait, 0));
+			draw_circle(renderer, 70 + (30 * 10), 200, 10, getColor(baffa1_computer.cpu.microcode.controller_bus.ext_input, 0));
 
-			draw_circle(renderer, 70 + (30 * 17), 330, 10, getColor(sol1_computer.cpu.microcode.controller_bus.clk, 0)); //clk
+			draw_circle(renderer, 70 + (30 * 17), 330, 10, getColor(baffa1_computer.cpu.microcode.controller_bus.clk, 0)); //clk
 
-			draw_circle(renderer, 70 + (30 * 11), 200, 10, getColor(sol1_computer.cpu.microcode.controller_bus.panel_microcodestep, 0));
+			draw_circle(renderer, 70 + (30 * 11), 200, 10, getColor(baffa1_computer.cpu.microcode.controller_bus.panel_microcodestep, 0));
 			if (button(renderer, &t_panel_microcodestep)) {
 				//printf("\npanel_microcodestep\n");
-				sol1_computer.cpu.microcode.controller_bus.panel_microcodestep = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.panel_microcodestep), 0);
+				baffa1_computer.cpu.microcode.controller_bus.panel_microcodestep = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.panel_microcodestep), 0);
 			}
-			draw_circle(renderer, 70 + (30 * 12), 200, 10, getColor(sol1_computer.cpu.microcode.controller_bus.panel_run, 0));
+			draw_circle(renderer, 70 + (30 * 12), 200, 10, getColor(baffa1_computer.cpu.microcode.controller_bus.panel_run, 0));
 			if (button(renderer, &t_panel_run)) {
 				//printf("\npanel_run\n");
 
-				sol1_computer.cpu.microcode.controller_bus.panel_run = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.panel_run), 0);
+				baffa1_computer.cpu.microcode.controller_bus.panel_run = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.panel_run), 0);
 			}
 
 
 			if (button(renderer, &t_reset)) {
 				//printf("\nreset\n");
 
-				sol1_computer.cpu.microcode.controller_bus.reset = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.reset), 0);
+				baffa1_computer.cpu.microcode.controller_bus.reset = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.reset), 0);
 			}
 			if (button(renderer, &t_restart)) {
 				//printf("\nrestart\n");
 
-				sol1_computer.cpu.microcode.controller_bus.restart = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.restart), 0);
+				baffa1_computer.cpu.microcode.controller_bus.restart = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.restart), 0);
 			}
 
 			if (button(renderer, &t_wait)) {
 				//printf("\nwait\n");
 
-				sol1_computer.cpu.microcode.controller_bus.wait = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.wait), 0);
+				baffa1_computer.cpu.microcode.controller_bus.wait = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.wait), 0);
 			}
 
 			if (button(renderer, &t_ext_input)) {
 				//printf("\next_input\n");
 
-				sol1_computer.cpu.microcode.controller_bus.ext_input = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.ext_input), 0);
+				baffa1_computer.cpu.microcode.controller_bus.ext_input = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.ext_input), 0);
 			}
 
 
 
-			draw_circle(renderer, 460, 200, 10, getColor(sol1_computer.cpu.microcode.controller_bus.int_request, 0));
-			draw_circle(renderer, 460, 250, 10, getColor(sol1_computer.cpu.microcode.controller_bus.int_ack, 0));
+			draw_circle(renderer, 460, 200, 10, getColor(baffa1_computer.cpu.microcode.controller_bus.int_request, 0));
+			draw_circle(renderer, 460, 250, 10, getColor(baffa1_computer.cpu.microcode.controller_bus.int_ack, 0));
 
 			/*if (button(renderer, &t_int_request)) {
 				//printf("\nint_request\n");
 
-				sol1_computer.cpu.microcode.controller_bus.int_request = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.int_request), 0);
+				baffa1_computer.cpu.microcode.controller_bus.int_request = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.int_request), 0);
 			}
 			*/
 
@@ -470,11 +471,11 @@ int main(int argc, char** argv) {
 			draw_circle(renderer, 70 + (30 * 5), 250, 10, getColor(status, 7));
 
 
-			draw_circle(renderer, 70 + (30 * 7), 200, 10, getInvColor(sol1_computer.cpu.microcode.controller_bus.page_writable, 0));
-			draw_circle(renderer, 70 + (30 * 7), 250, 10, getInvColor(sol1_computer.cpu.microcode.controller_bus.page_present, 0));
+			draw_circle(renderer, 70 + (30 * 7), 200, 10, getInvColor(baffa1_computer.cpu.microcode.controller_bus.page_writable, 0));
+			draw_circle(renderer, 70 + (30 * 7), 250, 10, getInvColor(baffa1_computer.cpu.microcode.controller_bus.page_present, 0));
 
 			
-			draw_circle(renderer, 70 + (30 * 8), 200, 10, getColor(sol1_computer.cpu.microcode.controller_bus.dma_req, 0));
+			draw_circle(renderer, 70 + (30 * 8), 200, 10, getColor(baffa1_computer.cpu.microcode.controller_bus.dma_req, 0));
 			draw_circle(renderer, 70 + (30 * 8), 250, 10, getColor(status, 0));
 
 
@@ -486,14 +487,14 @@ int main(int argc, char** argv) {
 					//printf("\nint_req_%d\n", i);
 
 					/*
-					sol1_computer.cpu.microcode.controller_bus.panel_req =
-						(sol1_computer.cpu.microcode.controller_bus.panel_req & (0b11111111 & (~(0x00000001 << i)))) |
-						(get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.panel_req), i) << i);
+					baffa1_computer.cpu.microcode.controller_bus.panel_req =
+						(baffa1_computer.cpu.microcode.controller_bus.panel_req & (0b11111111 & (~(0x00000001 << i)))) |
+						(get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.panel_req), i) << i);
 						*/
 
-					sol1_computer.cpu.microcode.controller_bus.int_req =
-						(sol1_computer.cpu.microcode.controller_bus.int_req & (0b11111111 & (~(0x00000001 << i)))) |
-						(get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.int_req), i) << i);
+					baffa1_computer.cpu.microcode.controller_bus.int_req =
+						(baffa1_computer.cpu.microcode.controller_bus.int_req & (0b11111111 & (~(0x00000001 << i)))) |
+						(get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.int_req), i) << i);
 				}
 
 
@@ -504,29 +505,29 @@ int main(int argc, char** argv) {
 				if (button(renderer, &t_regsel[i])) {
 					//printf("\nreg_sel_%d\n", i);
 
-					sol1_computer.cpu.microcode.controller_bus.panel_regsel =
-						(sol1_computer.cpu.microcode.controller_bus.panel_regsel & (0b11111 & (~(0x00001 << i)))) |
-						(get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.panel_regsel), i) << i);
+					baffa1_computer.cpu.microcode.controller_bus.panel_regsel =
+						(baffa1_computer.cpu.microcode.controller_bus.panel_regsel & (0b11111 & (~(0x00001 << i)))) |
+						(get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.panel_regsel), i) << i);
 				}
 
 			if (button(renderer, &t_mem_io)) {
 				//printf("\npanel mem io\n");
-				sol1_computer.cpu.microcode.controller_bus.panel_mem_io = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.panel_mem_io), 0);
+				baffa1_computer.cpu.microcode.controller_bus.panel_mem_io = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.panel_mem_io), 0);
 			}
 
 			if (button(renderer, &t_wr)) {
 				//printf("\npanel wr\n");
-				sol1_computer.cpu.microcode.controller_bus.panel_wr = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.panel_wr), 0);
+				baffa1_computer.cpu.microcode.controller_bus.panel_wr = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.panel_wr), 0);
 			}
 
 			if (button(renderer, &t_rd)) {
 				//printf("\npanel rd\n");
-				sol1_computer.cpu.microcode.controller_bus.panel_rd = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.panel_rd), 0);
+				baffa1_computer.cpu.microcode.controller_bus.panel_rd = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.panel_rd), 0);
 			}
 
 			if (button(renderer, &t_dma_req)) {
 				//printf("\ndma req\n");
-				sol1_computer.cpu.microcode.controller_bus.dma_req = get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.dma_req), 0);
+				baffa1_computer.cpu.microcode.controller_bus.dma_req = get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.dma_req), 0);
 			}
 
 
@@ -554,9 +555,9 @@ int main(int argc, char** argv) {
 				if (button(renderer, &t_data_value[i])) {
 					//printf("\ndata_value_%d\n", i);
 
-					sol1_computer.cpu.microcode.controller_bus.panel_data =
-						(sol1_computer.cpu.microcode.controller_bus.panel_data & (0b11111111 & (~(0x1 << i)))) |
-						(get_byte_bit((~sol1_computer.cpu.microcode.controller_bus.panel_data), i) << i);
+					baffa1_computer.cpu.microcode.controller_bus.panel_data =
+						(baffa1_computer.cpu.microcode.controller_bus.panel_data & (0b11111111 & (~(0x1 << i)))) |
+						(get_byte_bit((~baffa1_computer.cpu.microcode.controller_bus.panel_data), i) << i);
 				}
 			}
 
@@ -568,20 +569,20 @@ int main(int argc, char** argv) {
 				if (button(renderer, &t_address_value[i])) {
 					//printf("\naddress_value_%d\n", i);
 
-					sol1_computer.cpu.microcode.controller_bus.panel_address =
-						(sol1_computer.cpu.microcode.controller_bus.panel_address & (0b1111111111111111111111 & (~(0x1 << i)))) |
-						(get_mem_bit((~sol1_computer.cpu.microcode.controller_bus.panel_address), i) << i);
+					baffa1_computer.cpu.microcode.controller_bus.panel_address =
+						(baffa1_computer.cpu.microcode.controller_bus.panel_address & (0b1111111111111111111111 & (~(0x1 << i)))) |
+						(get_mem_bit((~baffa1_computer.cpu.microcode.controller_bus.panel_address), i) << i);
 				}
 			}
 			SDL_RenderPresent(renderer);
 
 
-			if (sol1_computer.bus.bus_tristate(sol1_computer.cpu.registers) != 0x00) {
-				sol1_computer.bus.data_bus = sol1_computer.cpu.microcode.controller_bus.panel_data;
+			if (baffa1_computer.bus.bus_tristate(baffa1_computer.cpu.registers) != 0x00) {
+				baffa1_computer.bus.data_bus = baffa1_computer.cpu.microcode.controller_bus.panel_data;
 
 
 				// aqui verificar
-				sol1_computer.cpu.microcode.controller_bus.int_req = sol1_computer.cpu.microcode.controller_bus.int_req | sol1_computer.cpu.microcode.controller_bus.panel_req;
+				baffa1_computer.cpu.microcode.controller_bus.int_req = baffa1_computer.cpu.microcode.controller_bus.int_req | baffa1_computer.cpu.microcode.controller_bus.panel_req;
 			}
 		}
 

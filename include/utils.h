@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -65,12 +65,12 @@ char* itoa(int value, char* result, int base);
 #define SET_MSB(Rg, h) Rg = ((h)<<8) | (Rg & 0x00FF)
 #define SET_WORD(Rg, l, h) Rg = WORD(l, h)
 
-void print_word_bin(char *s, SOL1_DWORD n);
-void print_word_bin_nibbles(char *s, SOL1_DWORD n);
+void print_word_bin(char *s, BAFFA1_DWORD n);
+void print_word_bin_nibbles(char *s, BAFFA1_DWORD n);
 
-void print_byte_bin(char *s, SOL1_BYTE b);
+void print_byte_bin(char *s, BAFFA1_BYTE b);
 
-void print_nibble_bin(char *s, SOL1_BYTE b);
+void print_nibble_bin(char *s, BAFFA1_BYTE b);
 
 unsigned int toInt(char c);
 
@@ -81,18 +81,18 @@ char* rightpad(const char *str1, int pad);
 
 unsigned int convert_hexstr_to_value(char *value);
 
-SOL1_DWORD set_word_bit(SOL1_DWORD v, int bit);
+BAFFA1_DWORD set_word_bit(BAFFA1_DWORD v, int bit);
 
-SOL1_DWORD get_word_bit(SOL1_DWORD v, int bit);
-SOL1_BYTE get_byte_bit(SOL1_BYTE v, int bit);
-SOL1_BYTE check_byte_bit(SOL1_BYTE v, int bit);
-SOL1_BYTE set_byte_bit(SOL1_BYTE v, int bit);
+BAFFA1_DWORD get_word_bit(BAFFA1_DWORD v, int bit);
+BAFFA1_BYTE get_byte_bit(BAFFA1_BYTE v, int bit);
+BAFFA1_BYTE check_byte_bit(BAFFA1_BYTE v, int bit);
+BAFFA1_BYTE set_byte_bit(BAFFA1_BYTE v, int bit);
 
 char* loadfile(char *s, char *filename, long *size);
 
 
 void save_to_log(char *s, FILE *fa, char *str);
-void reg8bit_print(FILE *fa, char *dir, char *reg, SOL1_BYTE value);
+void reg8bit_print(FILE *fa, char *dir, char *reg, BAFFA1_BYTE value);
 
 char* strlower(char* s);
 #endif

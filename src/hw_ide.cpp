@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -23,9 +23,9 @@ void hw_ide_init(struct hw_ide* hw_ide) {
 
 	int address = 0;
 
-	hw_ide->memory = (SOL1_BYTE*)malloc(SOL1_IDE_MEMORY_SIZE * sizeof(SOL1_BYTE));
+	hw_ide->memory = (BAFFA1_BYTE*)malloc(BAFFA1_IDE_MEMORY_SIZE * sizeof(BAFFA1_BYTE));
 
-	for (address = 0; address < SOL1_IDE_MEMORY_SIZE; address++) {
+	for (address = 0; address < BAFFA1_IDE_MEMORY_SIZE; address++) {
 		hw_ide->memory[address] = 0x00;
 	}
 
@@ -50,7 +50,7 @@ void hw_ide_write(struct hw_ide* hw_ide) {
 
 		unsigned long sec_address_byte = sec_address_lba * 512;
 
-		if (sec_address_byte < SOL1_IDE_MEMORY_SIZE) {
+		if (sec_address_byte < BAFFA1_IDE_MEMORY_SIZE) {
 			hw_ide->memory[sec_address_byte + hw_ide->gambi_ide_read] = hw_ide->data[0];
 
 			hw_ide->gambi_ide_read++;
@@ -84,7 +84,7 @@ void hw_ide_read(struct hw_ide* hw_ide) {
 
 		unsigned long sec_address_byte = sec_address_lba * 512;
 
-		if (sec_address_byte < SOL1_IDE_MEMORY_SIZE) {
+		if (sec_address_byte < BAFFA1_IDE_MEMORY_SIZE) {
 			hw_ide->data[0] = hw_ide->memory[sec_address_byte + hw_ide->gambi_ide_read];
 
 			hw_ide->gambi_ide_read++;
@@ -105,18 +105,18 @@ void hw_ide_read(struct hw_ide* hw_ide) {
 
 
 
-void hw_ide_save_disk(SOL1_BYTE *data) {
+void hw_ide_save_disk(BAFFA1_BYTE *data) {
 	FILE *file = fopen("data.dsk", "wb");
 	if (file != NULL) {
-		fwrite(data, sizeof(SOL1_BYTE), SOL1_IDE_MEMORY_SIZE, file);
+		fwrite(data, sizeof(BAFFA1_BYTE), BAFFA1_IDE_MEMORY_SIZE, file);
 		fclose(file);
 	}
 }
 
-void hw_ide_load_disk(SOL1_BYTE *data) {
+void hw_ide_load_disk(BAFFA1_BYTE *data) {
 	FILE *file = fopen("data.dsk", "rb");
 	if (file != NULL) {
-		fread(data, sizeof(SOL1_BYTE), SOL1_IDE_MEMORY_SIZE, file);
+		fread(data, sizeof(BAFFA1_BYTE), BAFFA1_IDE_MEMORY_SIZE, file);
 		fclose(file);
 	}
 }

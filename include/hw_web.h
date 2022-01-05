@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -18,7 +18,7 @@
 #ifndef HWWEB_H
 #define HWWEB_H
 
-#include "sol1_cpu.h"
+#include "baffa1_cpu.h"
 #include "hw_uart.h"
 
 #include "queue_ll.h"
@@ -67,15 +67,15 @@ public:
 	struct hw_web_client clients[10];
 
 	struct net_data {
-		SOL1_BYTE data;
+		BAFFA1_BYTE data;
 	};
 
 	HW_WEB() {
 		this->currentline = "";
 	}
-	//void init(SOL1_CPU& sol1_cpu, struct hw_uart *hw_uart);
-	void new_char(SOL1_BYTE c);
-	void start_server(SOL1_CPU& sol1_cpu, struct hw_uart* hw_uart);
+	//void init(BAFFA1_CPU& baffa1_cpu, struct hw_uart *hw_uart);
+	void new_char(BAFFA1_BYTE c);
+	void start_server(BAFFA1_CPU& baffa1_cpu, struct hw_uart* hw_uart);
 
 };
 #endif

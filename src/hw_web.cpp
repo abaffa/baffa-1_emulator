@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -16,7 +16,7 @@
 ////// END LICENSE NOTICE//////
 //
 #include "hw_web.h"
-#include "sol1_computer.h"
+#include "baffa1_computer.h"
 #include <stdio.h>
 
 #ifdef _MSC_VER    
@@ -100,7 +100,7 @@ int line(string newline, int append)
 }
 
 
-void HW_WEB::new_char(SOL1_BYTE c) {
+void HW_WEB::new_char(BAFFA1_BYTE c) {
 
 
 	if (c == 0x0d) {
@@ -118,14 +118,14 @@ void HW_WEB::new_char(SOL1_BYTE c) {
 }
 
 /*
-void HW_WEB::init(SOL1_CPU& sol1_cpu, struct hw_uart* hw_uart) {
+void HW_WEB::init(BAFFA1_CPU& baffa1_cpu, struct hw_uart* hw_uart) {
 	int i;
 
 	for (i = 0; i < 10; i++) {
 		this->clients[i].client = NULL;
 		this->clients[i].index = i;
 		this->clients[i].running = 0;
-		//this->clients[i].sol1_cpu = sol1_cpu;
+		//this->clients[i].baffa1_cpu = baffa1_cpu;
 		this->clients[i].hw_uart = hw_uart;
 		this->clients[i].uart_out = queue_create();
 	}
@@ -147,12 +147,12 @@ void *WebClientThread(void *pParam)
 
 
 
-	SOL1_BYTE buff[512];
+	BAFFA1_BYTE buff[512];
 	int n;
 	int x = 0;
 
-	SOL1_BYTE lastchar = 0;
-	SOL1_BYTE startCMD = 0x00;
+	BAFFA1_BYTE lastchar = 0;
+	BAFFA1_BYTE startCMD = 0x00;
 
 #ifdef _MSC_VER    
 	SOCKET client = *(new_web_client.client);
@@ -385,7 +385,7 @@ void *WebServerThread(void *pParam)
 
 
 
-void HW_WEB::start_server(SOL1_CPU& sol1_cpu, struct hw_uart* hw_uart) {
+void HW_WEB::start_server(BAFFA1_CPU& baffa1_cpu, struct hw_uart* hw_uart) {
 
 	int i;
 
@@ -393,7 +393,7 @@ void HW_WEB::start_server(SOL1_CPU& sol1_cpu, struct hw_uart* hw_uart) {
 		this->clients[i].client = NULL;
 		this->clients[i].index = i;
 		this->clients[i].running = 0;
-		//this->clients[i].sol1_cpu = sol1_cpu;
+		//this->clients[i].baffa1_cpu = baffa1_cpu;
 		this->clients[i].hw_uart = hw_uart;
 		this->clients[i].web_out = queue_create();
 	}

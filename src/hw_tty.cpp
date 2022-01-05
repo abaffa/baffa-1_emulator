@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -16,7 +16,7 @@
 ////// END LICENSE NOTICE//////
 //
 #include "hw_tty.h"
-#include "sol1_computer.h"
+#include "baffa1_computer.h"
 #include <stdio.h>
 #include <utils.h>
 
@@ -38,12 +38,12 @@ void *TelnetClientThread(void *pParam)
 
 
 	char welm[512];
-	SOL1_BYTE buff[512];
+	BAFFA1_BYTE buff[512];
 	int n;
 	int x = 0;
 
-	SOL1_BYTE lastchar = 0;
-	SOL1_BYTE startCMD = 0x00;
+	BAFFA1_BYTE lastchar = 0;
+	BAFFA1_BYTE startCMD = 0x00;
 
 #ifdef _MSC_VER    
 	SOCKET client = *(current_client)->client;
@@ -80,7 +80,7 @@ void *TelnetClientThread(void *pParam)
 	send(client, "\377\375\042\377\373\001\r\n", 6, 0);
 
 
-	sprintf(welm, "Sol-1 74HC HomebrewCPU MiniComputer.\r\n");
+	sprintf(welm, "Baffa-1 74HC HomebrewCPU MiniComputer.\r\n");
 	sprintf(welm + strlen(welm), "Emulator Version 0.01\r\n");
 	sprintf(welm + strlen(welm), "\r\n");
 	sprintf(welm + strlen(welm), "terminal-%d initialized\r\n", (current_client->index + 1));
@@ -106,7 +106,7 @@ void *TelnetClientThread(void *pParam)
 			pthread_mutex_lock(&current_client->mtx_out);
 #endif
 
-			SOL1_BYTE data = current_client->tty_out.front(); current_client->tty_out.pop();
+			BAFFA1_BYTE data = current_client->tty_out.front(); current_client->tty_out.pop();
 
 #ifdef _MSC_VER    
 			current_client->cv_out.notify_all();
@@ -181,7 +181,7 @@ void *TelnetClientThread(void *pParam)
 						}
 						else {
 							current_client->hw_uart->receive(buff[x]);
-							//current_client->sol1_cpu.microcode.mccycle.int_request = 0x01;
+							//current_client->baffa1_cpu.microcode.mccycle.int_request = 0x01;
 						}
 					}
 					else if (*(((HW_TTY_CLIENT*)pParam)->console) == 1) {
@@ -334,7 +334,7 @@ void HW_TTY::start_server(struct hw_uart* hw_uart) {
 		this->clients[i].client = NULL;
 		this->clients[i].index = i;
 		this->clients[i].running = 0;
-		//this->clients[i].sol1_cpu = sol1_cpu;
+		//this->clients[i].baffa1_cpu = baffa1_cpu;
 		this->clients[i].hw_uart = hw_uart;
 		//this->clients[i].tty_out = queue_create();
 		//this->clients[i].mtx = &this->mtx;
@@ -356,13 +356,13 @@ void HW_TTY::start_server(struct hw_uart* hw_uart) {
 
 
 
-void HW_TTY::send(SOL1_BYTE b) {
+void HW_TTY::send(BAFFA1_BYTE b) {
 
 	if (this->started == 1) {
 		int i;
 		for (i = 0; i < 10; i++) {
 			if (this->clients[i].running == 1) {  // SEND TELNET
-				SOL1_BYTE data = b;
+				BAFFA1_BYTE data = b;
 #ifdef _MSC_VER    
 				std::unique_lock<std::mutex> lock(this->clients[i].mtx_out);
 #else
@@ -401,7 +401,7 @@ void HW_TTY::print(const char* s) {
 
 
 
-void HW_TTY::set_input(SOL1_BYTE b) {
+void HW_TTY::set_input(BAFFA1_BYTE b) {
 
 	/*
 	if (this->started == 1) {
@@ -484,9 +484,9 @@ char* HW_TTY::getline() {
 }
 
 
-SOL1_BYTE HW_TTY::receive() {
+BAFFA1_BYTE HW_TTY::receive() {
 
-	SOL1_BYTE ch = 0x00;
+	BAFFA1_BYTE ch = 0x00;
 	set_input(1);
 	while (1) {
 		if (kbhit()) {
@@ -495,7 +495,7 @@ SOL1_BYTE HW_TTY::receive() {
 		}
 		else if (!this->tty_in.empty()) {
 
-			SOL1_BYTE data = this->tty_in.front(); this->tty_in.pop();
+			BAFFA1_BYTE data = this->tty_in.front(); this->tty_in.pop();
 			ch = data;
 			break;
 		}

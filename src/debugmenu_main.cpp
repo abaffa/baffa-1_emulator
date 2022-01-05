@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -64,7 +64,7 @@ void debugmenu_main_disassemble_mem(HW_TTY& hw_tty) {
 }
 
 
-void debugmenu_main_edit_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
+void debugmenu_main_edit_mem(BAFFA1_MEMORY& memory, HW_TTY& hw_tty) {
 
 	char str_out[255];
 	char *input;
@@ -89,7 +89,7 @@ void debugmenu_main_edit_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
 
 		memory.mem_bios[address] = b;
 		address++;
-		if (address >= SOL1_BIOS_MEMORY_SIZE) { hw_tty.print("\n");  return; }
+		if (address >= BAFFA1_BIOS_MEMORY_SIZE) { hw_tty.print("\n");  return; }
 
 		sprintf(str_out, "\n  %04x=%02x ? ", address, memory.mem_bios[address]); hw_tty.print(str_out);
 		input = hw_tty.gets(2);
@@ -100,7 +100,7 @@ void debugmenu_main_edit_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
 
 
 
-void debugmenu_main_fill_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
+void debugmenu_main_fill_mem(BAFFA1_MEMORY& memory, HW_TTY& hw_tty) {
 
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
@@ -132,7 +132,7 @@ void debugmenu_main_fill_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
 	data = convert_hexstr_to_value(value);
 
 
-	for (address = start; address <= end && address < SOL1_BIOS_MEMORY_SIZE; address++)
+	for (address = start; address <= end && address < BAFFA1_BIOS_MEMORY_SIZE; address++)
 		memory.mem_bios[address] = data;
 
 	hw_tty.print("\n");
@@ -141,7 +141,7 @@ void debugmenu_main_fill_mem(SOL1_MEMORY& memory, HW_TTY& hw_tty) {
 
 
 
-void debugmenu_main_load_mem(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+void debugmenu_main_load_mem(BAFFA1_CPU& baffa1_cpu, HW_TTY& hw_tty) {
 
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
@@ -167,24 +167,24 @@ void debugmenu_main_load_mem(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 	for (i = 0; i != numdigits; ++i)
 	{
 		unsigned char output = 16 * toInt(input[2 * i]) + toInt(input[2 * i + 1]);
-		sol1_cpu.memory.mem_bios[i + start] = output;
+		baffa1_cpu.memory.mem_bios[i + start] = output;
 	}
 
-	SOL1_REGISTERS::set(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh, start);
+	BAFFA1_REGISTERS::set(baffa1_cpu.registers.PCl, baffa1_cpu.registers.PCh, start);
 
 	hw_tty.print("\n");
 }
 
 
 
-void debugmenu_main_display_registers(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+void debugmenu_main_display_registers(BAFFA1_CPU& baffa1_cpu, HW_TTY& hw_tty) {
 
 	hw_tty.print("Display Registers\n");
 	hw_tty.print("\n");
-	sol1_cpu.display_registers(hw_tty);
+	baffa1_cpu.display_registers(hw_tty);
 }
 
-void debugmenu_main_edit_register(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+void debugmenu_main_edit_register(BAFFA1_CPU& baffa1_cpu, HW_TTY& hw_tty) {
 
 	char str_out[255];
 	char *input;
@@ -198,213 +198,213 @@ void debugmenu_main_edit_register(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	if (strcmp(input, "A") == 0) {
-		sprintf(str_out, " | A=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Al, sol1_cpu.registers.Ah)); hw_tty.print(str_out);
+		sprintf(str_out, " | A=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.Al, baffa1_cpu.registers.Ah)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.Al, sol1_cpu.registers.Ah, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.Al, baffa1_cpu.registers.Ah, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "B") == 0) {
-		sprintf(str_out, " | B=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Bl, sol1_cpu.registers.Bh)); hw_tty.print(str_out);
+		sprintf(str_out, " | B=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.Bl, baffa1_cpu.registers.Bh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.Bl, sol1_cpu.registers.Bh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.Bl, baffa1_cpu.registers.Bh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "C") == 0) {
-		sprintf(str_out, " | C=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Cl, sol1_cpu.registers.Ch)); hw_tty.print(str_out);
+		sprintf(str_out, " | C=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.Cl, baffa1_cpu.registers.Ch)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.Cl, sol1_cpu.registers.Ch, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.Cl, baffa1_cpu.registers.Ch, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "D") == 0) {
-		sprintf(str_out, " | D=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Dl, sol1_cpu.registers.Dh)); hw_tty.print(str_out);
+		sprintf(str_out, " | D=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.Dl, baffa1_cpu.registers.Dh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.Dl, sol1_cpu.registers.Dh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.Dl, baffa1_cpu.registers.Dh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "G") == 0) {
-		sprintf(str_out, " | G=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.Gl, sol1_cpu.registers.Gh)); hw_tty.print(str_out);
+		sprintf(str_out, " | G=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.Gl, baffa1_cpu.registers.Gh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.Gl, sol1_cpu.registers.Gh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.Gl, baffa1_cpu.registers.Gh, convert_hexstr_to_value(value));
 	}
 
 
 	else if (strcmp(input, "BP") == 0) {
-		sprintf(str_out, " | BP=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.BPl, sol1_cpu.registers.BPh)); hw_tty.print(str_out);
+		sprintf(str_out, " | BP=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.BPl, baffa1_cpu.registers.BPh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.BPl, sol1_cpu.registers.BPh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.BPl, baffa1_cpu.registers.BPh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "SP") == 0) {
-		sprintf(str_out, " | SP=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.SPl, sol1_cpu.registers.SPh)); hw_tty.print(str_out);
+		sprintf(str_out, " | SP=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.SPl, baffa1_cpu.registers.SPh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.SPl, sol1_cpu.registers.SPh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.SPl, baffa1_cpu.registers.SPh, convert_hexstr_to_value(value));
 	}
 
 	else if (strcmp(input, "SI") == 0) {
-		sprintf(str_out, " | SI=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.SIl, sol1_cpu.registers.SIh)); hw_tty.print(str_out);
+		sprintf(str_out, " | SI=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.SIl, baffa1_cpu.registers.SIh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.SIl, sol1_cpu.registers.SIh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.SIl, baffa1_cpu.registers.SIh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "DI") == 0) {
-		sprintf(str_out, " | DI=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.DIl, sol1_cpu.registers.DIh)); hw_tty.print(str_out);
+		sprintf(str_out, " | DI=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.DIl, baffa1_cpu.registers.DIh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.DIl, sol1_cpu.registers.DIh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.DIl, baffa1_cpu.registers.DIh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "PC") == 0) {
-		sprintf(str_out, " | PC=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh)); hw_tty.print(str_out);
+		sprintf(str_out, " | PC=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.PCl, baffa1_cpu.registers.PCh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.PCl, baffa1_cpu.registers.PCh, convert_hexstr_to_value(value));
 	}
 
 
 	else if (strcmp(input, "TDR") == 0) {
-		sprintf(str_out, " | TDR=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.TDRl, sol1_cpu.registers.TDRh)); hw_tty.print(str_out);
+		sprintf(str_out, " | TDR=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.TDRl, baffa1_cpu.registers.TDRh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.TDRl, sol1_cpu.registers.TDRh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.TDRl, baffa1_cpu.registers.TDRh, convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "SSP") == 0) {
-		sprintf(str_out, " | SSP=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.SSPl, sol1_cpu.registers.SSPh)); hw_tty.print(str_out);
+		sprintf(str_out, " | SSP=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.SSPl, baffa1_cpu.registers.SSPh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.SSPl, sol1_cpu.registers.SSPh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.SSPl, baffa1_cpu.registers.SSPh, convert_hexstr_to_value(value));
 
 	}
 	else if (strcmp(input, "PTB") == 0) {
-		sprintf(str_out, " | PTB=%02x | Data? ", sol1_cpu.registers.PTB.value());
+		sprintf(str_out, " | PTB=%02x | Data? ", baffa1_cpu.registers.PTB.value());
 		input = hw_tty.gets(2);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 2);
-		sol1_cpu.registers.PTB.set(convert_hexstr_to_value(value));
+		baffa1_cpu.registers.PTB.set(convert_hexstr_to_value(value));
 	}
 	else if (strcmp(input, "MSW") == 0) {
-		sprintf(str_out, " | MSW=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.MSWl, sol1_cpu.registers.MSWh)); hw_tty.print(str_out);
+		sprintf(str_out, " | MSW=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.MSWl, baffa1_cpu.registers.MSWh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_REGISTERS::set(sol1_cpu.registers.MSWl, sol1_cpu.registers.MSWh, convert_hexstr_to_value(value));
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.MSWl, baffa1_cpu.registers.MSWh, convert_hexstr_to_value(value));
 	}
 
 	else if (strcmp(input, "MAR") == 0) {
-		sprintf(str_out, " | MAR=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.MARl, sol1_cpu.registers.MARh)); hw_tty.print(str_out);
+		sprintf(str_out, " | MAR=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.MARl, baffa1_cpu.registers.MARh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_MWORD index = convert_hexstr_to_value(value);
-		SOL1_REGISTERS::set(sol1_cpu.registers.MARl, sol1_cpu.registers.MARh, index);
-		SOL1_REGISTERS::set(sol1_cpu.registers.MDRl, sol1_cpu.registers.MDRh, sol1_cpu.memory.mem_bios[index]);
+		BAFFA1_MWORD index = convert_hexstr_to_value(value);
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.MARl, baffa1_cpu.registers.MARh, index);
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.MDRl, baffa1_cpu.registers.MDRh, baffa1_cpu.memory.mem_bios[index]);
 	}
 
 	else if (strcmp(input, "MDR") == 0) {
-		sprintf(str_out, " | MDR=%04x | Data? ", SOL1_REGISTERS::value(sol1_cpu.registers.MDRl, sol1_cpu.registers.MDRh)); hw_tty.print(str_out);
+		sprintf(str_out, " | MDR=%04x | Data? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.MDRl, baffa1_cpu.registers.MDRh)); hw_tty.print(str_out);
 		input = hw_tty.gets(4);
 
 		if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 		leftpad(input, value, 4);
-		SOL1_MWORD index = convert_hexstr_to_value(value);
-		SOL1_REGISTERS::set(sol1_cpu.registers.MDRl, sol1_cpu.registers.MDRh, index);
+		BAFFA1_MWORD index = convert_hexstr_to_value(value);
+		BAFFA1_REGISTERS::set(baffa1_cpu.registers.MDRl, baffa1_cpu.registers.MDRh, index);
 	}
 	hw_tty.print("\n");
 }
 
-void debugmenu_main_edit_breakpoint(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+void debugmenu_main_edit_breakpoint(BAFFA1_CPU& baffa1_cpu, HW_TTY& hw_tty) {
 	char str_out[255];
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 
-	sprintf(str_out, "Edit Breakpoint | BKPT=%04x | Address (FFFF=disable) ? ", sol1_cpu.BKPT); hw_tty.print(str_out);
+	sprintf(str_out, "Edit Breakpoint | BKPT=%04x | Address (FFFF=disable) ? ", baffa1_cpu.BKPT); hw_tty.print(str_out);
 	input = hw_tty.gets(4);
 
 	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 4);
-	sol1_cpu.BKPT = convert_hexstr_to_value(value);
+	baffa1_cpu.BKPT = convert_hexstr_to_value(value);
 
 	hw_tty.print("\n");
 }
 
-void debugmenu_main_edit_programcounter(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+void debugmenu_main_edit_programcounter(BAFFA1_CPU& baffa1_cpu, HW_TTY& hw_tty) {
 
 	char str_out[255];
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 
-	sprintf(str_out, "Edit Program Counter | PC=%04x | Address ? ", SOL1_REGISTERS::value(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh)); hw_tty.print(str_out);
+	sprintf(str_out, "Edit Program Counter | PC=%04x | Address ? ", BAFFA1_REGISTERS::value(baffa1_cpu.registers.PCl, baffa1_cpu.registers.PCh)); hw_tty.print(str_out);
 	input = hw_tty.gets(4);
 
 	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 4);
-	SOL1_REGISTERS::set(sol1_cpu.registers.PCl, sol1_cpu.registers.PCh, convert_hexstr_to_value(value));
+	BAFFA1_REGISTERS::set(baffa1_cpu.registers.PCl, baffa1_cpu.registers.PCh, convert_hexstr_to_value(value));
 	hw_tty.print("\n");
 }
 
-void debugmenu_main_reset_cpu(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+void debugmenu_main_reset_cpu(BAFFA1_CPU& baffa1_cpu, HW_TTY& hw_tty) {
 
 	hw_tty.print("Reset CPU\n");
 	hw_tty.print("\n");
-	sol1_cpu.microcode.init(hw_tty);
-	sol1_cpu.reset();
-	sol1_cpu.display_registers(hw_tty);
+	baffa1_cpu.microcode.init(hw_tty);
+	baffa1_cpu.reset();
+	baffa1_cpu.display_registers(hw_tty);
 }
 
-void debugmenu_main_reload_bios(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+void debugmenu_main_reload_bios(BAFFA1_CPU& baffa1_cpu, HW_TTY& hw_tty) {
 
 	hw_tty.print("Reloading BIOS\n");
-	sol1_cpu.memory.load_bios();
+	baffa1_cpu.memory.load_bios();
 }
 
 
 //debugmenu_main_menu();
-int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+int debugmenu_main(BAFFA1_CPU& baffa1_cpu, HW_TTY& hw_tty) {
 
 	while (1) {
 
@@ -414,32 +414,32 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 		////////
 
 		if (key == (int)'d' || key == (int)'D')
-			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 
 		//else if (key == (int)'i' || key == (int)'I')
 
 		else if (key == (int)'e' || key == (int)'E')
-			debugmenu_main_edit_mem(sol1_cpu.memory, hw_tty);
+			debugmenu_main_edit_mem(baffa1_cpu.memory, hw_tty);
 
 		else if (key == (int)'f' || key == (int)'F')
-			debugmenu_main_fill_mem(sol1_cpu.memory, hw_tty);
+			debugmenu_main_fill_mem(baffa1_cpu.memory, hw_tty);
 
 		else if (key == (int)'l' || key == (int)'L')
-			debugmenu_main_load_mem(sol1_cpu, hw_tty);
+			debugmenu_main_load_mem(baffa1_cpu, hw_tty);
 
 		////////
 
 		else if (key == (int)'r' || key == (int)'R')
-			debugmenu_main_display_registers(sol1_cpu, hw_tty);
+			debugmenu_main_display_registers(baffa1_cpu, hw_tty);
 
 		else if (key == (int)'a' || key == (int)'A')
-			debugmenu_main_edit_register(sol1_cpu, hw_tty);
+			debugmenu_main_edit_register(baffa1_cpu, hw_tty);
 
 		else if (key == (int)'b' || key == (int)'B')
-			debugmenu_main_edit_breakpoint(sol1_cpu, hw_tty);
+			debugmenu_main_edit_breakpoint(baffa1_cpu, hw_tty);
 
 		else if (key == (int)'p' || key == (int)'P')
-			debugmenu_main_edit_programcounter(sol1_cpu, hw_tty);
+			debugmenu_main_edit_programcounter(baffa1_cpu, hw_tty);
 
 		////////
 
@@ -452,15 +452,15 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 		}
 
 		else if (key == (int)'z' || key == (int)'Z')
-			debugmenu_main_reset_cpu(sol1_cpu, hw_tty);
+			debugmenu_main_reset_cpu(baffa1_cpu, hw_tty);
 
 		else if (key == (int)'v' || key == (int)'V')
-			debugmenu_main_reload_bios(sol1_cpu, hw_tty);
+			debugmenu_main_reload_bios(baffa1_cpu, hw_tty);
 
 		////////
 
 		else if (key == (int)'x' || key == (int)'X')
-			debugmenu_roms(sol1_cpu, hw_tty);
+			debugmenu_roms(baffa1_cpu, hw_tty);
 
 		////////
 
@@ -472,150 +472,150 @@ int debugmenu_main(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 
 		//----------------------
 		else if (key == (int)'m' || key == (int)'M') {
-			sol1_cpu.memory.debug_manual_offset = sol1_cpu.memory.debug_manual_offset == 0x00 ? 0x01 : 0x00;
+			baffa1_cpu.memory.debug_manual_offset = baffa1_cpu.memory.debug_manual_offset == 0x00 ? 0x01 : 0x00;
 
-			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
-				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			if (!check_byte_bit(baffa1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
+				baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 			else
-				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
+				baffa1_cpu.memory.display_test(baffa1_cpu.registers, hw_tty);
 		}
 
 		else if (key == (int)'2') {
-			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN)) {
-				if (sol1_cpu.memory.debug_mem_offset + 0x10 < SOL1_BIOS_MEMORY_SIZE)
-					sol1_cpu.memory.debug_mem_offset += 0x10;
-				sol1_cpu.memory.debug_manual_offset = 1;
+			if (!check_byte_bit(baffa1_cpu.registers.MSWl.value(), MSWl_PAGING_EN)) {
+				if (baffa1_cpu.memory.debug_mem_offset + 0x10 < BAFFA1_BIOS_MEMORY_SIZE)
+					baffa1_cpu.memory.debug_mem_offset += 0x10;
+				baffa1_cpu.memory.debug_manual_offset = 1;
 				
-				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+				baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 
 			}
 			else {
-				if (sol1_cpu.memory.debug_mem_offset + 0x10 < SOL1_MAIN_MEMORY_SIZE)
-					sol1_cpu.memory.debug_mem_offset += 0x10;
-				sol1_cpu.memory.debug_manual_offset = 1;
+				if (baffa1_cpu.memory.debug_mem_offset + 0x10 < BAFFA1_MAIN_MEMORY_SIZE)
+					baffa1_cpu.memory.debug_mem_offset += 0x10;
+				baffa1_cpu.memory.debug_manual_offset = 1;
 
-				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
+				baffa1_cpu.memory.display_test(baffa1_cpu.registers, hw_tty);
 			}
 		}
 		if (key == (int)'1') {
-			if (sol1_cpu.memory.debug_mem_offset - 0x10 >= 0)
-				sol1_cpu.memory.debug_mem_offset -= 0x10;
+			if (baffa1_cpu.memory.debug_mem_offset - 0x10 >= 0)
+				baffa1_cpu.memory.debug_mem_offset -= 0x10;
 			else
-				sol1_cpu.memory.debug_mem_offset = 0;
-			sol1_cpu.memory.debug_manual_offset = 1;
+				baffa1_cpu.memory.debug_mem_offset = 0;
+			baffa1_cpu.memory.debug_manual_offset = 1;
 
-			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
-				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			if (!check_byte_bit(baffa1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
+				baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 			else
-				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
+				baffa1_cpu.memory.display_test(baffa1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'4') {
-			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN)) {
-				if (sol1_cpu.memory.debug_mem_offset + 0x100 < SOL1_BIOS_MEMORY_SIZE)
-					sol1_cpu.memory.debug_mem_offset += 0x100;
-				sol1_cpu.memory.debug_manual_offset = 1;
+			if (!check_byte_bit(baffa1_cpu.registers.MSWl.value(), MSWl_PAGING_EN)) {
+				if (baffa1_cpu.memory.debug_mem_offset + 0x100 < BAFFA1_BIOS_MEMORY_SIZE)
+					baffa1_cpu.memory.debug_mem_offset += 0x100;
+				baffa1_cpu.memory.debug_manual_offset = 1;
 
-				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+				baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 			}
 			else {
-				if (sol1_cpu.memory.debug_mem_offset + 0x100 < SOL1_MAIN_MEMORY_SIZE)
-					sol1_cpu.memory.debug_mem_offset += 0x100;
-				sol1_cpu.memory.debug_manual_offset = 1;
+				if (baffa1_cpu.memory.debug_mem_offset + 0x100 < BAFFA1_MAIN_MEMORY_SIZE)
+					baffa1_cpu.memory.debug_mem_offset += 0x100;
+				baffa1_cpu.memory.debug_manual_offset = 1;
 
 
-				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
+				baffa1_cpu.memory.display_test(baffa1_cpu.registers, hw_tty);
 			}
 		}
 		if (key == (int)'3') {
-			if (sol1_cpu.memory.debug_mem_offset - 0x100 >= 0)
-				sol1_cpu.memory.debug_mem_offset -= 0x100;
+			if (baffa1_cpu.memory.debug_mem_offset - 0x100 >= 0)
+				baffa1_cpu.memory.debug_mem_offset -= 0x100;
 			else
-				sol1_cpu.memory.debug_mem_offset = 0;
-			sol1_cpu.memory.debug_manual_offset = 1;
+				baffa1_cpu.memory.debug_mem_offset = 0;
+			baffa1_cpu.memory.debug_manual_offset = 1;
 
-			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
-				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			if (!check_byte_bit(baffa1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
+				baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 			else
-				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
+				baffa1_cpu.memory.display_test(baffa1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'6') {
-			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN)) {
-				if (sol1_cpu.memory.debug_mem_offset + 0x1000 < SOL1_BIOS_MEMORY_SIZE)
-					sol1_cpu.memory.debug_mem_offset += 0x1000;
-				sol1_cpu.memory.debug_manual_offset = 1;
+			if (!check_byte_bit(baffa1_cpu.registers.MSWl.value(), MSWl_PAGING_EN)) {
+				if (baffa1_cpu.memory.debug_mem_offset + 0x1000 < BAFFA1_BIOS_MEMORY_SIZE)
+					baffa1_cpu.memory.debug_mem_offset += 0x1000;
+				baffa1_cpu.memory.debug_manual_offset = 1;
 
-				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+				baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 			}
 			else {
-				if (sol1_cpu.memory.debug_mem_offset + 0x1000 < SOL1_MAIN_MEMORY_SIZE)
-					sol1_cpu.memory.debug_mem_offset += 0x1000;
-				sol1_cpu.memory.debug_manual_offset = 1;
-				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
+				if (baffa1_cpu.memory.debug_mem_offset + 0x1000 < BAFFA1_MAIN_MEMORY_SIZE)
+					baffa1_cpu.memory.debug_mem_offset += 0x1000;
+				baffa1_cpu.memory.debug_manual_offset = 1;
+				baffa1_cpu.memory.display_test(baffa1_cpu.registers, hw_tty);
 			}
 		}
 		if (key == (int)'5') {
-			if (sol1_cpu.memory.debug_mem_offset - 0x1000 >= 0)
-				sol1_cpu.memory.debug_mem_offset -= 0x1000;
+			if (baffa1_cpu.memory.debug_mem_offset - 0x1000 >= 0)
+				baffa1_cpu.memory.debug_mem_offset -= 0x1000;
 			else
-				sol1_cpu.memory.debug_mem_offset = 0;
-			sol1_cpu.memory.debug_manual_offset = 1;
+				baffa1_cpu.memory.debug_mem_offset = 0;
+			baffa1_cpu.memory.debug_manual_offset = 1;
 
-			if (!check_byte_bit(sol1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
-				sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			if (!check_byte_bit(baffa1_cpu.registers.MSWl.value(), MSWl_PAGING_EN))
+				baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 			else
-				sol1_cpu.memory.display_test(sol1_cpu.registers, hw_tty);
+				baffa1_cpu.memory.display_test(baffa1_cpu.registers, hw_tty);
 
 		}
 
 
 
 		else if (key == (int)'@') {
-			if (sol1_cpu.memory.debug_mem_offset + 0x10 < SOL1_BIOS_MEMORY_SIZE)
-				sol1_cpu.memory.debug_mem_offset += 0x10;
-			sol1_cpu.memory.debug_manual_offset = 1;
+			if (baffa1_cpu.memory.debug_mem_offset + 0x10 < BAFFA1_BIOS_MEMORY_SIZE)
+				baffa1_cpu.memory.debug_mem_offset += 0x10;
+			baffa1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'!') {
-			if (sol1_cpu.memory.debug_mem_offset - 0x10 >= 0)
-				sol1_cpu.memory.debug_mem_offset -= 0x10;
+			if (baffa1_cpu.memory.debug_mem_offset - 0x10 >= 0)
+				baffa1_cpu.memory.debug_mem_offset -= 0x10;
 			else
-				sol1_cpu.memory.debug_mem_offset = 0;
-			sol1_cpu.memory.debug_manual_offset = 1;
+				baffa1_cpu.memory.debug_mem_offset = 0;
+			baffa1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'$') {
-			if (sol1_cpu.memory.debug_mem_offset + 0x100 < SOL1_BIOS_MEMORY_SIZE)
-				sol1_cpu.memory.debug_mem_offset += 0x100;
-			sol1_cpu.memory.debug_manual_offset = 1;
+			if (baffa1_cpu.memory.debug_mem_offset + 0x100 < BAFFA1_BIOS_MEMORY_SIZE)
+				baffa1_cpu.memory.debug_mem_offset += 0x100;
+			baffa1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'#') {
-			if (sol1_cpu.memory.debug_mem_offset - 0x100 >= 0)
-				sol1_cpu.memory.debug_mem_offset -= 0x100;
+			if (baffa1_cpu.memory.debug_mem_offset - 0x100 >= 0)
+				baffa1_cpu.memory.debug_mem_offset -= 0x100;
 			else
-				sol1_cpu.memory.debug_mem_offset = 0;
-			sol1_cpu.memory.debug_manual_offset = 1;
+				baffa1_cpu.memory.debug_mem_offset = 0;
+			baffa1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'^') {
-			if (sol1_cpu.memory.debug_mem_offset + 0x1000 < SOL1_BIOS_MEMORY_SIZE)
-				sol1_cpu.memory.debug_mem_offset += 0x1000;
-			sol1_cpu.memory.debug_manual_offset = 1;
+			if (baffa1_cpu.memory.debug_mem_offset + 0x1000 < BAFFA1_BIOS_MEMORY_SIZE)
+				baffa1_cpu.memory.debug_mem_offset += 0x1000;
+			baffa1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 		}
 		if (key == (int)'%') {
-			if (sol1_cpu.memory.debug_mem_offset - 0x1000 >= 0)
-				sol1_cpu.memory.debug_mem_offset -= 0x1000;
+			if (baffa1_cpu.memory.debug_mem_offset - 0x1000 >= 0)
+				baffa1_cpu.memory.debug_mem_offset -= 0x1000;
 			else
-				sol1_cpu.memory.debug_mem_offset = 0;
-			sol1_cpu.memory.debug_manual_offset = 1;
+				baffa1_cpu.memory.debug_mem_offset = 0;
+			baffa1_cpu.memory.debug_manual_offset = 1;
 
-			sol1_cpu.memory.displayMainMemory(sol1_cpu.registers, hw_tty);
+			baffa1_cpu.memory.displayMainMemory(baffa1_cpu.registers, hw_tty);
 
 		}
 

@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -30,11 +30,11 @@
 #endif
 
 
-SOL1_DWORD hw_rtc_current_datetime() {
+BAFFA1_DWORD hw_rtc_current_datetime() {
 
 	time_t timer;
 	struct tm y2k = { 0 };
-	SOL1_DWORD seconds;
+	BAFFA1_DWORD seconds;
 
 	y2k.tm_hour = 0;   y2k.tm_min = 0; y2k.tm_sec = 0;
 	y2k.tm_year = 100; y2k.tm_mon = 0; y2k.tm_mday = 1;
@@ -58,15 +58,15 @@ void hw_rtc_init(struct hw_rtc* hw_rtc) {
 
 
 
-SOL1_BYTE convertToHex(int v) {
+BAFFA1_BYTE convertToHex(int v) {
 	char buffer[16];
-	SOL1_BYTE ret = strtol(itoa(v, buffer, 10), NULL, 16);
+	BAFFA1_BYTE ret = strtol(itoa(v, buffer, 10), NULL, 16);
 	return ret;
 }
 
-SOL1_BYTE convertToInt(int v) {
+BAFFA1_BYTE convertToInt(int v) {
 	char buffer[16];
-	SOL1_BYTE ret = strtol(itoa(v, buffer, 16), NULL, 10);
+	BAFFA1_BYTE ret = strtol(itoa(v, buffer, 16), NULL, 10);
 	return ret;
 }
 

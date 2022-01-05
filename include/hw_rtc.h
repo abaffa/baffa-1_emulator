@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -20,10 +20,10 @@
 #include "config.h"
 
 struct hw_rtc{
-	SOL1_BYTE data[16];
+	BAFFA1_BYTE data[16];
 };
 
-SOL1_DWORD hw_rtc_current_datetime();
+BAFFA1_DWORD hw_rtc_current_datetime();
 
 
 void hw_rtc_init(struct hw_rtc* hw_rtc);

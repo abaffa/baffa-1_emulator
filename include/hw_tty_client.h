@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -53,10 +53,10 @@ public:
 	pthread_mutex_t mtx_out;
 #endif
 	struct hw_uart* hw_uart;
-	queue<SOL1_BYTE> tty_out;
-	queue<SOL1_BYTE>* tty_in;
-	SOL1_BYTE* console;
-	SOL1_BYTE* debug_call;
+	queue<BAFFA1_BYTE> tty_out;
+	queue<BAFFA1_BYTE>* tty_in;
+	BAFFA1_BYTE* console;
+	BAFFA1_BYTE* debug_call;
 
 	HW_TTY_CLIENT() {
 		tty_in = NULL;

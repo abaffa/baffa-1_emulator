@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -25,27 +25,27 @@
 
 #define EMULATOR_WINDOW_TITLE "SOL-1 Emulator"
 
-#define SOL1_BIOS_MEMORY_SIZE (0xFFFF + 1)
-#define SOL1_PAGING_MEMORY_SIZE (0x7FFF + 1)
-#define SOL1_MAIN_MEMORY_SIZE	(0x3FFFFF + 1)
+#define BAFFA1_BIOS_MEMORY_SIZE (0xFFFF + 1)
+#define BAFFA1_PAGING_MEMORY_SIZE (0x7FFF + 1)
+#define BAFFA1_MAIN_MEMORY_SIZE	(0x3FFFFF + 1)
 
 
-#define SOL1_IDE_MEMORY_SIZE	(0x3FFFFF + 1)
+#define BAFFA1_IDE_MEMORY_SIZE	(0x3FFFFF + 1)
 
-#define SOL1_ROM_SIZE		(0xFFFF + 1)
-#define SOL1_TOTAL_KEYS		41
+#define BAFFA1_ROM_SIZE		(0xFFFF + 1)
+#define BAFFA1_TOTAL_KEYS		41
 
 
 // ROMS
-#define SOL1_ROM_NBR_ROMS 15
-#define SOL1_ROM_TOTAL_CONTROL_BITS NBR_ROMS * 8
-#define SOL1_ROM_CYCLES_PER_INSTR 64 
-#define SOL1_ROM_NBR_INSTRUCTIONS 256
-#define SOL1_ROM_DESC	0x410000
+#define BAFFA1_ROM_NBR_ROMS 15
+#define BAFFA1_ROM_TOTAL_CONTROL_BITS NBR_ROMS * 8
+#define BAFFA1_ROM_CYCLES_PER_INSTR 64 
+#define BAFFA1_ROM_NBR_INSTRUCTIONS 256
+#define BAFFA1_ROM_DESC	0x410000
 
-#define SOL1_BYTE				unsigned char // 8bit
-#define SOL1_MWORD				unsigned int //Memory Word (int 32bit, short 16bit, char 8bit)
-#define SOL1_DWORD				unsigned int //Data Word
+#define BAFFA1_BYTE				unsigned char // 8bit
+#define BAFFA1_MWORD				unsigned int //Memory Word (int 32bit, short 16bit, char 8bit)
+#define BAFFA1_DWORD				unsigned int //Data Word
 
 
 #define SERVER_PORT 20248
@@ -69,12 +69,12 @@
 #define INI_DEBUG_BUSES 0	
 #define INI_DEBUG_ALU 0
 
-#define INI_DEBUG_RDREG 0
-#define INI_DEBUG_WRREG 0
+#define INI_DEBUG_TRACE_RDREG 0
+#define INI_DEBUG_TRACE_WRREG 0
 #define INI_DEBUG_REGISTERS 0
 
-#define INI_DEBUG_RDMEM 0
-#define INI_DEBUG_WRMEM 0
+#define INI_DEBUG_TRACE_RDMEM 0
+#define INI_DEBUG_TRACE_WRMEM 0
 #define INI_DEBUG_MEMORY 0
 
 #define INI_DEBUG_UART 0
@@ -86,7 +86,7 @@
 
 
 
-class SOL1_CONFIG
+class BAFFA1_CONFIG
 {
 
 public:
@@ -98,13 +98,13 @@ public:
 	int DEBUG_BUSES;
 	int DEBUG_ALU;
 
-	int DEBUG_RDREG;
-	int DEBUG_WRREG;
+	int DEBUG_TRACE_RDREG;
+	int DEBUG_TRACE_WRREG;
 	int DEBUG_REGISTERS;
 
 
-	int DEBUG_RDMEM;
-	int DEBUG_WRMEM;
+	int DEBUG_TRACE_RDMEM;
+	int DEBUG_TRACE_WRMEM;
 	int DEBUG_MEMORY;
 
 	int DEBUG_UART;

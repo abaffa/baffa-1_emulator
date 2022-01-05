@@ -3,7 +3,7 @@
 //
 ////// BEGIN LICENSE NOTICE//////
 //
-//Sol-1 HomebrewCPU Minicomputer System Emulator
+//Baffa-1 HomebrewCPU Minicomputer System Emulator
 //
 //Copyright(C) 2021 Augusto Baffa, (sol-1.baffasoft.com.br)
 //
@@ -28,7 +28,7 @@
 #endif
 
 #include "debugmenu_roms.h"
-#include "sol1_rom.h"
+#include "baffa1_rom.h"
 #include "utils.h"
 
 void debugmenu_roms_menu(HW_TTY& hw_tty) {
@@ -56,18 +56,18 @@ void debugmenu_roms_menu(HW_TTY& hw_tty) {
 	hw_tty.print("\n");
 }
 
-void debugmenu_roms_edit_breakpoint(SOL1_ROM& sol1_rom, HW_TTY& hw_tty) {
+void debugmenu_roms_edit_breakpoint(BAFFA1_ROM& baffa1_rom, HW_TTY& hw_tty) {
 	char str_out[255];
 	char *input;
 	char *value = (char*)malloc(sizeof(char) * 257);
 
-	sprintf(str_out, "Edit Breakpoint (Opcode/Cycle:%02x%02x | 0000=disable) | Opcode ? ", sol1_rom.bkpt_opcode, sol1_rom.bkpt_cycle); hw_tty.print(str_out);
+	sprintf(str_out, "Edit Breakpoint (Opcode/Cycle:%02x%02x | 0000=disable) | Opcode ? ", baffa1_rom.bkpt_opcode, baffa1_rom.bkpt_cycle); hw_tty.print(str_out);
 	input = hw_tty.gets(2);
 
 	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 2);
-	sol1_rom.bkpt_opcode = convert_hexstr_to_value(value);
+	baffa1_rom.bkpt_opcode = convert_hexstr_to_value(value);
 
 	hw_tty.print(" | Cycle ? ");
 	input = hw_tty.gets(2);
@@ -75,14 +75,14 @@ void debugmenu_roms_edit_breakpoint(SOL1_ROM& sol1_rom, HW_TTY& hw_tty) {
 	if (strlen(input) == 0) { hw_tty.print("\n");  return; }
 
 	leftpad(input, value, 2);
-	sol1_rom.bkpt_cycle = convert_hexstr_to_value(value);
+	baffa1_rom.bkpt_cycle = convert_hexstr_to_value(value);
 
 
 	hw_tty.print("\n");
 }
 
 
-void debugmenu_roms(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
+void debugmenu_roms(BAFFA1_CPU& baffa1_cpu, HW_TTY& hw_tty) {
 	debugmenu_roms_menu(hw_tty);
 
 	while (1) {
@@ -94,33 +94,33 @@ void debugmenu_roms(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 		
 		if (key == (int)'c' || key == (int)'C')
 		{
-			sol1_cpu.microcode.rom.debug_cycles(hw_tty);
-		}//sol1_memory_display(&sol1_cpu.memory);
+			baffa1_cpu.microcode.rom.debug_cycles(hw_tty);
+		}//baffa1_memory_display(&baffa1_cpu.memory);
 		/*
 		//else if (key == (int)'i' || key == (int)'I')
 
 		else if (key == (int)'e' || key == (int)'E')
-			debugmenu_main_edit_mem(&sol1_cpu.memory);
+			debugmenu_main_edit_mem(&baffa1_cpu.memory);
 
 		else if (key == (int)'f' || key == (int)'F')
-			debugmenu_main_fill_mem(&sol1_cpu.memory);
+			debugmenu_main_fill_mem(&baffa1_cpu.memory);
 
 		else if (key == (int)'l' || key == (int)'L')
-			debugmenu_main_load_mem(sol1_cpu);
+			debugmenu_main_load_mem(baffa1_cpu);
 
 		////////
 
 		else if (key == (int)'r' || key == (int)'R')
-			debugmenu_main_display_registers(sol1_cpu);
+			debugmenu_main_display_registers(baffa1_cpu);
 
 		else if (key == (int)'a' || key == (int)'A')
-			debugmenu_main_edit_register(sol1_cpu);
+			debugmenu_main_edit_register(baffa1_cpu);
 			*/
 		else if (key == (int)'b' || key == (int)'B')
-			debugmenu_roms_edit_breakpoint(sol1_cpu.microcode.rom, hw_tty);
+			debugmenu_roms_edit_breakpoint(baffa1_cpu.microcode.rom, hw_tty);
 		/*
 		else if (key == (int)'p' || key == (int)'P')
-			debugmenu_main_edit_programcounter(sol1_cpu);
+			debugmenu_main_edit_programcounter(baffa1_cpu);
 
 		////////
 
@@ -129,7 +129,7 @@ void debugmenu_roms(SOL1_CPU& sol1_cpu, HW_TTY& hw_tty) {
 		//else if (key == (int)'s' || key == (int)'S')
 
 		else if (key == (int)'z' || key == (int)'Z')
-			debugmenu_main_reset_cpu(sol1_cpu);
+			debugmenu_main_reset_cpu(baffa1_cpu);
 
 		////////
 		*/
