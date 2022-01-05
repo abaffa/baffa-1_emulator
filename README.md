@@ -4,7 +4,7 @@ This is an emulator for Baffa-1 HomebrewCPU Minicomputer - A complete CPU and Mi
 
 The original computer softwares (bios, kernel, sample assembly language programs, ...) are available at https://github.com/abaffa/SOL1_MiniComputer.
 
-The microcode editor is available at https://github.com/abaffa/baffa-1_simu.
+The microcode editor is available at https://github.com/abaffa/baffa-1_mce.
 
 The emulator software is available at https://github.com/abaffa/baffa-1_emulator.
 
