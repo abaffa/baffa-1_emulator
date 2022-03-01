@@ -1,4 +1,4 @@
-# Baffa-1 HomebrewCPU Minicomputer System Emulator
+# Baffa-1 HomebrewCPU Minicomputer System Emulator [![Hackaday.io](https://img.shields.io/badge/Hackaday.io--blue.svg)](https://hackaday.io/project/183265-baffa-1-homebrewcpu-minicomputer)
 
 This is an emulator for Baffa-1 HomebrewCPU Minicomputer - A complete CPU and Minicomputer built from scratch in 74LS logic. Baffa-1 is a clone of Sol-1 designed by Paulo de Tarco Constantino Junior using 74HC series (http://sol-1.org) and inspired by [Bill Buzbee's work](http://homebrewcpu.com) on the [Magic-1 Minicomputer](http://www.magic-1.org/)
 
